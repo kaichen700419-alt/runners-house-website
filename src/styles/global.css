@@ -1,0 +1,134 @@
+@import "tailwindcss";
+
+/* ============================================================
+ * 跑者之家設計系統 — 雙軌主題
+ * 首頁主題：海洋運動（Ocean Athletic）— 活力、海風、跑者能量
+ * 內頁主題：日系侘寂（Wabi-Sabi）— 米倉老屋、溫潤、療癒
+ * ============================================================ */
+
+@theme {
+  /* 海洋運動 — 主色彩（首頁、CTA、強調） */
+  --color-ocean-50:  #f0f9ff;
+  --color-ocean-100: #e0f2fe;
+  --color-ocean-200: #bae6fd;
+  --color-ocean-300: #7dd3fc;
+  --color-ocean-400: #38bdf8;
+  --color-ocean-500: #0ea5e9;
+  --color-ocean-600: #0284c7;
+  --color-ocean-700: #0369a1;
+  --color-ocean-800: #075985;
+  --color-ocean-900: #0c4a6e;
+  --color-ocean-950: #082f49;
+
+  /* 沙灘暖色 — 強調色（夕陽、跑道、暖意） */
+  --color-sand-50:  #fefce8;
+  --color-sand-100: #fef9c3;
+  --color-sand-200: #fef08a;
+  --color-sand-300: #fde047;
+  --color-sand-400: #facc15;
+  --color-sand-500: #eab308;
+  --color-sand-600: #ca8a04;
+  --color-sand-700: #a16207;
+  --color-sand-800: #854d0e;
+  --color-sand-900: #713f12;
+
+  /* 米倉木色 — 內頁背景與材質感（侘寂） */
+  --color-timber-50:  #faf7f2;
+  --color-timber-100: #f3ece0;
+  --color-timber-200: #e6d8bf;
+  --color-timber-300: #d4bd97;
+  --color-timber-400: #c1a070;
+  --color-timber-500: #ae8854;
+  --color-timber-600: #95704a;
+  --color-timber-700: #785a3f;
+  --color-timber-800: #604938;
+  --color-timber-900: #4f3d31;
+  --color-timber-950: #2b1f18;
+
+  /* 中性灰階 — 文字、邊線 */
+  --color-ink-50:  #f8f8f7;
+  --color-ink-100: #ededeb;
+  --color-ink-200: #d8d7d4;
+  --color-ink-300: #b8b6b1;
+  --color-ink-400: #8d8a83;
+  --color-ink-500: #6e6b64;
+  --color-ink-600: #585550;
+  --color-ink-700: #484641;
+  --color-ink-800: #3d3b37;
+  --color-ink-900: #1f1e1c;
+  --color-ink-950: #131211;
+
+  /* 字型 — 中英混排 */
+  --font-display: "Noto Serif TC", "Source Serif 4", Georgia, serif;
+  --font-body: "Noto Sans TC", "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* 動效 timing */
+  --ease-natural: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-snappy: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 基礎重置 */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    font-family: var(--font-body);
+    color: var(--color-ink-900);
+    background-color: var(--color-timber-50);
+    line-height: 1.7;
+    letter-spacing: 0.01em;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    color: var(--color-ink-950);
+  }
+
+  ::selection {
+    background-color: var(--color-ocean-300);
+    color: var(--color-ink-950);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ocean-500);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* 共用元件樣式 */
+@layer components {
+  .container-prose {
+    max-width: 65ch;
+    margin-inline: auto;
+    padding-inline: 1.5rem;
+  }
+
+  .container-wide {
+    max-width: 80rem;
+    margin-inline: auto;
+    padding-inline: 1.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .container-wide {
+      padding-inline: 2.5rem;
+    }
+  }
+}

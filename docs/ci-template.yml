@@ -1,0 +1,53 @@
+# 此檔案為 CI workflow 模板，待 GitHub OAuth token 取得 workflow scope 後
+# 移動到 .github/workflows/ci.yml 即可啟用。
+# 啟用步驟：
+#   1. gh auth refresh -h github.com -s workflow
+#   2. mv docs/ci-template.yml .github/workflows/ci.yml
+#   3. git add -A && git commit -m "ci: 啟用 GitHub Actions CI" && git push
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  typecheck-build:
+    name: 型別檢查與建置
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload build artifact
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          retention-days: 7
