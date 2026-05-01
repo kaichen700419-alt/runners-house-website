@@ -1,0 +1,25 @@
+---
+/**
+ * JsonLd 元件
+ *
+ * 將 Schema.org 物件序列化為 <script type="application/ld+json">。
+ * 使用 set:html 寫入 JSON 字串，避免 Astro 對內容做 escape。
+ */
+interface Props {
+  /** 已產生好的 schema 物件，可為單一或陣列 */
+  schema: Record<string, unknown> | ReadonlyArray<Record<string, unknown>>;
+}
+
+const { schema } = Astro.props;
+const schemas = Array.isArray(schema) ? schema : [schema];
+---
+
+{
+  schemas.map((entry) => (
+    <script
+      is:inline
+      type="application/ld+json"
+      set:html={JSON.stringify(entry)}
+    />
+  ))
+}

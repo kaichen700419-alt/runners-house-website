@@ -1,0 +1,83 @@
+---
+/**
+ * SEOHead 元件
+ *
+ * 集中管理：
+ *  - title / meta description / canonical
+ *  - Open Graph、Twitter Card
+ *  - hreflang（zh-TW / en / x-default）
+ *  - robots、theme-color、預設 favicon
+ *
+ * BaseLayout 會把當前語系與路徑透過 props 傳入；本元件不直接讀取 Astro.url 之外的全域狀態。
+ */
+import { SITE } from '@/lib/site';
+import { getAlternateLocaleUrl } from '@/i18n/utils';
+import type { Locale } from '@/i18n/types';
+
+interface Props {
+  /** 完整 <title>（包含品牌） */
+  title: string;
+  /** meta description */
+  description: string;
+  /** 當前頁面相對路徑（例：/about、/en/about） */
+  pathname: string;
+  /** 當前語系 */
+  locale: Locale;
+  /** OG 圖片相對或絕對 URL；未提供時使用 SITE.defaultOgImage */
+  image?: string;
+  /** robots 指令；預設 index, follow */
+  robots?: string;
+  /** OG 類型；預設 website */
+  ogType?: 'website' | 'article';
+}
+
+const {
+  title,
+  description,
+  pathname,
+  locale,
+  image = SITE.defaultOgImage,
+  robots = 'index, follow, max-image-preview:large',
+  ogType = 'website',
+} = Astro.props;
+
+// 計算 canonical 與雙語對等網址
+const canonicalUrl = new URL(pathname, SITE.url).toString();
+const zhUrl = new URL(getAlternateLocaleUrl(pathname, 'zh-TW'), SITE.url).toString();
+const enUrl = new URL(getAlternateLocaleUrl(pathname, 'en'), SITE.url).toString();
+const ogImageUrl = image.startsWith('http') ? image : new URL(image, SITE.url).toString();
+const ogLocale = locale === 'en' ? SITE.ogLocaleEn : SITE.ogLocaleZh;
+const ogLocaleAlternate = locale === 'en' ? SITE.ogLocaleZh : SITE.ogLocaleEn;
+const siteName = locale === 'en' ? SITE.nameEn : SITE.nameZh;
+---
+
+<title>{title}</title>
+<meta name="description" content={description} />
+<meta name="robots" content={robots} />
+<meta name="theme-color" content="#0c4a6e" />
+
+<link rel="canonical" href={canonicalUrl} />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="apple-touch-icon" href={SITE.appleTouchIcon} />
+
+{/* hreflang：zh-TW、en、x-default */}
+<link rel="alternate" hreflang="zh-Hant-TW" href={zhUrl} />
+<link rel="alternate" hreflang="en" href={enUrl} />
+<link rel="alternate" hreflang="x-default" href={zhUrl} />
+
+{/* Open Graph */}
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:type" content={ogType} />
+<meta property="og:url" content={canonicalUrl} />
+<meta property="og:image" content={ogImageUrl} />
+<meta property="og:image:alt" content={title} />
+<meta property="og:site_name" content={siteName} />
+<meta property="og:locale" content={ogLocale} />
+<meta property="og:locale:alternate" content={ogLocaleAlternate} />
+
+{/* Twitter */}
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImageUrl} />

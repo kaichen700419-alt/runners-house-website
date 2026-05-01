@@ -1,9 +1,8 @@
 ---
 /**
- * 首頁（zh-TW 預設語系）
+ * 首頁（en 英文版）
  *
- * Phase 1 階段使用「建置中過場」內容驗證 BaseLayout、SEO、Schema 端到端。
- * Issue #6 將實作完整 Hero / 三特色 / 故事預告 / 位置 區塊。
+ * 結構與 zh-TW 完全對應；文案來自 i18n 字典 home.* / seo.*。
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import HeroSection from '@/components/home/HeroSection.astro';
@@ -11,9 +10,9 @@ import { useTranslations } from '@/i18n/utils';
 import { lodgingBusinessSchema } from '@/lib/schema';
 import { SITE } from '@/lib/site';
 
-const locale = 'zh-TW';
+const locale = 'en';
 const t = useTranslations(locale);
-const canonical = new URL('/', SITE.url).toString();
+const canonical = new URL('/en', SITE.url).toString();
 const ogImage = new URL(SITE.defaultOgImage, SITE.url).toString();
 const lodging = lodgingBusinessSchema({
   locale,

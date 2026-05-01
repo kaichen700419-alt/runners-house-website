@@ -1,0 +1,147 @@
+---
+/**
+ * MobileMenu 元件
+ *
+ * 行動裝置抽屜選單，採用 <details>/<summary> 純 HTML 開合機制（禁 JS）。
+ * 透過 :open 偽類控制動畫與背景遮罩；點擊任一連結後即可離開頁面，
+ * 選單會在頁面切換時自然消失。
+ */
+import { useTranslations } from '@/i18n/utils';
+import { MOBILE_NAV_ITEMS, resolveNavHrefs } from '@/lib/navigation';
+import LanguageSwitcher from './LanguageSwitcher.astro';
+import type { Locale } from '@/i18n/types';
+
+interface Props {
+  pathname: string;
+  locale: Locale;
+}
+
+const { pathname, locale } = Astro.props;
+const t = useTranslations(locale);
+const links = resolveNavHrefs(MOBILE_NAV_ITEMS, locale);
+---
+
+<details class="mobile-menu" aria-label={t('nav.menuOpen')}>
+  <summary class="menu-toggle" aria-label={t('nav.menuOpen')}>
+    <span class="bar" aria-hidden="true"></span>
+    <span class="bar" aria-hidden="true"></span>
+    <span class="bar" aria-hidden="true"></span>
+    <span class="visually-hidden">{t('nav.menuOpen')}</span>
+  </summary>
+  <div class="drawer" role="dialog" aria-modal="true" aria-label={t('nav.menuOpen')}>
+    <nav aria-label={t('nav.menuOpen')}>
+      <ul class="link-list">
+        {
+          links.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                aria-current={link.href === pathname ? 'page' : undefined}
+              >
+                {t(link.key)}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="lang-wrap">
+        <LanguageSwitcher pathname={pathname} locale={locale} />
+      </div>
+    </nav>
+  </div>
+</details>
+
+<style>
+  .mobile-menu {
+    position: relative;
+  }
+  .menu-toggle {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0.55rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    background-color: transparent;
+    border: 1px solid var(--color-ink-200);
+    list-style: none;
+  }
+  .menu-toggle::-webkit-details-marker {
+    display: none;
+  }
+  .bar {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background-color: var(--color-ink-800);
+    border-radius: 2px;
+    transition: transform 200ms var(--ease-snappy), opacity 200ms var(--ease-snappy);
+  }
+  details[open] .bar:nth-child(1) {
+    transform: translateY(0.45rem) rotate(45deg);
+  }
+  details[open] .bar:nth-child(2) {
+    opacity: 0;
+  }
+  details[open] .bar:nth-child(3) {
+    transform: translateY(-0.45rem) rotate(-45deg);
+  }
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .drawer {
+    position: fixed;
+    inset: 4rem 0 0 0;
+    background-color: var(--color-timber-50);
+    padding: 2rem 1.5rem 4rem;
+    box-shadow: 0 -1px 0 var(--color-ink-200) inset;
+    overflow-y: auto;
+    animation: slideDown 220ms var(--ease-natural);
+  }
+  .link-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .link-list a {
+    display: block;
+    padding: 0.9rem 0.5rem;
+    font-size: 1.15rem;
+    font-family: var(--font-display);
+    color: var(--color-ink-900);
+    text-decoration: none;
+    border-bottom: 1px solid var(--color-timber-200);
+  }
+  .link-list a[aria-current='page'] {
+    color: var(--color-ocean-800);
+    font-weight: 600;
+  }
+  .lang-wrap {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-timber-200);
+  }
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-1rem); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @media (min-width: 1024px) {
+    .mobile-menu {
+      display: none;
+    }
+  }
+</style>

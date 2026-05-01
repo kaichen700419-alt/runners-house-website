@@ -1,0 +1,103 @@
+---
+/**
+ * HeroSection 元件
+ *
+ * 首頁主視覺區塊，zh-TW 與 en 共用。
+ * 文案由 i18n 字典提供，連結透過 getLocalizedPath 自動加上語系前綴。
+ */
+import { getLocalizedPath, useTranslations } from '@/i18n/utils';
+import type { Locale } from '@/i18n/types';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+---
+
+<section class="hero">
+  <div class="container-wide hero-inner">
+    <p class="eyebrow">{t('home.heroEyebrow')}</p>
+    <h1 class="hero-title">{t('home.heroTitle')}</h1>
+    <p class="hero-sub">{t('home.heroSubtitle')}</p>
+    <div class="cta-row">
+      <a class="cta-primary" href={getLocalizedPath('/rooms', locale)}>
+        {t('home.heroPrimaryCta')}
+      </a>
+      <a class="cta-secondary" href={getLocalizedPath('/about', locale)}>
+        {t('home.heroSecondaryCta')}
+      </a>
+    </div>
+    <p class="phase-note">{t('common.brandStatement')}</p>
+  </div>
+</section>
+
+<style>
+  .hero {
+    background: linear-gradient(160deg, var(--color-ocean-50) 0%, var(--color-timber-50) 60%);
+    padding-block: 5rem 6rem;
+  }
+  .hero-inner {
+    max-width: 56rem;
+    text-align: center;
+  }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-ocean-700);
+    margin: 0 0 1.25rem;
+  }
+  .hero-title {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    color: var(--color-ink-950);
+    margin: 0 0 1.5rem;
+  }
+  .hero-sub {
+    font-size: 1.05rem;
+    line-height: 1.75;
+    color: var(--color-ink-700);
+    margin: 0 auto 2.5rem;
+    max-width: 42rem;
+  }
+  .cta-row {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+  .cta-primary, .cta-secondary {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.85rem 1.5rem;
+    border-radius: 999px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 200ms var(--ease-snappy), background-color 200ms var(--ease-snappy);
+  }
+  .cta-primary {
+    background-color: var(--color-ocean-700);
+    color: white;
+  }
+  .cta-primary:hover {
+    background-color: var(--color-ocean-800);
+    transform: translateY(-1px);
+  }
+  .cta-secondary {
+    background-color: transparent;
+    color: var(--color-ink-900);
+    border: 1px solid var(--color-ink-300);
+  }
+  .cta-secondary:hover {
+    background-color: var(--color-timber-100);
+  }
+  .phase-note {
+    margin-top: 3rem;
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    color: var(--color-ink-500);
+    font-style: italic;
+  }
+</style>
