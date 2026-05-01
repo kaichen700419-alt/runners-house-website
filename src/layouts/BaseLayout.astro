@@ -15,7 +15,12 @@ import JsonLd from '@/components/seo/JsonLd.astro';
 import Header from '@/components/layout/Header.astro';
 import Footer from '@/components/layout/Footer.astro';
 import { detectLocale } from '@/i18n/utils';
-import { breadcrumbSchema, websiteSchema, type BreadcrumbItem } from '@/lib/schema';
+import {
+  breadcrumbSchema,
+  websiteSchema,
+  type BreadcrumbItem,
+  type SchemaObject,
+} from '@/lib/schema';
 
 interface Props {
   /** 完整 <title>，含品牌 */
@@ -25,7 +30,7 @@ interface Props {
   /** 自訂 OG 圖（相對或絕對 URL） */
   image?: string;
   /** 額外 schema 物件（例：lodgingBusinessSchema）。會自動加上 WebSite + Breadcrumb */
-  schema?: Record<string, unknown> | ReadonlyArray<Record<string, unknown>>;
+  schema?: SchemaObject | ReadonlyArray<SchemaObject>;
   /** 麵包屑陣列；提供時會自動產生 BreadcrumbList JSON-LD */
   breadcrumbs?: ReadonlyArray<BreadcrumbItem>;
   /** robots 指令 */
@@ -49,7 +54,7 @@ const locale = detectLocale(pathname);
 const htmlLang = locale === 'en' ? 'en' : 'zh-Hant-TW';
 
 // 組合所有 JSON-LD schema：WebSite 永遠輸出，Breadcrumb 和額外 schema 視 props 而定
-const allSchemas: Record<string, unknown>[] = [
+const allSchemas: readonly SchemaObject[] = [
   websiteSchema(locale),
   ...(breadcrumbs?.length ? [breadcrumbSchema(breadcrumbs)] : []),
   ...(schema ? (Array.isArray(schema) ? schema : [schema]) : []),

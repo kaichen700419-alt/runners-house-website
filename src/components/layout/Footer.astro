@@ -21,6 +21,8 @@ interface Props {
 
 const { locale } = Astro.props;
 const t = useTranslations(locale);
+// SSG: 此年份固定於 build time；網站需於每年初 rebuild，
+// 或在 Cloudflare Pages 設定 cron build 自動更新（每年 1 月 1 日）。
 const currentYear = new Date().getFullYear().toString();
 
 const fullAddress = locale === 'en' ? ADDRESS.fullEn : ADDRESS.fullZh;
@@ -75,13 +77,13 @@ const quickLinks = resolveNavHrefs(NAV_ITEMS, locale);
       <h2 id="footer-social-heading" class="col-heading">{t('footer.socialHeading')}</h2>
       <ul class="social-list">
         <li>
-          <a href={CONTACT.facebookUrl} target="_blank" rel="noopener noreferrer">Facebook</a>
+          <a href={CONTACT.facebookUrl} target="_blank" rel="noopener noreferrer">{t('footer.facebook')}</a>
         </li>
         <li>
-          <a href={CONTACT.instagramUrl} target="_blank" rel="noopener noreferrer">Instagram</a>
+          <a href={CONTACT.instagramUrl} target="_blank" rel="noopener noreferrer">{t('footer.instagram')}</a>
         </li>
         <li>
-          <a href={CONTACT.lineUrl} target="_blank" rel="noopener noreferrer">LINE</a>
+          <a href={CONTACT.lineUrl} target="_blank" rel="noopener noreferrer">{t('footer.line')}</a>
         </li>
         <li>
           <a href={mapsLink} target="_blank" rel="noopener noreferrer">{t('footer.mapHeading')}</a>
@@ -94,6 +96,7 @@ const quickLinks = resolveNavHrefs(NAV_ITEMS, locale);
           src={mapEmbedSrc}
           loading="lazy"
           referrerpolicy="no-referrer-when-downgrade"
+          sandbox="allow-scripts allow-same-origin allow-popups"
           width="100%"
           height="200"
         ></iframe>

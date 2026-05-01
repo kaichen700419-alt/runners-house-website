@@ -9,26 +9,50 @@
  *
  * 設計原則：
  *  - 缺 key 時先 fallback 至 zh-TW，再缺則回傳 key 並 console.warn
+ *  - 在 production build 階段（import.meta.env.PROD）若缺 `seo.*` key 直接 throw，
+ *    讓建置流程 fail-loud，避免上線頁面實際缺失 SEO 字串
  *  - en 一律以 `/en` 為前綴，zh-TW（預設）不加前綴
  *  - placeholder 採 `{name}` 樣式
  */
-import zhTW from './zh-TW';
+import zhTW, { type Dictionary } from './zh-TW';
 import en from './en';
-import { DEFAULT_LOCALE, type Locale } from './types';
+import { DEFAULT_LOCALE, isLocale, type Locale } from './types';
 
-const dictionaries: Record<Locale, unknown> = {
+/**
+ * 字典集合：強型別，鎖死兩個語系都必須符合 Dictionary shape，
+ * 從根本避免「字典放錯資料 / 多放一層」這類 bug 透過 unknown 漏掉編譯期檢查。
+ */
+const dictionaries: Record<Locale, Dictionary> = {
   'zh-TW': zhTW,
   en,
 };
 
-/** 翻譯函式型別。params 可選，皆為字串對應的鍵值對。 */
-export type TranslateFn = (key: string, params?: Readonly<Record<string, string | number>>) => string;
+/**
+ * 翻譯函式型別。
+ *
+ * 設計取捨：key 維持為 `string` 而非「所有葉節點 union」，
+ * 原因：
+ *   1. 葉節點 union 在含 200+ key 的字典上會劇烈拖慢 TS 推論
+ *   2. 字典完整性已由 `tests/unit/i18n.test.ts` 強制檢查
+ *   3. 高風險的 nav key 由 `src/lib/navigation.ts` 的 `NavKey` union 收斂守門
+ *
+ * @param key    點分隔字典 key 路徑（例：`nav.home`、`common.copyright`）
+ * @param params 可選的插值物件，用於替換 key 對應字串中的 `{name}` 占位符
+ * @returns      翻譯後字串；缺 key 時依 fallback 規則回傳
+ */
+export type TranslateFn = (
+  key: string,
+  params?: Readonly<Record<string, string | number>>,
+) => string;
 
 /**
  * 依 key 路徑（如 `nav.home`）從字典物件取出葉節點字串。
- * 找不到或型別不對則回傳 undefined，留給呼叫端決定 fallback 策略。
+ *
+ * @param dict 字典根物件
+ * @param key  點分隔 key 路徑
+ * @returns    字串葉節點；找不到、空 key、或路徑指向非字串中間節點時回傳 undefined
  */
-function lookup(dict: unknown, key: string): string | undefined {
+function lookup(dict: Dictionary, key: string): string | undefined {
   if (!key) {
     return undefined;
   }
@@ -50,7 +74,10 @@ function lookup(dict: unknown, key: string): string | undefined {
  * 將字串中的 `{key}` 替換為 params 對應值。
  * 若 params 內無對應 key，保留原樣以利除錯。
  */
-function interpolate(template: string, params?: Readonly<Record<string, string | number>>): string {
+function interpolate(
+  template: string,
+  params?: Readonly<Record<string, string | number>>,
+): string {
   if (!params) {
     return template;
   }
@@ -68,7 +95,8 @@ function interpolate(template: string, params?: Readonly<Record<string, string |
  * 缺 key 流程：
  *   1. 從 `locale` 字典找；找到則回傳。
  *   2. 找不到 → 從 `zh-TW` 字典找；找到則 console.warn 並回傳。
- *   3. 仍找不到 → console.warn 並回傳原 key（避免畫面崩壞）。
+ *   3. 仍找不到 → 在 production build（PROD）若 key 以 `seo.` 開頭，直接 throw
+ *     使建置 fail-loud；否則僅 console.warn 並回傳原 key 以避免畫面崩壞。
  */
 export function useTranslations(locale: Locale): TranslateFn {
   const primary = dictionaries[locale];
@@ -85,8 +113,17 @@ export function useTranslations(locale: Locale): TranslateFn {
     }
     const fallbackValue = lookup(fallback, key);
     if (fallbackValue !== undefined) {
-      console.warn(`[i18n] locale=${locale} 缺少 key "${key}"，已 fallback 至 ${DEFAULT_LOCALE}`);
+      console.warn(
+        `[i18n] locale=${locale} 缺少 key "${key}"，已 fallback 至 ${DEFAULT_LOCALE}`,
+      );
       return interpolate(fallbackValue, params);
+    }
+    // SEO 字串若於 production build 缺失，直接 throw 讓建置失敗，
+    // 避免線上實際輸出空 title / 空 description 等致命 SEO 退化。
+    if (import.meta.env.PROD && key.startsWith('seo.')) {
+      throw new Error(
+        `[i18n] production build 缺少 SEO key "${key}"（locale=${locale}），建置中止`,
+      );
     }
     console.warn(`[i18n] 找不到 key "${key}"（locale=${locale}），回傳 key 本身`);
     return key;
@@ -96,19 +133,27 @@ export function useTranslations(locale: Locale): TranslateFn {
 /**
  * 依 pathname 判斷語系。
  * 規則：以 `/en` 或 `/en/` 開頭視為 en；其餘一律視為 zh-TW。
+ *
+ * 內部使用 `isLocale` 守門，確保未來若新增語系（zh-Hans 等）只需擴充 LOCALES，
+ * 此函式即可自動受益於 type guard 的編譯期檢查。
  */
 export function detectLocale(pathname: string): Locale {
   if (!pathname) {
     return DEFAULT_LOCALE;
   }
   if (pathname === '/en' || pathname.startsWith('/en/')) {
-    return 'en';
+    // 透過 isLocale 雙重保險：避免未來常數變更但本函式忘記同步
+    return isLocale('en') ? 'en' : DEFAULT_LOCALE;
   }
   return DEFAULT_LOCALE;
 }
 
 /**
  * 確保路徑以單一斜線開頭，避免拼接結果出現 `//`。
+ *
+ * 抽離成獨立函式而非 inline，是為了：
+ *   1. 讓 `getLocalizedPath` 主流程聚焦於語系前綴邏輯
+ *   2. 空字串、缺斜線、含查詢字串等邊界 case 集中於單一守門點
  */
 function normalizePath(path: string): string {
   if (!path) {
@@ -119,6 +164,9 @@ function normalizePath(path: string): string {
 
 /**
  * 移除路徑開頭的 `/en` 前綴，根路徑時回傳 `/`。
+ *
+ * 抽離原因：`getLocalizedPath` 對 zh-TW、en 兩條路徑都要先 strip 再決定加不加前綴，
+ * 拆出此函式可避免兩處邏輯各自走樣。
  */
 function stripEnglishPrefix(path: string): string {
   if (path === '/en') {
@@ -152,6 +200,9 @@ export function getLocalizedPath(path: string, locale: Locale): string {
  * 例：currentPath=`/about`、target=en → `/en/about`
  *     currentPath=`/en/about`、target=zh-TW → `/about`
  */
-export function getAlternateLocaleUrl(currentPath: string, targetLocale: Locale): string {
+export function getAlternateLocaleUrl(
+  currentPath: string,
+  targetLocale: Locale,
+): string {
   return getLocalizedPath(currentPath, targetLocale);
 }

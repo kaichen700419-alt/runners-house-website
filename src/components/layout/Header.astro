@@ -3,10 +3,12 @@
  * Header 元件
  *
  * 桌面：水平導覽列；行動：漢堡 + 抽屜選單（MobileMenu）。
- * 滾動時透過 CSS scroll-driven animation 切換為白底毛玻璃感（不依賴 JS）。
+ * 樣式採 sticky 定位搭配半透明白底與 backdrop-filter 毛玻璃效果，
+ * 並無真正的 scroll-driven animation，全程不依賴 JS。
  */
 import { getLocalizedPath, useTranslations } from '@/i18n/utils';
 import { NAV_ITEMS, resolveNavHrefs } from '@/lib/navigation';
+import { SITE } from '@/lib/site';
 import LanguageSwitcher from './LanguageSwitcher.astro';
 import MobileMenu from './MobileMenu.astro';
 import type { Locale } from '@/i18n/types';
@@ -27,7 +29,7 @@ const navItems = resolveNavHrefs(NAV_ITEMS, locale);
 <header class="site-header" aria-label="site header">
   <div class="container-wide header-inner">
     <a class="brand" href={homeHref} aria-label={t('common.siteName')}>
-      <span class="brand-mark" aria-hidden="true">RH</span>
+      <span class="brand-mark" aria-hidden="true">{SITE.brandMark}</span>
       <span class="brand-text">
         <span class="brand-name">{t('common.siteName')}</span>
         <span class="brand-tagline">{t('common.tagline')}</span>

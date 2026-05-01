@@ -9,9 +9,19 @@
  * 設計原則：
  *  - 所有產出物為 plain object，由 <JsonLd /> 元件序列化為 <script type="application/ld+json">
  *  - 中英資訊由 site.ts 的 SITE / ADDRESS / GEO / HOURS / AMENITIES 單一真相提供
+ *  - 入口參數做嚴格驗證（URL 必須絕對、breadcrumb 不允許空欄位），失敗時直接 throw
  */
 import { ADDRESS, AMENITIES, CONTACT, GEO, HOURS, SITE } from './site';
 import type { Locale } from '@/i18n/types';
+
+/**
+ * 通用 Schema.org JSON-LD 物件型別。
+ *
+ * 用 `Record<string, unknown>` 而非更嚴格的 union，
+ * 因 schema.org 物件本質上是動態 key/value，且需在多處（schema.ts、JsonLd.astro、BaseLayout.astro）
+ * 共用同一型別別名以避免「三處各定義一份相同 shape」的漂移。
+ */
+export type SchemaObject = Record<string, unknown>;
 
 export interface BreadcrumbItem {
   /** 顯示名稱 */
@@ -36,10 +46,29 @@ function pick<T>(locale: Locale, zh: T, en: T): T {
 }
 
 /**
+ * 驗證入口字串為以 http(s) 開頭的絕對 URL。
+ * 用於 schema 的 url / image 欄位，避免 Google Rich Results 因相對 URL 而拒收。
+ */
+function assertAbsoluteUrl(value: string, fieldName: string): void {
+  if (!value || !/^https?:\/\//.test(value)) {
+    throw new Error(
+      `[schema] ${fieldName} 必須是含 protocol 的絕對 URL，收到："${value}"`,
+    );
+  }
+}
+
+/**
  * 產生 LodgingBusiness JSON-LD。
  * 包含 amenityFeature、postalAddress、geo、checkin/out 時間等核心欄位。
+ *
+ * @param input LodgingBusinessInput；url、imageUrl 必須為絕對 URL
+ * @returns     可序列化為 JSON-LD 的 SchemaObject
+ * @throws      Error 當 url 或 imageUrl 非絕對 URL
  */
-export function lodgingBusinessSchema(input: LodgingBusinessInput): Record<string, unknown> {
+export function lodgingBusinessSchema(input: LodgingBusinessInput): SchemaObject {
+  assertAbsoluteUrl(input.url, 'lodgingBusinessSchema.url');
+  assertAbsoluteUrl(input.imageUrl, 'lodgingBusinessSchema.imageUrl');
+
   const { locale } = input;
   const name = pick(locale, SITE.nameZh, SITE.nameEn);
   const address = {
@@ -82,8 +111,21 @@ export function lodgingBusinessSchema(input: LodgingBusinessInput): Record<strin
 /**
  * 產生 BreadcrumbList JSON-LD。
  * 第一個項目通常為「首頁」，最後一項為當前頁面。
+ *
+ * @param items 麵包屑陣列；每項 name、url 皆不得為空白字串
+ * @returns     可序列化為 JSON-LD 的 SchemaObject
+ * @throws      Error 當任一項目 name 或 url 為空 / 全空白
  */
-export function breadcrumbSchema(items: ReadonlyArray<BreadcrumbItem>): Record<string, unknown> {
+export function breadcrumbSchema(
+  items: ReadonlyArray<BreadcrumbItem>,
+): SchemaObject {
+  items.forEach((item, i) => {
+    if (!item.name?.trim() || !item.url?.trim()) {
+      throw new Error(
+        `[schema] breadcrumbSchema 第 ${i} 項 name/url 不得為空白`,
+      );
+    }
+  });
   return {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -98,8 +140,11 @@ export function breadcrumbSchema(items: ReadonlyArray<BreadcrumbItem>): Record<s
 
 /**
  * 產生 WebSite JSON-LD（含跨語系版本資訊）。
+ *
+ * @param locale 當前頁面語系
+ * @returns      可序列化為 JSON-LD 的 SchemaObject
  */
-export function websiteSchema(locale: Locale): Record<string, unknown> {
+export function websiteSchema(locale: Locale): SchemaObject {
   const name = pick(locale, SITE.nameZh, SITE.nameEn);
   return {
     '@context': 'https://schema.org',

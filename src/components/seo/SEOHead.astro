@@ -23,9 +23,13 @@ interface Props {
   pathname: string;
   /** 當前語系 */
   locale: Locale;
-  /** OG 圖片相對或絕對 URL；未提供時使用 SITE.defaultOgImage */
+  /** OG 圖片相對或絕對 URL；未提供／空字串時 fallback 至 SITE.defaultOgImage */
   image?: string;
-  /** robots 指令；預設 index, follow */
+  /**
+   * robots meta 指令（純字串）。
+   * 例：`'index, follow'`、`'noindex, nofollow'`、`'index, follow, max-image-preview:large'`
+   * 維持為 string 而非 union literal 是為了支援 Google 不時新增的指令（max-snippet 等）。
+   */
   robots?: string;
   /** OG 類型；預設 website */
   ogType?: 'website' | 'article';
@@ -36,7 +40,7 @@ const {
   description,
   pathname,
   locale,
-  image = SITE.defaultOgImage,
+  image,
   robots = 'index, follow, max-image-preview:large',
   ogType = 'website',
 } = Astro.props;
@@ -45,7 +49,11 @@ const {
 const canonicalUrl = new URL(pathname, SITE.url).toString();
 const zhUrl = new URL(getAlternateLocaleUrl(pathname, 'zh-TW'), SITE.url).toString();
 const enUrl = new URL(getAlternateLocaleUrl(pathname, 'en'), SITE.url).toString();
-const ogImageUrl = image.startsWith('http') ? image : new URL(image, SITE.url).toString();
+// 空字串 / 全空白要視為「未提供」，否則會產出 og:image="" 這種對 Facebook/Slack 等 unfurler 致命的標籤。
+const resolvedImage = image && image.trim() ? image : SITE.defaultOgImage;
+const ogImageUrl = resolvedImage.startsWith('http')
+  ? resolvedImage
+  : new URL(resolvedImage, SITE.url).toString();
 const ogLocale = locale === 'en' ? SITE.ogLocaleEn : SITE.ogLocaleZh;
 const ogLocaleAlternate = locale === 'en' ? SITE.ogLocaleZh : SITE.ogLocaleEn;
 const siteName = locale === 'en' ? SITE.nameEn : SITE.nameZh;
@@ -54,11 +62,12 @@ const siteName = locale === 'en' ? SITE.nameEn : SITE.nameZh;
 <title>{title}</title>
 <meta name="description" content={description} />
 <meta name="robots" content={robots} />
+{/* theme-color 必須為 plain 色值，無法引用 CSS 變數；此值需與 global.css --color-ocean-900 同步 */}
 <meta name="theme-color" content="#0c4a6e" />
 
 <link rel="canonical" href={canonicalUrl} />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-<link rel="apple-touch-icon" href={SITE.appleTouchIcon} />
+{/* apple-touch-icon 暫不輸出：未提供 180x180 PNG；用 SVG 會在 iOS 顯示異常，待業主提供圖檔後補上 */}
 
 {/* hreflang：zh-TW、en、x-default */}
 <link rel="alternate" hreflang="zh-Hant-TW" href={zhUrl} />

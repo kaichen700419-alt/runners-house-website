@@ -12,7 +12,10 @@ export const DEFAULT_LOCALE: Locale = 'zh-TW';
 
 /**
  * 判斷字串是否為合法 locale。
+ *
+ * 採 `LOCALES.some(...)` 而非 `(LOCALES as readonly string[]).includes(value)`，
+ * 避免不必要的 widening cast；any new locale literal 可直接 narrow 為 Locale。
  */
 export function isLocale(value: string): value is Locale {
-  return (LOCALES as readonly string[]).includes(value);
+  return LOCALES.some((l) => l === value);
 }

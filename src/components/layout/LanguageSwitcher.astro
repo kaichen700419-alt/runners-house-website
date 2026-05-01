@@ -27,6 +27,7 @@ const enHref = getAlternateLocaleUrl(pathname, 'en');
     aria-current={locale === 'zh-TW' ? 'true' : undefined}
     class:list={['lang-link', { active: locale === 'zh-TW' }]}
   >
+    {/* i18n-ignore: 語言名稱本身為固定寫法，不參與翻譯 */}
     中文
   </a>
   <span class="divider" aria-hidden="true">/</span>
@@ -37,6 +38,7 @@ const enHref = getAlternateLocaleUrl(pathname, 'en');
     aria-current={locale === 'en' ? 'true' : undefined}
     class:list={['lang-link', { active: locale === 'en' }]}
   >
+    {/* i18n-ignore: 語言名稱本身為固定寫法，不參與翻譯 */}
     EN
   </a>
 </nav>

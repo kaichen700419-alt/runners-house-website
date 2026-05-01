@@ -12,10 +12,10 @@ export const SITE = {
   nameZh: '跑者之家 Runners House',
   /** 英文官方名稱 */
   nameEn: 'Runners House',
+  /** 品牌字標縮寫（Header 圓徽顯示用，固定為 Runners House 縮寫） */
+  brandMark: 'RH',
   /** Open Graph 預設圖片（後續可由設計團隊覆蓋） */
   defaultOgImage: '/og/runners-house-default.jpg',
-  /** Apple touch icon */
-  appleTouchIcon: '/favicon.svg',
   /** 主機網址（含 protocol，無尾斜線） */
   url: SITE_URL,
   /** 預設語系 locale 字串（OG 用） */

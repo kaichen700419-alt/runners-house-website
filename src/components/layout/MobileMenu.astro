@@ -5,6 +5,13 @@
  * 行動裝置抽屜選單，採用 <details>/<summary> 純 HTML 開合機制（禁 JS）。
  * 透過 :open 偽類控制動畫與背景遮罩；點擊任一連結後即可離開頁面，
  * 選單會在頁面切換時自然消失。
+ *
+ * a11y 設計：
+ *   - <details> 本身對輔助科技呈現為 disclosure（展開/收合），不適合宣稱為 dialog；
+ *     因此抽屜內僅以 `<nav aria-label>` 標示為導覽地標，避免與 dialog 焦點陷阱契約衝突。
+ *   - summary 內以兩段 visually-hidden 文字配合 [open] / :not([open]) CSS 切換，
+ *     用以同時消化「開啟選單 / 關閉選單」兩個 nav.menuOpen / nav.menuClose 字典 key，
+ *     避免後者成為死 key。
  */
 import { useTranslations } from '@/i18n/utils';
 import { MOBILE_NAV_ITEMS, resolveNavHrefs } from '@/lib/navigation';
@@ -21,15 +28,16 @@ const t = useTranslations(locale);
 const links = resolveNavHrefs(MOBILE_NAV_ITEMS, locale);
 ---
 
-<details class="mobile-menu" aria-label={t('nav.menuOpen')}>
+<details class="mobile-menu">
   <summary class="menu-toggle" aria-label={t('nav.menuOpen')}>
     <span class="bar" aria-hidden="true"></span>
     <span class="bar" aria-hidden="true"></span>
     <span class="bar" aria-hidden="true"></span>
-    <span class="visually-hidden">{t('nav.menuOpen')}</span>
+    <span class="visually-hidden label-open">{t('nav.menuOpen')}</span>
+    <span class="visually-hidden label-close">{t('nav.menuClose')}</span>
   </summary>
-  <div class="drawer" role="dialog" aria-modal="true" aria-label={t('nav.menuOpen')}>
-    <nav aria-label={t('nav.menuOpen')}>
+  <div class="drawer">
+    <nav aria-label={t('common.siteName')}>
       <ul class="link-list">
         {
           links.map((link) => (
@@ -80,6 +88,13 @@ const links = resolveNavHrefs(MOBILE_NAV_ITEMS, locale);
     border-radius: 2px;
     transition: transform 200ms var(--ease-snappy), opacity 200ms var(--ease-snappy);
   }
+  /*
+   * 漢堡 → 叉叉動畫：
+   *   menu-toggle 高度 2.5rem，扣除 padding（上下 0.55rem）後內容高 1.4rem。
+   *   三條 bar 平均分布，相鄰兩條中心點距離約 0.7rem，半距為 0.35rem。
+   *   為了讓上條（順時針 45 度）與下條（逆時針 45 度）在中心交叉，
+   *   各需位移 ~0.45rem（含微調補償邊框 1px 與 transform-origin 偏差）。
+   */
   details[open] .bar:nth-child(1) {
     transform: translateY(0.45rem) rotate(45deg);
   }
@@ -99,6 +114,21 @@ const links = resolveNavHrefs(MOBILE_NAV_ITEMS, locale);
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
+  }
+  /*
+   * 用 CSS 子選擇器消化 nav.menuOpen / nav.menuClose 兩字典 key：
+   *   收合時顯示「開啟選單」、展開時顯示「關閉選單」。
+   *   由於兩個 span 都是 visually-hidden，不會影響視覺；
+   *   AT 在 summary aria-label 之外讀到當前狀態文字，行為與系統標準 disclosure 相容。
+   */
+  .menu-toggle .label-close {
+    display: none;
+  }
+  details[open] .menu-toggle .label-open {
+    display: none;
+  }
+  details[open] .menu-toggle .label-close {
+    display: inline;
   }
   .drawer {
     position: fixed;

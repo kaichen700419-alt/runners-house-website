@@ -26,6 +26,8 @@ const zhTW = {
     learnMore: '了解更多',
     backToHome: '回到首頁',
     copyright: '© {year} 跑者之家 Runners House. 版權所有。',
+    /** 含多個 placeholder 的版權長版（多語系插值測試用，預留 Footer 富版權使用） */
+    copyrightLong: '© {year} {site} · {tagline}',
     languageLabel: '語言',
     skipToContent: '跳至主要內容',
   },
@@ -53,6 +55,9 @@ const zhTW = {
     mapHeading: 'Google 地圖',
     mapAria: '跑者之家 Google 地圖位置',
     builtWith: '由海風、跑者熱情與長濱日出共同打造。',
+    facebook: 'Facebook',
+    instagram: 'Instagram',
+    line: 'LINE',
   },
   home: {
     heroEyebrow: '台東 · 長濱 · 台 11 線 91K',

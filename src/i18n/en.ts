@@ -18,6 +18,8 @@ const en: Dictionary = {
     learnMore: 'Learn more',
     backToHome: 'Back to home',
     copyright: '© {year} Runners House. All rights reserved.',
+    /** Long copyright with multiple placeholders (multi-param interpolation test + future footer use). */
+    copyrightLong: '© {year} {site} · {tagline}',
     languageLabel: 'Language',
     skipToContent: 'Skip to main content',
   },
@@ -45,6 +47,9 @@ const en: Dictionary = {
     mapHeading: 'Google Map',
     mapAria: 'Runners House location on Google Maps',
     builtWith: 'Built with sea breeze, runner spirit, and Changbin sunrises.',
+    facebook: 'Facebook',
+    instagram: 'Instagram',
+    line: 'LINE',
   },
   home: {
     heroEyebrow: 'Taitung · Changbin · Highway 11 · 91K',

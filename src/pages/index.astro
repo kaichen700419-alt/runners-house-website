@@ -2,8 +2,8 @@
 /**
  * 首頁（zh-TW 預設語系）
  *
- * Phase 1 階段使用「建置中過場」內容驗證 BaseLayout、SEO、Schema 端到端。
- * Issue #6 將實作完整 Hero / 三特色 / 故事預告 / 位置 區塊。
+ * 渲染 BaseLayout + HeroSection，並在頁面層注入 LodgingBusiness JSON-LD。
+ * 所有可見字串透過 useTranslations('zh-TW') 從 i18n 字典讀取。
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import HeroSection from '@/components/home/HeroSection.astro';
