@@ -14,7 +14,7 @@
  *     避免後者成為死 key。
  */
 import { useTranslations } from '@/i18n/utils';
-import { MOBILE_NAV_ITEMS, resolveNavHrefs } from '@/lib/navigation';
+import { MOBILE_NAV_ITEMS, resolveNavHrefs, tUi } from '@/lib/navigation';
 import LanguageSwitcher from './LanguageSwitcher.astro';
 import type { Locale } from '@/i18n/types';
 
@@ -26,15 +26,19 @@ interface Props {
 const { pathname, locale } = Astro.props;
 const t = useTranslations(locale);
 const links = resolveNavHrefs(MOBILE_NAV_ITEMS, locale);
+// 使用 tUi 強制把 nav.menuOpen / nav.menuClose 收斂為 UiKey union，
+// 避免裸 t('nav.menuOpne') 這類 typo 漏到 runtime 才被發現。
+const labelOpen = tUi(t, 'nav.menuOpen');
+const labelClose = tUi(t, 'nav.menuClose');
 ---
 
 <details class="mobile-menu">
-  <summary class="menu-toggle" aria-label={t('nav.menuOpen')}>
+  <summary class="menu-toggle" aria-label={labelOpen}>
     <span class="bar" aria-hidden="true"></span>
     <span class="bar" aria-hidden="true"></span>
     <span class="bar" aria-hidden="true"></span>
-    <span class="visually-hidden label-open">{t('nav.menuOpen')}</span>
-    <span class="visually-hidden label-close">{t('nav.menuClose')}</span>
+    <span class="visually-hidden label-open">{labelOpen}</span>
+    <span class="visually-hidden label-close">{labelClose}</span>
   </summary>
   <div class="drawer">
     <nav aria-label={t('common.siteName')}>

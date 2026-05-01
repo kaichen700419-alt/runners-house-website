@@ -122,6 +122,12 @@ describe('HOURS', () => {
   it('開放時間早於關閉時間', () => {
     expect(HOURS.frontDeskOpen < HOURS.frontDeskClose).toBe(true);
   });
+
+  it('checkout 時間早於 checkin 時間（旅館慣例：先退房再入住）', () => {
+    // 旅館業界慣例：當日清晨 checkout（如 11:00）→ 下午 checkin（如 15:00），
+    // 中間時段供清潔房務。若反轉會導致同一房同時有兩組客人字串相比較合法（HH:mm 字典序與時間順序一致）。
+    expect(HOURS.checkout < HOURS.checkin).toBe(true);
+  });
 });
 
 describe('AMENITIES', () => {

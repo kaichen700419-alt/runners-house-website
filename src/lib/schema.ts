@@ -20,6 +20,14 @@ import type { Locale } from '@/i18n/types';
  * 用 `Record<string, unknown>` 而非更嚴格的 union，
  * 因 schema.org 物件本質上是動態 key/value，且需在多處（schema.ts、JsonLd.astro、BaseLayout.astro）
  * 共用同一型別別名以避免「三處各定義一份相同 shape」的漂移。
+ *
+ * 序列化警示：此物件最終會傳入 `JSON.stringify`，故葉節點僅可放入 JSON 可序列化值
+ * （string / number / boolean / null / 陣列 / plain object）。**禁止**放入：
+ *   - `undefined`（會被 stringify 直接吞掉，造成欄位靜默消失）
+ *   - `bigint`（stringify 會 throw TypeError）
+ *   - `function`（會被 stringify 直接吞掉）
+ *   - `Symbol`（會被 stringify 直接吞掉）
+ *   - 含循環引用的物件（stringify 會 throw TypeError）
  */
 export type SchemaObject = Record<string, unknown>;
 
@@ -48,11 +56,20 @@ function pick<T>(locale: Locale, zh: T, en: T): T {
 /**
  * 驗證入口字串為以 http(s) 開頭的絕對 URL。
  * 用於 schema 的 url / image 欄位，避免 Google Rich Results 因相對 URL 而拒收。
+ *
+ * 採 `asserts value is string` 簽章：
+ *   - 通過後呼叫端可保證 `value` 為「非空、含 protocol 的合法絕對 URL 字串」
+ *   - 在型別層面表達「驗證即守門」，下游使用時不必再 narrow
+ *
+ * @throws Error 當 value 為空字串、或不以 http:// / https:// 開頭時
  */
-function assertAbsoluteUrl(value: string, fieldName: string): void {
+function assertAbsoluteUrl(
+  value: string,
+  fieldName: string,
+): asserts value is string {
   if (!value || !/^https?:\/\//.test(value)) {
     throw new Error(
-      `[schema] ${fieldName} 必須是含 protocol 的絕對 URL，收到："${value}"`,
+      `[schema] ${fieldName} 必須為含 protocol 的絕對 URL（如 https://…），實際收到「${value}」`,
     );
   }
 }
@@ -112,19 +129,25 @@ export function lodgingBusinessSchema(input: LodgingBusinessInput): SchemaObject
  * 產生 BreadcrumbList JSON-LD。
  * 第一個項目通常為「首頁」，最後一項為當前頁面。
  *
- * @param items 麵包屑陣列；每項 name、url 皆不得為空白字串
+ * @param items 麵包屑陣列；每項 name、url 皆不得為空白字串，且 url 必須為絕對 URL
  * @returns     可序列化為 JSON-LD 的 SchemaObject
- * @throws      Error 當任一項目 name 或 url 為空 / 全空白
+ * @throws      Error 當任一項目 name 或 url 為空 / 全空白；或 url 非絕對 URL
  */
 export function breadcrumbSchema(
   items: ReadonlyArray<BreadcrumbItem>,
 ): SchemaObject {
+  // BreadcrumbItem.name / url 在型別層皆為 string（非 optional），
+  // 故此處用 `!item.name.trim()` 而非 `!item.name?.trim()`，避免多餘 optional chaining
+  // 給人 name/url 可能為 undefined 的誤導。
   items.forEach((item, i) => {
-    if (!item.name?.trim() || !item.url?.trim()) {
+    if (!item.name.trim() || !item.url.trim()) {
       throw new Error(
         `[schema] breadcrumbSchema 第 ${i} 項 name/url 不得為空白`,
       );
     }
+    // url 不僅要非空，還必須是含 protocol 的絕對 URL，
+    // 否則 Google Rich Results 會將整個 BreadcrumbList 視為無效並拒收。
+    assertAbsoluteUrl(item.url, `breadcrumbSchema[${i}].url`);
   });
   return {
     '@context': 'https://schema.org',

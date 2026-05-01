@@ -9,6 +9,15 @@
 /**
  * 將 const-asserted 物件的 string literal 葉節點放寬為 `string`，
  * 以便讓其他語系字典可填入任意翻譯內容、同時維持結構一致。
+ *
+ * **警戒（branded string）**：
+ *   `T[K] extends string` 為 distributive conditional type，會把所有「結構上等於 string」的型別
+ *   一併映射為寬鬆 `string`。若日後字典葉節點引入 branded string（如
+ *   `type SafeHtml = string & { readonly __safeHtml: unique symbol }`），
+ *   此處會把 brand 抹除掉，導致下游元件失去型別保護。屆時需重新評估：
+ *     - 改用 `T[K] extends string & infer Brand ? Brand & string : ...` 之類保留 brand 的策略
+ *     - 或為 branded 葉節點另開分支不走 Loosen
+ *   目前字典僅含純文字字面值，暫無此風險。
  */
 type Loosen<T> = {
   [K in keyof T]: T[K] extends string ? string : Loosen<T[K]>;

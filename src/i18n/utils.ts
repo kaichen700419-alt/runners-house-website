@@ -9,8 +9,11 @@
  *
  * 設計原則：
  *  - 缺 key 時先 fallback 至 zh-TW，再缺則回傳 key 並 console.warn
- *  - 在 production build 階段（import.meta.env.PROD）若缺 `seo.*` key 直接 throw，
- *    讓建置流程 fail-loud，避免上線頁面實際缺失 SEO 字串
+ *  - 在 production build 階段（import.meta.env.PROD）：
+ *      a. 兩字典都缺 `seo.*` key → throw
+ *      b. 非預設 locale 缺 `seo.*` key 即便能 fallback 至 zh-TW 也 throw
+ *         （SEO 字串語言錯亂會被 Google 錯誤索引並降權，屬靜默致命退化）
+ *    其餘 key（如 nav、common）僅 console.warn，不阻斷建置
  *  - en 一律以 `/en` 為前綴，zh-TW（預設）不加前綴
  *  - placeholder 採 `{name}` 樣式
  */
@@ -94,9 +97,11 @@ function interpolate(
  *
  * 缺 key 流程：
  *   1. 從 `locale` 字典找；找到則回傳。
- *   2. 找不到 → 從 `zh-TW` 字典找；找到則 console.warn 並回傳。
- *   3. 仍找不到 → 在 production build（PROD）若 key 以 `seo.` 開頭，直接 throw
- *     使建置 fail-loud；否則僅 console.warn 並回傳原 key 以避免畫面崩壞。
+ *   2. 找不到 → 從 `zh-TW` 字典找；
+ *        - 若命中且 PROD + key 為 `seo.*` + locale 非預設語系 → throw（禁止 fallback）
+ *        - 否則 console.warn 並回傳 fallback 值
+ *   3. 兩字典都缺 → 在 production build（PROD）若 key 以 `seo.` 開頭，直接 throw
+ *      使建置 fail-loud；否則僅 console.warn 並回傳原 key 以避免畫面崩壞。
  */
 export function useTranslations(locale: Locale): TranslateFn {
   const primary = dictionaries[locale];
@@ -113,13 +118,28 @@ export function useTranslations(locale: Locale): TranslateFn {
     }
     const fallbackValue = lookup(fallback, key);
     if (fallbackValue !== undefined) {
+      // PROD fail-loud：即便 fallback 命中，若當前 locale 非預設 locale 且為 SEO key，
+      // 仍必須 throw。理由：英文頁面 fallback 至 zh-TW 會把中文 title/description 寫進
+      // <head>，搜尋引擎讀到語言錯亂的字串會「錯誤索引」並降權整站；屬靜默致命退化，
+      // 必須在 build 階段炸給工程師看到，禁止 fallback 通過。
+      // 注意：非 seo.* key 缺失時退化為「顯示中文」雖不理想但仍可閱讀，可接受 fallback；
+      //      SEO key 缺失會產出語言錯亂或空 meta 影響搜尋排名，屬零容忍。
+      if (
+        import.meta.env.PROD &&
+        key.startsWith('seo.') &&
+        locale !== DEFAULT_LOCALE
+      ) {
+        throw new Error(
+          `[i18n] production build 缺少 SEO key "${key}"（locale=${locale}），禁止 fallback 至 ${DEFAULT_LOCALE}，建置中止`,
+        );
+      }
       console.warn(
         `[i18n] locale=${locale} 缺少 key "${key}"，已 fallback 至 ${DEFAULT_LOCALE}`,
       );
       return interpolate(fallbackValue, params);
     }
-    // SEO 字串若於 production build 缺失，直接 throw 讓建置失敗，
-    // 避免線上實際輸出空 title / 空 description 等致命 SEO 退化。
+    // 兩字典皆缺：SEO key 在 production build 直接 throw，避免線上輸出空 title/description；
+    // 非 seo.* key 缺失退化為顯示 key 字串可接受，SEO key 缺失會被 Google 降權，故 fail-loud。
     if (import.meta.env.PROD && key.startsWith('seo.')) {
       throw new Error(
         `[i18n] production build 缺少 SEO key "${key}"（locale=${locale}），建置中止`,

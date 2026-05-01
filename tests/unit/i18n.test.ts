@@ -99,6 +99,17 @@ describe('useTranslations', () => {
     expect(t('common.copyright')).toContain('{year}');
   });
 
+  it('部分 placeholder 缺對應 key 時，缺少者保留原樣（覆蓋 interpolate `return match` 分支）', () => {
+    // copyrightLong 模板含 {year} {site} {tagline} 三個 placeholder。
+    // 只給 year 不給 site/tagline，後兩者必須原樣保留以利除錯，不可變成 "undefined"。
+    const t = useTranslations('zh-TW');
+    const result = t('common.copyrightLong', { year: '2025' });
+    expect(result).toContain('2025');
+    expect(result).toContain('{site}');
+    expect(result).toContain('{tagline}');
+    expect(result).not.toContain('undefined');
+  });
+
   describe('fallback 行為', () => {
     let warnSpy: ReturnType<typeof vi.spyOn>;
     beforeEach(() => {
@@ -106,10 +117,19 @@ describe('useTranslations', () => {
     });
     afterEach(() => {
       warnSpy.mockRestore();
+      // 不論測試斷言是否失敗，都必須還原 mock 狀態，避免後續測試讀到殘留的殘缺字典；
+      // 故將 doUnmock + resetModules 從測試函式體尾端移到 afterEach。
+      vi.doUnmock('@/i18n/en');
+      vi.doUnmock('@/i18n/zh-TW');
+      vi.unstubAllEnvs();
+      vi.resetModules();
     });
 
     it('en 缺 key 時 fallback 至 zh-TW（透過 mock primary 字典模擬殘缺）', async () => {
-      // 使用 vi.doMock 動態替換 en 字典，模擬「en 缺 key 但 zh-TW 有」的真實情境
+      // 為何用 vi.doMock 而非 vi.mock：
+      //   - vi.mock 會在檔案載入時被 vitest hoist 到頂部，所有測試共享，無法單測動態 mock
+      //   - vi.doMock 不 hoist，可在測試函式體內動態呼叫，搭配 resetModules 達到「精確隔離單一情境」
+            //   - 完成後在 afterEach 統一 doUnmock + resetModules 即可乾淨復原
       vi.doMock('@/i18n/en', () => ({
         // common.copyright 只保留中文版時 en 字典缺此 key
         default: { common: {} },
@@ -123,9 +143,6 @@ describe('useTranslations', () => {
       expect(warnSpy).toHaveBeenCalledWith(
         expect.stringContaining('locale=en 缺少 key "nav.home"'),
       );
-      // 還原避免污染後續測試
-      vi.doUnmock('@/i18n/en');
-      vi.resetModules();
     });
 
     it('完全找不到 key 時回傳 key 並 console.warn', () => {
@@ -148,6 +165,58 @@ describe('useTranslations', () => {
       // nav.home 是字串葉節點，再向下挖 nav.home.extra 應視為缺失
       expect(t('nav.home.extra')).toBe('nav.home.extra');
       expect(warnSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('PROD fail-loud 行為（覆蓋 import.meta.env.PROD throw 分支）', () => {
+    let warnSpy: ReturnType<typeof vi.spyOn>;
+    beforeEach(() => {
+      warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      // 透過 vi.stubEnv 模擬 production build 環境（vitest 預設為 dev）
+      vi.stubEnv('PROD', true);
+    });
+    afterEach(() => {
+      warnSpy.mockRestore();
+      vi.doUnmock('@/i18n/en');
+      vi.doUnmock('@/i18n/zh-TW');
+      vi.unstubAllEnvs();
+      vi.resetModules();
+    });
+
+    it('PROD + en 缺 seo.* key + zh-TW 仍有 → throw（禁止 SEO fallback 至中文）', async () => {
+      // en 字典完全空（含 seo namespace 全缺），zh-TW 維持完整
+      vi.doMock('@/i18n/en', () => ({ default: {} }));
+      vi.resetModules();
+      const utils = await import('@/i18n/utils');
+      const t = utils.useTranslations('en');
+      expect(() => t('seo.homeTitle')).toThrow(
+        /production build 缺少 SEO key "seo\.homeTitle"（locale=en），禁止 fallback 至 zh-TW/,
+      );
+    });
+
+    it('PROD + 兩字典都缺 seo.* key → throw（兩條 throw 路徑都要守）', async () => {
+      // 兩個字典都被 mock 成空物件
+      vi.doMock('@/i18n/en', () => ({ default: {} }));
+      vi.doMock('@/i18n/zh-TW', () => ({ default: {} }));
+      vi.resetModules();
+      const utils = await import('@/i18n/utils');
+      const tZh = utils.useTranslations('zh-TW');
+      expect(() => tZh('seo.homeTitle')).toThrow(
+        /production build 缺少 SEO key "seo\.homeTitle"（locale=zh-TW），建置中止/,
+      );
+    });
+
+    it('PROD + en 缺非 seo key（如 nav.home）→ 不 throw，僅 warn 並 fallback', async () => {
+      // 非 seo.* key 缺失退化為顯示中文可接受，不應 fail-loud
+      vi.doMock('@/i18n/en', () => ({ default: {} }));
+      vi.resetModules();
+      const utils = await import('@/i18n/utils');
+      const t = utils.useTranslations('en');
+      expect(() => t('nav.home')).not.toThrow();
+      expect(t('nav.home')).toBe('首頁');
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('locale=en 缺少 key "nav.home"'),
+      );
     });
   });
 
@@ -294,13 +363,12 @@ describe('字典完整性', () => {
     expect(extraInEn, `en 多出: ${extraInEn.join(', ')}`).toEqual([]);
   });
 
-  it('每個 namespace 至少有 8 個 key', () => {
-    const namespaces = Object.keys(zhTW) as Array<keyof typeof zhTW>;
-    for (const ns of namespaces) {
-      const keys = collectKeys(zhTW[ns]);
-      expect(keys.length, `namespace ${String(ns)} 太少 key`).toBeGreaterThanOrEqual(8);
-    }
-  });
+  // 移除「每個 namespace 至少 8 key」的硬編碼門檻測試：
+  //   - 8 為魔術數字，無業務含義；新增 namespace 時還要記得回來改門檻
+  //   - 即使 zh-TW 與 en 同時刪掉同一 key 退化為「同步殘缺」，這條測試也守不住
+  //     （因為兩邊長度仍相等，且都仍 ≥ 8）
+  //   - 真正能守的是「zh-TW 與 en key 樹完全一致」測試（已存在於上方），
+  //     再加上 PROD fail-loud（缺 seo.* 即 throw）即可阻擋線上輸出語言錯亂字串
 
   // 限縮 spy 範圍至需要的 describe，避免污染其他測試斷言
   describe('葉節點型別檢查（含 spy）', () => {

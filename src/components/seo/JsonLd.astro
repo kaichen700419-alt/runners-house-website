@@ -23,6 +23,12 @@ const schemas = Array.isArray(schema) ? schema : [schema];
 
 /**
  * 將 schema 物件序列化並對 HTML 敏感字元做 Unicode escape，避免 </script> 注入。
+ *
+ * 為何使用小寫 `<` 而非大寫 `<`：
+ *   依 RFC 8259 §7，JSON 規範允許 hex digit 大小寫均合法，
+ *   瀏覽器與 JSON parser 解析後皆會還原為相同字元；
+ *   此處選小寫純為與主流安全函式庫慣例（serialize-javascript、django.utils.html.json_script 等）一致，
+ *   方便 grep 跨庫追蹤、人眼比對。
  */
 function safeJsonLd(entry: SchemaObject): string {
   return JSON.stringify(entry)

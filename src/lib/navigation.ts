@@ -24,6 +24,34 @@ export type NavKey =
   | 'nav.nearby'
   | 'nav.contact';
 
+/**
+ * 介面控制元件（行動選單漢堡按鈕等）使用的字典 key 收斂 union。
+ *
+ * 與 `NavKey` 拆開的理由：
+ *   - NavKey 對應頁面導覽連結（會出現在 sitemap 結構）
+ *   - UiKey 對應「介面控制」標籤，僅用於 aria-label / visually-hidden 提示
+ *   分開語意有助於後續若需做 i18n key 完整性掃描時可獨立報表。
+ */
+export type UiKey = 'nav.menuOpen' | 'nav.menuClose';
+
+/**
+ * 取得「UI 控制元件」翻譯字串的型別守門 helper。
+ *
+ * 為何要包一層：
+ *   `useTranslations` 回傳的 `TranslateFn` 接受寬鬆 `string`，
+ *   會讓 `t('nav.menuOpne')`（typo）這類 bug 漏到 runtime；
+ *   `tUi` 將 key 限縮為 `UiKey` union，typo 在編譯期即被 TS 攔截。
+ *
+ * @param t   useTranslations(locale) 回傳的翻譯函式
+ * @param key 必須為 UiKey union 內合法字串
+ */
+export function tUi(
+  t: (key: string) => string,
+  key: UiKey,
+): string {
+  return t(key);
+}
+
 export interface NavItem {
   /** 翻譯 key（如 `nav.about`），由元件呼叫 t(key) 取得文字 */
   key: NavKey;
