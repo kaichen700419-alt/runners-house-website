@@ -1,0 +1,49 @@
+---
+/**
+ * JsonLd 元件
+ *
+ * 將 Schema.org 物件序列化為 <script type="application/ld+json">。
+ * 使用 set:html 寫入 JSON 字串，避免 Astro 對內容做 escape。
+ *
+ * 安全考量：
+ *   JSON.stringify 雖會跳脫雙引號等基本字元，但不會跳脫 `<`、`>`、`&`，
+ *   一旦字典字串含 `</script>` 即可逃出 <script> 上下文。
+ *   因此此處統一將 `<`/`>`/`&` 替換為 `\uXXXX` Unicode escape；
+ *   JSON 規範允許此寫法，瀏覽器解析後仍會還原為原字元，但 HTML parser 不會把它視為標籤邊界。
+ */
+import type { SchemaObject } from '@/lib/schema';
+
+interface Props {
+  /** 已產生好的 schema 物件，可為單一或陣列 */
+  schema: SchemaObject | ReadonlyArray<SchemaObject>;
+}
+
+const { schema } = Astro.props;
+const schemas = Array.isArray(schema) ? schema : [schema];
+
+/**
+ * 將 schema 物件序列化並對 HTML 敏感字元做 Unicode escape，避免 </script> 注入。
+ *
+ * 為何使用小寫 `<` 而非大寫 `<`：
+ *   依 RFC 8259 §7，JSON 規範允許 hex digit 大小寫均合法，
+ *   瀏覽器與 JSON parser 解析後皆會還原為相同字元；
+ *   此處選小寫純為與主流安全函式庫慣例（serialize-javascript、django.utils.html.json_script 等）一致，
+ *   方便 grep 跨庫追蹤、人眼比對。
+ */
+function safeJsonLd(entry: SchemaObject): string {
+  return JSON.stringify(entry)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026');
+}
+---
+
+{
+  schemas.map((entry) => (
+    <script
+      is:inline
+      type="application/ld+json"
+      set:html={safeJsonLd(entry)}
+    />
+  ))
+}

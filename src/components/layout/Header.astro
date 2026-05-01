@@ -1,0 +1,195 @@
+---
+/**
+ * Header 元件
+ *
+ * 桌面：水平導覽列；行動：漢堡 + 抽屜選單（MobileMenu）。
+ * 樣式採 sticky 定位搭配半透明白底與 backdrop-filter 毛玻璃效果，
+ * 並無真正的 scroll-driven animation，全程不依賴 JS。
+ */
+import { getLocalizedPath, useTranslations } from '@/i18n/utils';
+import { NAV_ITEMS, resolveNavHrefs } from '@/lib/navigation';
+import { SITE } from '@/lib/site';
+import LanguageSwitcher from './LanguageSwitcher.astro';
+import MobileMenu from './MobileMenu.astro';
+import type { Locale } from '@/i18n/types';
+
+interface Props {
+  pathname: string;
+  locale: Locale;
+}
+
+const { pathname, locale } = Astro.props;
+const t = useTranslations(locale);
+const homeHref = getLocalizedPath('/', locale);
+const navItems = resolveNavHrefs(NAV_ITEMS, locale);
+---
+
+<a class="skip-link" href="#main-content">{t('common.skipToContent')}</a>
+
+<header class="site-header" aria-label="site header">
+  <div class="container-wide header-inner">
+    <a class="brand" href={homeHref} aria-label={t('common.siteName')}>
+      <span class="brand-mark" aria-hidden="true">{SITE.brandMark}</span>
+      <span class="brand-text">
+        <span class="brand-name">{t('common.siteName')}</span>
+        <span class="brand-tagline">{t('common.tagline')}</span>
+      </span>
+    </a>
+
+    <nav class="desktop-nav" aria-label="primary">
+      <ul>
+        {
+          navItems.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                aria-current={item.href === pathname ? 'page' : undefined}
+              >
+                {t(item.key)}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="header-tail">
+      <LanguageSwitcher pathname={pathname} locale={locale} />
+      <a class="cta-inline" href={getLocalizedPath('/contact', locale)}>
+        {t('common.bookInquiry')}
+      </a>
+      <MobileMenu pathname={pathname} locale={locale} />
+    </div>
+  </div>
+</header>
+
+<style>
+  .skip-link {
+    position: absolute;
+    left: 1rem;
+    top: -3rem;
+    z-index: 100;
+    background-color: var(--color-ocean-700);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    transition: top 160ms var(--ease-snappy);
+  }
+  .skip-link:focus {
+    top: 1rem;
+  }
+
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background-color: rgb(255 255 255 / 0.85);
+    backdrop-filter: saturate(160%) blur(12px);
+    -webkit-backdrop-filter: saturate(160%) blur(12px);
+    border-bottom: 1px solid var(--color-timber-200);
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    height: 4rem;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    text-decoration: none;
+    color: var(--color-ink-950);
+  }
+  .brand-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background: linear-gradient(140deg, var(--color-ocean-600), var(--color-ocean-800));
+    color: white;
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+  .brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+  }
+  .brand-name {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  .brand-tagline {
+    font-size: 0.7rem;
+    color: var(--color-ink-500);
+    letter-spacing: 0.04em;
+  }
+
+  .desktop-nav {
+    display: none;
+  }
+  .desktop-nav ul {
+    display: flex;
+    gap: 0.25rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .desktop-nav a {
+    display: inline-block;
+    padding: 0.5rem 0.85rem;
+    color: var(--color-ink-700);
+    font-size: 0.95rem;
+    text-decoration: none;
+    border-radius: 0.5rem;
+    transition: color 160ms var(--ease-snappy), background-color 160ms var(--ease-snappy);
+  }
+  .desktop-nav a:hover {
+    color: var(--color-ocean-800);
+    background-color: var(--color-ocean-50);
+  }
+  .desktop-nav a[aria-current='page'] {
+    color: var(--color-ocean-900);
+    font-weight: 600;
+  }
+
+  .header-tail {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .cta-inline {
+    display: none;
+    padding: 0.55rem 1rem;
+    border-radius: 999px;
+    background-color: var(--color-ocean-700);
+    color: white;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: background-color 160ms var(--ease-snappy), transform 160ms var(--ease-snappy);
+  }
+  .cta-inline:hover {
+    background-color: var(--color-ocean-800);
+    transform: translateY(-1px);
+  }
+
+  @media (min-width: 1024px) {
+    .desktop-nav {
+      display: block;
+      flex: 1;
+      margin-inline: 1rem;
+    }
+    .cta-inline {
+      display: inline-block;
+    }
+  }
+</style>

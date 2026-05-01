@@ -1,0 +1,74 @@
+---
+/**
+ * LanguageSwitcher 元件
+ *
+ * 在中／英之間切換目前頁面的對等 URL。
+ * 採用兩個獨立 <a>：當前語系 aria-current="true" 並淡化視覺；非當前語系作為可點連結。
+ */
+import { getAlternateLocaleUrl, useTranslations } from '@/i18n/utils';
+import type { Locale } from '@/i18n/types';
+
+interface Props {
+  pathname: string;
+  locale: Locale;
+}
+
+const { pathname, locale } = Astro.props;
+const t = useTranslations(locale);
+const zhHref = getAlternateLocaleUrl(pathname, 'zh-TW');
+const enHref = getAlternateLocaleUrl(pathname, 'en');
+---
+
+<nav class="language-switcher" aria-label={t('common.languageLabel')}>
+  <a
+    href={zhHref}
+    hreflang="zh-Hant-TW"
+    lang="zh-Hant-TW"
+    aria-current={locale === 'zh-TW' ? 'true' : undefined}
+    class:list={['lang-link', { active: locale === 'zh-TW' }]}
+  >
+    {/* i18n-ignore: 語言名稱本身為固定寫法，不參與翻譯 */}
+    中文
+  </a>
+  <span class="divider" aria-hidden="true">/</span>
+  <a
+    href={enHref}
+    hreflang="en"
+    lang="en"
+    aria-current={locale === 'en' ? 'true' : undefined}
+    class:list={['lang-link', { active: locale === 'en' }]}
+  >
+    {/* i18n-ignore: 語言名稱本身為固定寫法，不參與翻譯 */}
+    EN
+  </a>
+</nav>
+
+<style>
+  .language-switcher {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    color: var(--color-ink-700);
+  }
+  .lang-link {
+    padding: 0.15rem 0.35rem;
+    border-radius: 0.25rem;
+    text-decoration: none;
+    color: inherit;
+    transition: color 160ms var(--ease-snappy), background-color 160ms var(--ease-snappy);
+  }
+  .lang-link:hover {
+    color: var(--color-ocean-700);
+  }
+  .lang-link.active {
+    color: var(--color-ocean-800);
+    background-color: var(--color-ocean-50);
+    font-weight: 600;
+    pointer-events: none;
+  }
+  .divider {
+    color: var(--color-ink-300);
+  }
+</style>

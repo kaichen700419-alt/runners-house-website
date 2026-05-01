@@ -6,6 +6,12 @@ dist/
 # dependencies
 node_modules/
 
+# 測試覆蓋率報告
+coverage/
+
+# git worktrees（避免巢狀 worktree 被追蹤）
+worktrees/
+
 # logs
 npm-debug.log*
 yarn-debug.log*
