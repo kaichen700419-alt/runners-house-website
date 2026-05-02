@@ -10,6 +10,7 @@
  *   - 1972 浮水印改為 Bodoni Moda Italic 巨字（更戲劇）
  */
 import { getLocalizedPath, useTranslations } from '@/i18n/utils';
+import ImagePlaceholder from '@/components/ui/ImagePlaceholder.astro';
 import type { Locale } from '@/i18n/types';
 
 interface Props {
@@ -41,9 +42,19 @@ const timeline = [
       </div>
     </div>
 
+    {/* 米倉外觀大圖框（業主明確要求左 50% 大圖框） */}
+    <div class="story-photo reveal" data-delay="1">
+      <ImagePlaceholder
+        locale={locale}
+        alt={locale === 'en' ? 'The 1972 rice barn · Coastal exterior at dusk' : '1972 年米倉外觀（黃昏的海岸夯土牆）'}
+        ratio="21:9"
+        variant="ink"
+      />
+    </div>
+
     <div class="grid">
       {/* 左：時間軸 */}
-      <ol class="timeline reveal" data-delay="1">
+      <ol class="timeline reveal" data-delay="2">
         {
           timeline.map((row) => (
             <li class="time-row">
@@ -58,7 +69,7 @@ const timeline = [
       </ol>
 
       {/* 右：引言 + CTA */}
-      <div class="content reveal" data-delay="2">
+      <div class="content reveal" data-delay="3">
         <h2 id="story-teaser-heading" class="title">
           {t('home.storyTeaserHeading')}
         </h2>
@@ -78,14 +89,14 @@ const timeline = [
 <style>
   .story {
     position: relative;
-    padding-block: 9rem 10rem;
+    padding-block: 4.5rem 5rem;
     background-color: var(--color-ink-950);
     color: var(--color-sand-100);
     overflow: hidden;
     isolation: isolate;
   }
   @media (min-width: 1024px) {
-    .story { padding-block: 12rem 13rem; }
+    .story { padding-block: 6rem 7rem; }
   }
   /* 浮水印巨字：兩個年份交錯排列、不同透明度 */
   .watermark {
@@ -114,7 +125,22 @@ const timeline = [
     opacity: 0.07;
   }
 
-  .chapter-row { margin-bottom: 5rem; }
+  .chapter-row { margin-bottom: 2.5rem; }
+
+  /* 米倉外觀大圖框 */
+  .story-photo {
+    position: relative;
+    z-index: 1;
+    margin: 0 auto 3rem;
+    max-width: 1240px;
+    padding-inline: 1.5rem;
+  }
+  @media (min-width: 768px) {
+    .story-photo { padding-inline: 2.5rem; margin-bottom: 4rem; }
+  }
+  @media (min-width: 1280px) {
+    .story-photo { padding-inline: 4rem; }
+  }
   .chapter-mark.on-dark .num { color: var(--color-sun-400); }
   .chapter-mark.on-dark .label { color: var(--color-sand-300); }
 

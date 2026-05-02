@@ -10,6 +10,7 @@
  *   - hover 時編號右移、標題向上推、晨曦橘細線從左到右畫過底部
  */
 import { getLocalizedPath, useTranslations } from '@/i18n/utils';
+import ImagePlaceholder from '@/components/ui/ImagePlaceholder.astro';
 import type { Locale } from '@/i18n/types';
 
 interface Props {
@@ -28,6 +29,8 @@ const pillars = [
     ctaKey: 'home.featureRunCta',
     href: '/runners',
     icon: 'run',
+    photoAlt: locale === 'en' ? 'Sunrise run · Coastline KM 91' : '清晨海岸線晨跑場景',
+    variant: 'sand' as const,
   },
   {
     num: 'II',
@@ -37,6 +40,8 @@ const pillars = [
     ctaKey: 'home.featureStayCta',
     href: '/rooms',
     icon: 'stay',
+    photoAlt: locale === 'en' ? 'Rice barn interior · Cypress beams' : '米倉室內檜木樑與夯土牆',
+    variant: 'timber' as const,
   },
   {
     num: 'III',
@@ -46,6 +51,8 @@ const pillars = [
     ctaKey: 'home.featureChargeCta',
     href: '/charging',
     icon: 'charge',
+    photoAlt: locale === 'en' ? 'Tesla Wall Connector · Coastal stop' : '特斯拉超充樁與庭院車位',
+    variant: 'ocean' as const,
   },
 ] as const;
 ---
@@ -71,6 +78,16 @@ const pillars = [
       {
         pillars.map((p, i) => (
           <li class="pillar reveal" data-delay={i + 2}>
+            {/* 卡片頂部小圖框（4:3，給卡片飽滿感） */}
+            <div class="pillar-photo">
+              <ImagePlaceholder
+                locale={locale}
+                alt={p.photoAlt}
+                ratio="4:3"
+                variant={p.variant}
+              />
+            </div>
+
             {/* 大編號 + 線稿 icon */}
             <div class="pillar-mark">
               <span class="pillar-num" aria-hidden="true">{p.num}</span>
@@ -116,16 +133,17 @@ const pillars = [
 
 <style>
   .features {
-    padding-block: 8rem 9rem;
+    padding-block: 4rem 4.5rem;
     background-color: var(--color-sand-50);
+    border-top: 1px solid var(--color-divider);
   }
   @media (min-width: 1024px) {
-    .features { padding-block: 11rem 12rem; }
+    .features { padding-block: 5.5rem 6rem; }
   }
 
-  .chapter-row { margin-bottom: 4rem; }
+  .chapter-row { margin-bottom: 2rem; }
   .header {
-    margin-bottom: 6rem;
+    margin-bottom: 3rem;
     display: grid;
     gap: 1.75rem;
     grid-template-columns: 1fr;
@@ -190,8 +208,8 @@ const pillars = [
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
-    padding: 4rem 2rem 3rem;
+    gap: 1.25rem;
+    padding: 2rem 1.75rem 2.5rem;
     transition: background-color 600ms var(--ease-editorial);
   }
   .pillar + .pillar {
@@ -200,7 +218,7 @@ const pillars = [
   @media (min-width: 768px) {
     .pillar + .pillar { border-top: none; }
     .pillar {
-      padding: 5rem 2.5rem 4rem;
+      padding: 2.25rem 2rem 3rem;
     }
   }
   .pillar:hover { background-color: var(--color-sand-100); }
@@ -208,9 +226,9 @@ const pillars = [
   .pillar::after {
     content: '';
     position: absolute;
-    left: 2rem;
-    right: 2rem;
-    bottom: 1.5rem;
+    left: 1.75rem;
+    right: 1.75rem;
+    bottom: 1.25rem;
     height: 1px;
     background-color: var(--color-sun-400);
     transform: scaleX(0);
@@ -218,6 +236,18 @@ const pillars = [
     transition: transform 540ms var(--ease-editorial);
   }
   .pillar:hover::after { transform: scaleX(1); }
+
+  /* 卡片頂部圖框 */
+  .pillar-photo {
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+  }
+  .pillar-photo > :global(figure) {
+    transition: transform 900ms var(--ease-editorial);
+  }
+  .pillar:hover .pillar-photo > :global(figure) {
+    transform: scale(1.02);
+  }
 
   .pillar-mark {
     display: flex;

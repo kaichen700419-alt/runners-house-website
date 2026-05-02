@@ -161,12 +161,17 @@ export function useTranslations(locale: Locale): TranslateFn {
  *
  * 內部使用 `isLocale` 守門，確保未來若新增語系（zh-Hans 等）只需擴充 LOCALES，
  * 此函式即可自動受益於 type guard 的編譯期檢查。
+ *
+ * 對 GitHub Pages 等子路徑部署：先 strip Astro `BASE_URL` 前綴，
+ * 否則 `/runners-house-website/en/contact` 會被誤判為 zh-TW，造成
+ * <html lang> 與 schema.inLanguage 雙雙錯成中文 → SEO 嚴重退化。
  */
 export function detectLocale(pathname: string): Locale {
   if (!pathname) {
     return DEFAULT_LOCALE;
   }
-  if (pathname === '/en' || pathname.startsWith('/en/')) {
+  const stripped = stripBasePrefix(pathname);
+  if (stripped === '/en' || stripped.startsWith('/en/')) {
     // 透過 isLocale 雙重保險：避免未來常數變更但本函式忘記同步
     return isLocale('en') ? 'en' : DEFAULT_LOCALE;
   }

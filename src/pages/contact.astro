@@ -5,6 +5,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import ContactSections from '@/components/contact/ContactSections.astro';
 import Breadcrumbs from '@/components/ui/Breadcrumbs.astro';
+import FaqJsonLd from '@/components/seo/FaqJsonLd.astro';
 import { useTranslations } from '@/i18n/utils';
 import { SITE } from '@/lib/site';
 
@@ -29,4 +30,6 @@ const schemaBreadcrumbs = [
     <Breadcrumbs locale={locale} items={breadcrumbItems} />
   </div>
   <ContactSections locale={locale} />
+  {/* FAQ 區塊：JSON-LD + 可見 <details> 同源渲染，確保 schema 與 HTML 完全對齊 */}
+  <FaqJsonLd locale={locale} />
 </BaseLayout>

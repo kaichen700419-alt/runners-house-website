@@ -42,10 +42,10 @@
      強調：海洋灰藍（Logo / CTA）+ 晨曦橘（小範圍跳色）
      分隔：礦物灰 */
 
-  /* sand（沙白）— 取代舊 bone */
-  --color-sand-50:  #f7f4ed;   /* 頁面主背景（比研究報告原值再亮一點，給更多呼吸） */
-  --color-sand-100: #f4f1ea;   /* 配色 A 標準沙白 */
-  --color-sand-200: #eae5da;   /* 配色 A 內頁區塊 */
+  /* sand（沙白）— 採用 Aman 真實暖米調 #f3eee7（concrete-visual-refs.md） */
+  --color-sand-50:  #f3eee7;   /* 頁面主背景：Aman 真實暖米，比純白更精緻不刺眼 */
+  --color-sand-100: #efe9e0;   /* 略深層次，內頁區塊背景 */
+  --color-sand-200: #e5dccd;   /* 配色 A 內頁區塊 */
   --color-sand-300: #ddd5c2;   /* 略深層次 */
   --color-sand-400: #c8bea5;   /* 卡片邊框 */
 
@@ -58,9 +58,9 @@
   --color-ink-500: #5c5c5c;    /* 配色 A 次要文字 */
   --color-ink-600: #424238;
   --color-ink-700: #2c2c26;
-  --color-ink-800: #1f1f1b;
-  --color-ink-900: #1a1a1a;    /* 配色 A 內文主色 */
-  --color-ink-950: #0a0a0a;    /* 深 charcoal hero */
+  --color-ink-800: #2c2c2c;    /* 較深層次 */
+  --color-ink-900: #313131;    /* 配色 A 內文主色（Aman 真實炭灰，不顯純黑廉價） */
+  --color-ink-950: #1a1a1a;    /* 深 charcoal hero（仍保留深色衝擊但非純黑） */
 
   /* sea（海洋灰藍）— Logo / CTA / nav 強調 */
   --color-sea-50:  #eef2f3;

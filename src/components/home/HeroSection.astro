@@ -1,16 +1,26 @@
 ---
 /**
- * HeroSection v4 — D1 第 1 屏「電影開場」
+ * HeroSection v5 — 「真正的精品民宿首屏」
  *
- * 設計依據：研究報告 top-tier-bnb-design-2026.md D1.Screen 1
- *   - 全螢幕 100dvh + 沙白底（不是黑底，避開 cookie-cutter dark hero）
- *   - 中文巨字標題（H1）配 Bodoni Moda italic 大寫副標
- *   - 右下角 SVG 線稿 + 跑者剪影 + 動態浪線（無真實照片，依 D2 策略 1+4）
- *   - 左側：定錨經緯度（GEO） + 季節英文短籤（kinetic typography）
- *   - 底部 scroll cue：「scroll · 滾動」字 + 細線
- *   - hero 標題用「兩行錯落」editorial 排版（依 The Drake / Aman 範式）
+ * 業主反饋：v4 的「左大字 + 右火柴人 SVG」看起來像兒童畫、空白幼稚。
+ * v5 重做策略（依 Aman / Hoshinoya / The Drake 等真實官網的 hero 做法）：
+ *   1. 完全移除火柴人 SVG 場景插畫
+ *   2. 改成「左 45% 飽滿文字內容 + 右 55% 大型 Photo Placeholder（80vh 高）」
+ *   3. 文字側內容一次到位：
+ *      eyebrow（地理座標 + 海岸線編號）
+ *      → H1 大標（兩行錯落）
+ *      → 一段 60-80 字介紹副文（lead）
+ *      → 三聯 CTA（看房型 / LINE 訂房 / 撥電話）
+ *      → 規格條（入住時間 / 位置 / 房型數）
+ *   4. 圖框側用 ImagePlaceholder（ratio 3:4）佔據 right column 全高
+ *   5. 移除桌面 cursor / season kinetic loop 等花俏效果，回歸內容
+ *
+ * 設計克制度：仍保留 italic 副標、章節編號、scroll cue 等精品細節，
+ * 但所有「看起來像兒童畫的元素」全部刪除。
  */
 import { getLocalizedPath, useTranslations } from '@/i18n/utils';
+import { CONTACT } from '@/lib/site';
+import ImagePlaceholder from '@/components/ui/ImagePlaceholder.astro';
 import type { Locale } from '@/i18n/types';
 
 interface Props {
@@ -20,33 +30,22 @@ interface Props {
 const { locale } = Astro.props;
 const t = useTranslations(locale);
 
-// 海岸線經緯度（呼應研究報告 B7 Hotarutei「地獄谷野猿公苑 遊歩道8分」格式）
+// 地理座標 + 海岸線編號（呼應 Hotarutei 等精品民宿的「定錨」eyebrow）
 const COORD = '23.32°N · 121.46°E';
 const KM_LABEL = locale === 'en' ? 'KM 91 · TAITUNG COAST RD' : '台 11 線 · 91K · 台東長濱';
 
-// 季節 kinetic typography 標籤（純視覺裝飾、非翻譯字串）
-const seasons = locale === 'en'
-  ? ['Spring · Salt', 'Summer · Tide', 'Autumn · Wind', 'Winter · Moon']
-  : ['春 · 鹽', '夏 · 潮', '秋 · 風', '冬 · 月'];
-
-/*
- * Hero 標題兩行錯落顯示策略：
- *   - i18n 字串為「跑步就是回家的路」一句，業主已修正不可動其內容
- *   - 視覺上需要兩行錯落 editorial 排版（依研究報告 D1 Screen 1）
- *   - 解法：英文以空白切半，中文以「就是」為支點切半（語意可斷）
- *   - 完全在 component 內 derive，不新增 i18n key
- */
+// === Hero 標題切兩行 ===
+// i18n 字串「跑步就是回家的路」業主已修正不可動；視覺上需錯落 editorial。
+// 中文以「就是」斷句、英文以中段空白斷句。
 const fullTitle: string = t('home.heroTitle');
 let lineA: string;
 let lineB: string;
 if (locale === 'en') {
-  // 英文：取一半空白前後切（粗略平分）
   const words = fullTitle.split(' ');
   const mid = Math.ceil(words.length / 2);
   lineA = words.slice(0, mid).join(' ');
   lineB = words.slice(mid).join(' ');
 } else {
-  // 中文：尋找「就是」「在」「有」等斷句點，否則對半切
   const breakWords = ['就是', '在', '有', '便'];
   let breakIdx = -1;
   for (const w of breakWords) {
@@ -63,12 +62,32 @@ if (locale === 'en') {
   }
 }
 
-// 英文 italic tagline — 完全用既有 brandStatement 字串
 const tagline: string = t('common.brandStatement');
+const subtitle: string = t('home.heroSubtitle');
+
+// hero 圖框的 caption（中文：海邊老米倉外觀；英文 fallback）
+const heroPhotoAlt = locale === 'en'
+  ? 'The reborn rice barn at sunrise, Changbin coast'
+  : '海邊老米倉清晨外觀（主視覺照片）';
+
+// hero 下方規格條：精品民宿常見的「at-a-glance facts」
+const facts = locale === 'en'
+  ? [
+      { label: 'CHECK-IN',    value: '15:00 – 21:00' },
+      { label: 'LOCATION',    value: 'KM 91 · Coast Rd' },
+      { label: 'ROOMS',       value: '5 Suites' },
+      { label: 'CHARGING',    value: 'Tesla Wall' },
+    ]
+  : [
+      { label: 'CHECK-IN',    value: '15:00 – 21:00' },
+      { label: 'LOCATION',    value: '台 11 線 · 91K' },
+      { label: 'ROOMS',       value: '5 種房型' },
+      { label: 'CHARGING',    value: 'Tesla 超充' },
+    ];
 ---
 
 <section class="hero" aria-labelledby="hero-title">
-  {/* === 上方頂條：經緯度 / 季節 / 編號 === */}
+  {/* === 上方頂條：經緯度 / 章節 === */}
   <div class="hero-topbar" aria-hidden="true">
     <span class="topbar-coord">{COORD}</span>
     <span class="topbar-divider"></span>
@@ -77,94 +96,71 @@ const tagline: string = t('common.brandStatement');
     <span class="topbar-edition">CHAPTER I · {locale === 'en' ? 'A HOUSE BY THE SEA' : '海邊的房子'}</span>
   </div>
 
-  {/* === 主視覺中央：左字右畫 === */}
-  <div class="hero-stage">
-    <div class="hero-typography">
-      {/* 中文巨字標題 — 兩行錯落，第二行右縮排 */}
+  {/* === 主視覺：左字 / 右大圖框 === */}
+  <div class="hero-stage container-wide">
+    {/* 左欄：飽滿文字內容 */}
+    <div class="hero-text">
+      {/* eyebrow */}
+      <p class="hero-eyebrow">
+        <span class="dot" aria-hidden="true"></span>
+        {t('home.heroEyebrow')}
+      </p>
+
+      {/* H1 — 兩行錯落 editorial */}
       <h1 id="hero-title" class="hero-title">
         <span class="line line-a">{lineA}</span>
         <span class="line line-b">{lineB}</span>
       </h1>
 
-      {/* 副標：使用既有 brandStatement 字串，不新增 i18n key */}
-      <p class="hero-eng">
-        <em>{tagline}</em>
-      </p>
+      {/* italic 英文 brand statement */}
+      <p class="hero-eng"><em>{tagline}</em></p>
+
+      {/* 副標：60-80 字完整介紹文 */}
+      <p class="hero-lead">{subtitle}</p>
+
+      {/* 三聯 CTA：主 CTA（深色填色）+ 兩個次要文字鏈 */}
+      <div class="hero-ctas">
+        <a class="cta-primary" href={getLocalizedPath('/rooms', locale)}>
+          <span>{t('home.heroPrimaryCta')}</span>
+          <span class="cta-arrow" aria-hidden="true">→</span>
+        </a>
+        <a class="cta-secondary" href={CONTACT.lineUrl} target="_blank" rel="noopener noreferrer">
+          {t('common.addLine')}
+        </a>
+        <a class="cta-secondary" href={`tel:${CONTACT.phone}`}>
+          {CONTACT.phoneDisplay}
+        </a>
+      </div>
+
+      {/* 規格條（at-a-glance） */}
+      <dl class="hero-facts" aria-label={locale === 'en' ? 'at a glance' : '關鍵資訊'}>
+        {facts.map((f) => (
+          <div class="fact">
+            <dt>{f.label}</dt>
+            <dd>{f.value}</dd>
+          </div>
+        ))}
+      </dl>
     </div>
 
-    {/* === 右下角 SVG 線稿：跑者沿海岸線剪影（依 D2 策略 4：手繪線稿）=== */}
-    <figure class="hero-illust" aria-hidden="true">
-      <svg viewBox="0 0 480 380" preserveAspectRatio="xMidYMax meet" focusable="false">
-        <defs>
-          <linearGradient id="sky-fade" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="rgba(247, 244, 237, 0)" />
-            <stop offset="100%" stop-color="rgba(247, 244, 237, 0.85)" />
-          </linearGradient>
-          <linearGradient id="sun-circle" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="rgba(201, 125, 93, 0.55)" />
-            <stop offset="100%" stop-color="rgba(201, 125, 93, 0.0)" />
-          </linearGradient>
-        </defs>
-
-        {/* 晨曦圓（左上） */}
-        <circle cx="120" cy="80" r="56" fill="url(#sun-circle)" />
-        <circle cx="120" cy="80" r="56" fill="none" stroke="rgba(201, 125, 93, 0.6)" stroke-width="0.6" />
-
-        {/* 海平線（細線 — 1 條，呼應 Hoshinoya 大量留白） */}
-        <line x1="0" y1="200" x2="480" y2="200" stroke="rgba(44, 74, 82, 0.45)" stroke-width="0.6" />
-        <line x1="0" y1="206" x2="480" y2="206" stroke="rgba(44, 74, 82, 0.18)" stroke-width="0.4" />
-
-        {/* 海浪柔線（kinetic 動畫） */}
-        <path class="wave wave-a"
-              d="M0,240 C80,228 160,250 240,238 C320,226 400,250 480,240"
-              fill="none" stroke="rgba(44, 74, 82, 0.35)" stroke-width="0.6" />
-        <path class="wave wave-b"
-              d="M0,260 C100,250 180,272 260,260 C340,248 420,272 480,262"
-              fill="none" stroke="rgba(44, 74, 82, 0.22)" stroke-width="0.5" />
-
-        {/* 跑者剪影 — 簡化線稿 stick figure（依 D2 策略 3 AI 線稿風格） */}
-        <g transform="translate(330, 190)" class="runner">
-          {/* 頭 */}
-          <circle cx="0" cy="0" r="6" fill="none" stroke="#1a1a1a" stroke-width="1.2" />
-          {/* 身體 */}
-          <line x1="0" y1="6" x2="-2" y2="28" stroke="#1a1a1a" stroke-width="1.2" stroke-linecap="round" />
-          {/* 前腿 */}
-          <line x1="-2" y1="28" x2="10" y2="44" stroke="#1a1a1a" stroke-width="1.2" stroke-linecap="round" />
-          {/* 後腿 */}
-          <line x1="-2" y1="28" x2="-12" y2="42" stroke="#1a1a1a" stroke-width="1.2" stroke-linecap="round" />
-          {/* 前手 */}
-          <line x1="0" y1="12" x2="10" y2="20" stroke="#1a1a1a" stroke-width="1.2" stroke-linecap="round" />
-          {/* 後手 */}
-          <line x1="0" y1="12" x2="-10" y2="22" stroke="#1a1a1a" stroke-width="1.2" stroke-linecap="round" />
-        </g>
-
-        {/* 海岸線（前景） */}
-        <path d="M0,310 C100,300 200,320 300,310 C380,302 440,320 480,312 L480,380 L0,380 Z"
-              fill="rgba(44, 74, 82, 0.12)" />
-
-        {/* 上方淡出遮罩，讓畫面與背景無縫 */}
-        <rect x="0" y="0" width="480" height="380" fill="url(#sky-fade)" />
-      </svg>
-    </figure>
-  </div>
-
-  {/* === 左下：季節 kinetic typography（自動輪播） === */}
-  <div class="hero-season" aria-hidden="true">
-    <span class="season-label">CURRENT MOMENT</span>
-    <ul class="season-list">
-      {seasons.map((s) => <li>{s}</li>)}
-    </ul>
-  </div>
-
-  {/* === 中下：CTA 兩鈕 === */}
-  <div class="hero-ctas">
-    <a class="btn-line is-sea" href={getLocalizedPath('/rooms', locale)}>
-      {t('home.heroPrimaryCta')}
-    </a>
-    <a class="text-link" href={getLocalizedPath('/about', locale)}>
-      {t('home.heroSecondaryCta')}
-      <span aria-hidden="true">→</span>
-    </a>
+    {/* 右欄：大型主視覺 Photo Placeholder */}
+    <div class="hero-photo">
+      <ImagePlaceholder
+        locale={locale}
+        alt={heroPhotoAlt}
+        ratio="3:4"
+        variant="ocean"
+      />
+      {/* 圖框右下角：精品民宿常見的「PROPERTY · TAITUNG」浮雕浮水印 */}
+      <span class="photo-caption" aria-hidden="true">
+        <span class="cap-num">N°01</span>
+        <span class="cap-text">
+          {locale === 'en'
+            ? 'Reborn rice barn · Coastal hideaway'
+            : '老米倉重生 · 海岸隱逸'}
+        </span>
+      </span>
+    </div>
   </div>
 
   {/* === 底部 scroll cue === */}
@@ -184,16 +180,11 @@ const tagline: string = t('common.brandStatement');
     color: var(--color-ink-900);
     overflow: hidden;
     isolation: isolate;
-    padding: 1.5rem;
-  }
-  @media (min-width: 768px) {
-    .hero { padding: 2rem 2.5rem; }
-  }
-  @media (min-width: 1280px) {
-    .hero { padding: 2rem 4rem; }
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
   }
 
-  /* === 頂條：經緯度 + 季節 + 章節 === */
+  /* === 頂條：經緯度 + 章節 === */
   .hero-topbar {
     display: none;
     align-items: center;
@@ -203,247 +194,286 @@ const tagline: string = t('common.brandStatement');
     letter-spacing: 0.32em;
     color: var(--color-ink-500);
     text-transform: uppercase;
-    padding-block: 1rem 0;
+    padding: 0 2.5rem;
     animation: fade-in 1100ms 200ms var(--ease-editorial) both;
   }
   @media (min-width: 1024px) {
     .hero-topbar { display: flex; }
   }
-  .topbar-coord, .topbar-km, .topbar-edition {
-    white-space: nowrap;
+  @media (min-width: 1280px) {
+    .hero-topbar { padding: 0 4rem; }
   }
+  .topbar-coord, .topbar-km, .topbar-edition { white-space: nowrap; }
   .topbar-divider {
-    width: 1px;
-    height: 12px;
+    width: 1px; height: 12px;
     background-color: var(--color-sun-400);
     opacity: 0.6;
   }
   .topbar-spacer { flex: 1; }
-  .topbar-edition {
-    color: var(--color-sun-500);
-  }
+  .topbar-edition { color: var(--color-sun-500); }
 
-  /* === 主視覺：左字右畫 === */
+  /* === Stage：左字 / 右圖 === */
   .hero-stage {
-    position: relative;
     display: grid;
     grid-template-columns: 1fr;
+    gap: 3rem;
     align-items: center;
-    padding-block: 4rem 2rem;
+    padding-block: 3rem 2rem;
   }
   @media (min-width: 1024px) {
     .hero-stage {
-      grid-template-columns: 1.3fr 1fr;
-      gap: 3rem;
-      padding-block: 6rem 4rem;
-      align-items: center;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+      gap: 4rem;
+      padding-block: 4rem 3rem;
+      min-height: calc(100dvh - 8rem);
     }
   }
+  @media (min-width: 1280px) {
+    .hero-stage { gap: 5.5rem; }
+  }
 
-  /* === 中文巨字標題（兩行錯落 editorial）=== */
+  /* === 左欄文字 === */
+  .hero-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1.6rem;
+    max-width: 38rem;
+  }
+  .hero-eyebrow {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.34em;
+    color: var(--color-sun-500);
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .hero-eyebrow .dot {
+    width: 6px; height: 6px;
+    background-color: var(--color-sun-400);
+    border-radius: 50%;
+  }
+
   .hero-title {
     margin: 0;
     font-family: var(--font-display);
     color: var(--color-ink-900);
-    font-weight: 500;
-    letter-spacing: -0.01em;
-    line-height: 1.0;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.04;
     display: flex;
     flex-direction: column;
-    gap: 0.2em;
+    gap: 0.05em;
   }
   .hero-title .line {
     display: block;
-    font-size: clamp(3rem, 10vw, 8rem);
-    /* 為 kinetic 進場：每行從 translateY 24 + opacity 0 動畫進場 */
+    font-size: clamp(2.6rem, 6.8vw, 5.6rem);
     opacity: 0;
-    transform: translateY(28px);
-    animation: line-fade-up 1300ms var(--ease-out-expo) forwards;
+    transform: translateY(24px);
+    animation: line-fade-up 1100ms var(--ease-out-expo) forwards;
   }
-  .hero-title .line-a {
-    animation-delay: 350ms;
-  }
+  .hero-title .line-a { animation-delay: 250ms; }
   .hero-title .line-b {
-    animation-delay: 600ms;
-    /* 第二行右縮排，editorial 雜誌排版 */
-    padding-left: 1.4em;
+    animation-delay: 500ms;
     color: var(--color-sea-500);
-  }
-  @media (min-width: 768px) {
-    .hero-title .line-b { padding-left: 2em; }
+    padding-left: 0.5em;
   }
   :lang(en) .hero-title {
     font-family: var(--font-display-hero);
     font-style: italic;
     font-weight: 400;
     letter-spacing: -0.04em;
-    line-height: 0.92;
+    line-height: 0.95;
   }
 
   @keyframes line-fade-up {
-    0% { opacity: 0; transform: translateY(28px); }
-    100% { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
   @keyframes fade-in {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
+    from { opacity: 0; } to { opacity: 1; }
   }
 
-  /* === 英文 Italic 副標 === */
   .hero-eng {
-    margin: 2rem 0 0;
+    margin: 0.5rem 0 0;
     font-family: var(--font-display-en);
-    font-size: clamp(1.05rem, 1.6vw, 1.45rem);
     font-style: italic;
-    font-weight: 300;
+    font-weight: 400;
+    font-size: clamp(1.05rem, 1.4vw, 1.3rem);
     color: var(--color-ink-500);
-    letter-spacing: -0.005em;
-    max-width: 40rem;
-    line-height: 1.6;
+    letter-spacing: 0;
+    line-height: 1.55;
     opacity: 0;
-    animation: line-fade-up 1300ms 850ms var(--ease-out-expo) forwards;
+    animation: line-fade-up 1100ms 700ms var(--ease-out-expo) forwards;
   }
   .hero-eng em { font-style: italic; }
 
-  /* === 右側 SVG 線稿插畫 === */
-  .hero-illust {
-    margin: 2rem 0 0;
-    width: 100%;
-    max-width: 480px;
-    aspect-ratio: 480 / 380;
-    justify-self: end;
-    opacity: 0;
-    animation: line-fade-up 1500ms 1000ms var(--ease-out-expo) forwards;
-  }
-  .hero-illust svg {
-    width: 100%;
-    height: 100%;
-    display: block;
-  }
-
-  /* SVG 浪線動畫：橫向位移製造潮水感 */
-  @keyframes wave-shift-a {
-    0%, 100% { transform: translateX(0); }
-    50% { transform: translateX(-12px); }
-  }
-  @keyframes wave-shift-b {
-    0%, 100% { transform: translateX(0); }
-    50% { transform: translateX(8px); }
-  }
-  @keyframes runner-bob {
-    0%, 100% { transform: translate(330px, 190px); }
-    50% { transform: translate(330px, 188px); }
-  }
-  .hero-illust .wave-a {
-    animation: wave-shift-a 6s var(--ease-natural) infinite;
-    transform-origin: center;
-  }
-  .hero-illust .wave-b {
-    animation: wave-shift-b 8s var(--ease-natural) infinite;
-    transform-origin: center;
-  }
-  .hero-illust .runner {
-    animation: runner-bob 1.4s ease-in-out infinite;
-    transform-origin: center;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .hero-illust .wave-a,
-    .hero-illust .wave-b,
-    .hero-illust .runner {
-      animation: none;
-    }
-    .hero-title .line, .hero-eng, .hero-illust, .hero-topbar {
-      animation: none;
-      opacity: 1;
-      transform: none;
-    }
-  }
-
-  /* === 季節 kinetic typography（左下角，自動輪播）=== */
-  .hero-season {
-    display: none;
-    position: absolute;
-    bottom: 8rem;
-    left: 1.5rem;
-    flex-direction: column;
-    gap: 0.4rem;
-    z-index: 1;
-  }
-  @media (min-width: 1024px) {
-    .hero-season {
-      display: flex;
-      left: 2.5rem;
-      bottom: 9rem;
-    }
-  }
-  @media (min-width: 1280px) {
-    .hero-season { left: 4rem; }
-  }
-  .season-label {
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.36em;
-    color: var(--color-ink-500);
-    text-transform: uppercase;
-  }
-  .season-list {
-    list-style: none;
+  .hero-lead {
     margin: 0;
-    padding: 0;
-    height: 1.6em;
-    overflow: hidden;
-    position: relative;
-  }
-  .season-list li {
-    font-family: var(--font-display);
-    font-size: 1.2rem;
-    color: var(--color-ink-900);
-    line-height: 1.6;
-    letter-spacing: 0.02em;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 100%;
-    animation: season-loop 12s linear infinite;
-  }
-  :lang(en) .season-list li {
-    font-family: var(--font-display-en);
-    font-style: italic;
-  }
-  /* 4 個 season 各延遲 3s，循環顯示 */
-  .season-list li:nth-child(1) { animation-delay: 0s; }
-  .season-list li:nth-child(2) { animation-delay: 3s; }
-  .season-list li:nth-child(3) { animation-delay: 6s; }
-  .season-list li:nth-child(4) { animation-delay: 9s; }
-  @keyframes season-loop {
-    0% { top: 100%; opacity: 0; }
-    8% { top: 0; opacity: 1; }
-    25% { top: 0; opacity: 1; }
-    33% { top: -100%; opacity: 0; }
-    100% { top: -100%; opacity: 0; }
+    font-family: var(--font-body);
+    font-size: 1.02rem;
+    color: var(--color-ink-700);
+    line-height: 1.85;
+    letter-spacing: 0.015em;
+    max-width: 34rem;
+    opacity: 0;
+    animation: line-fade-up 1100ms 850ms var(--ease-out-expo) forwards;
   }
 
-  /* === CTA 兩鈕 === */
+  /* === CTAs：主深底鈕 + 兩個文字鏈 === */
   .hero-ctas {
     display: flex;
     flex-wrap: wrap;
-    gap: 1.5rem 2rem;
+    gap: 1rem 1.6rem;
     align-items: center;
-    padding-block: 1rem 2rem;
+    margin-top: 0.6rem;
     opacity: 0;
-    animation: line-fade-up 1300ms 1200ms var(--ease-out-expo) forwards;
+    animation: line-fade-up 1100ms 1000ms var(--ease-out-expo) forwards;
+  }
+  .cta-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.85rem;
+    background-color: var(--color-ink-900);
+    color: var(--color-sand-50);
+    padding: 1.05rem 1.85rem;
+    text-decoration: none;
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    letter-spacing: 0.16em;
+    font-weight: 500;
+    text-transform: uppercase;
+    transition:
+      background-color 360ms var(--ease-editorial),
+      gap 360ms var(--ease-editorial);
+  }
+  :lang(en) .cta-primary {
+    font-family: var(--font-display-en);
+    font-style: italic;
+    letter-spacing: 0.14em;
+  }
+  .cta-primary:hover {
+    background-color: var(--color-sea-500);
+    gap: 1.2rem;
+  }
+  .cta-arrow { font-size: 1rem; }
+
+  .cta-secondary {
+    color: var(--color-ink-800);
+    font-family: var(--font-display);
+    font-size: 0.92rem;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    border-bottom: 1px solid var(--color-sun-400);
+    padding-bottom: 0.3rem;
+    transition: color 280ms var(--ease-editorial), border-color 280ms var(--ease-editorial);
+  }
+  .cta-secondary:hover {
+    color: var(--color-sun-500);
+    border-color: var(--color-sun-500);
+  }
+  :lang(en) .cta-secondary {
+    font-family: var(--font-display-en);
+    font-style: italic;
+  }
+
+  /* === 規格條 === */
+  .hero-facts {
+    margin: 1.4rem 0 0;
+    padding-top: 1.4rem;
+    border-top: 1px solid var(--color-divider);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.1rem 1.5rem;
+    opacity: 0;
+    animation: line-fade-up 1100ms 1150ms var(--ease-out-expo) forwards;
+  }
+  @media (min-width: 540px) {
+    .hero-facts { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+  .fact { display: flex; flex-direction: column; gap: 0.3rem; min-width: 0; }
+  .fact dt {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.32em;
+    color: var(--color-ink-500);
+    text-transform: uppercase;
+    margin: 0;
+  }
+  .fact dd {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    color: var(--color-ink-900);
+    letter-spacing: 0.01em;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+  :lang(en) .fact dd {
+    font-family: var(--font-display-en);
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  /* === 右欄大圖框 === */
+  .hero-photo {
+    position: relative;
+    width: 100%;
+    opacity: 0;
+    animation: line-fade-up 1300ms 600ms var(--ease-out-expo) forwards;
+    align-self: stretch;
   }
   @media (min-width: 1024px) {
-    .hero-ctas {
-      padding-block: 0 2rem;
-      max-width: 800px;
+    .hero-photo {
+      display: flex;
+      align-items: stretch;
+      max-height: calc(100dvh - 12rem);
     }
+    .hero-photo > :global(figure) {
+      flex: 1;
+      max-height: 100%;
+    }
+  }
+
+  .photo-caption {
+    position: absolute;
+    left: 12px;
+    bottom: 12px;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.7rem;
+    background-color: rgb(247 244 237 / 0.92);
+    backdrop-filter: blur(8px);
+    padding: 0.7rem 1rem;
+    pointer-events: none;
+  }
+  .photo-caption .cap-num {
+    font-family: var(--font-display-en);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 1.05rem;
+    color: var(--color-sun-500);
+    letter-spacing: -0.02em;
+  }
+  .photo-caption .cap-text {
+    font-family: var(--font-display);
+    font-size: 0.78rem;
+    color: var(--color-ink-800);
+    letter-spacing: 0.06em;
+    line-height: 1.3;
+  }
+  :lang(en) .photo-caption .cap-text {
+    font-family: var(--font-display-en);
+    font-style: italic;
   }
 
   /* === 底部 scroll cue === */
   .scroll-cue {
     position: absolute;
-    bottom: 1.5rem;
+    bottom: 1.2rem;
     right: 1.5rem;
     display: none;
     flex-direction: column;
@@ -451,11 +481,7 @@ const tagline: string = t('common.brandStatement');
     gap: 0.5rem;
   }
   @media (min-width: 1024px) {
-    .scroll-cue {
-      display: flex;
-      bottom: 2rem;
-      right: 2.5rem;
-    }
+    .scroll-cue { display: flex; right: 2.5rem; }
   }
   @media (min-width: 1280px) {
     .scroll-cue { right: 4rem; }
@@ -470,7 +496,7 @@ const tagline: string = t('common.brandStatement');
   }
   .cue-line {
     width: 1px;
-    height: 48px;
+    height: 44px;
     background: linear-gradient(180deg, var(--color-sun-400), transparent);
     animation: cue-pulse 2400ms var(--ease-editorial) infinite;
     transform-origin: top;
@@ -479,7 +505,12 @@ const tagline: string = t('common.brandStatement');
     0%, 100% { transform: scaleY(1); opacity: 0.5; }
     50% { transform: scaleY(0.4); opacity: 1; }
   }
+
   @media (prefers-reduced-motion: reduce) {
-    .cue-line, .season-list li, .hero-ctas { animation: none; opacity: 1; }
+    .hero-title .line, .hero-eng, .hero-lead, .hero-ctas, .hero-facts, .hero-photo, .hero-topbar, .cue-line {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
   }
 </style>
