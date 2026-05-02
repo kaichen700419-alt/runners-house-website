@@ -6,7 +6,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import RunnersSections from '@/components/runners/RunnersSections.astro';
 import Breadcrumbs from '@/components/ui/Breadcrumbs.astro';
 import { useTranslations } from '@/i18n/utils';
-import { SITE } from '@/lib/site';
+import { absoluteUrl } from '@/lib/site';
 
 const locale = 'zh-TW';
 const t = useTranslations(locale);
@@ -15,8 +15,8 @@ const breadcrumbItems = [
   { label: t('runners.pageTitle') },
 ];
 const schemaBreadcrumbs = [
-  { name: t('ui.breadcrumbHome'), url: new URL('/', SITE.url).toString() },
-  { name: t('runners.pageTitle'), url: new URL('/runners', SITE.url).toString() },
+  { name: t('ui.breadcrumbHome'), url: absoluteUrl('/') },
+  { name: t('runners.pageTitle'), url: absoluteUrl('/runners') },
 ];
 ---
 

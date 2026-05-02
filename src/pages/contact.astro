@@ -7,7 +7,7 @@ import ContactSections from '@/components/contact/ContactSections.astro';
 import Breadcrumbs from '@/components/ui/Breadcrumbs.astro';
 import FaqJsonLd from '@/components/seo/FaqJsonLd.astro';
 import { useTranslations } from '@/i18n/utils';
-import { SITE } from '@/lib/site';
+import { absoluteUrl } from '@/lib/site';
 
 const locale = 'zh-TW';
 const t = useTranslations(locale);
@@ -16,8 +16,8 @@ const breadcrumbItems = [
   { label: t('contact.pageTitle') },
 ];
 const schemaBreadcrumbs = [
-  { name: t('ui.breadcrumbHome'), url: new URL('/', SITE.url).toString() },
-  { name: t('contact.pageTitle'), url: new URL('/contact', SITE.url).toString() },
+  { name: t('ui.breadcrumbHome'), url: absoluteUrl('/') },
+  { name: t('contact.pageTitle'), url: absoluteUrl('/contact') },
 ];
 ---
 

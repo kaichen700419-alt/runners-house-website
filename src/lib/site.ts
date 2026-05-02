@@ -139,6 +139,23 @@ export const PAYMENT = {
 export const LANGUAGES = ['zh-TW', 'en'] as const;
 
 /**
+ * 產生「站點絕對 URL」— 自動加上 GitHub Pages 子路徑（/runners-house-website）。
+ *
+ * 修法依據：MiniMax v2 健檢報告 P0-1
+ *   舊呼叫 `new URL('/about', SITE.url).toString()` 因 SITE.url 不含 base，
+ *   結果產出 `https://kaichen700419-alt.github.io/about`（缺子路徑）。
+ *   全站 BreadcrumbList、canonical、ogImage 等 13+ 處全部用此 helper 統一處理。
+ *
+ * @param path 以 `/` 開頭的路徑（如 `/about`、`/rooms/standard-double`）
+ * @returns    完整絕對 URL（如 `https://kaichen700419-alt.github.io/runners-house-website/about`）
+ */
+export function absoluteUrl(path: string): string {
+  const base = (import.meta.env.BASE_URL ?? '/').replace(/\/$/, '');
+  const normalized = path.startsWith('/') ? path : `/${path}`;
+  return new URL(`${base}${normalized}`, SITE_URL).toString();
+}
+
+/**
  * 民宿設施清單（schema.amenityFeature 用）。
  *
  * 每筆對應 schema.org LocationFeatureSpecification，
