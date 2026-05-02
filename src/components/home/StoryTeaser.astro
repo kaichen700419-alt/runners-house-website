@@ -1,0 +1,106 @@
+---
+/**
+ * StoryTeaser 元件
+ *
+ * 首頁的品牌故事預告區，引導至 /about 完整故事。
+ * 排版採左圖右文（mobile 上下堆疊），呼應日系侘寂風格。
+ */
+import { getLocalizedPath, useTranslations } from '@/i18n/utils';
+import ImagePlaceholder from '@/components/ui/ImagePlaceholder.astro';
+import type { Locale } from '@/i18n/types';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+---
+
+<section class="story">
+  <div class="container-wide grid">
+    <div class="visual">
+      <ImagePlaceholder
+        locale={locale}
+        alt={t('home.storyTeaserHeading')}
+        ratio="4:3"
+        variant="timber"
+      />
+    </div>
+    <div class="content">
+      <span class="eyebrow">{t('common.brandStatement')}</span>
+      <h2 class="title">{t('home.storyTeaserHeading')}</h2>
+      <p class="body">{t('home.storyTeaserBody')}</p>
+      <a class="cta" href={getLocalizedPath('/about', locale)}>
+        {t('home.storyTeaserCta')}
+        <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .story {
+    padding-block: 5rem;
+    background-color: var(--color-timber-100);
+  }
+  .grid {
+    display: grid;
+    gap: 2.5rem;
+    grid-template-columns: 1fr;
+    align-items: center;
+  }
+  @media (min-width: 768px) {
+    .grid {
+      grid-template-columns: 1fr 1.1fr;
+      gap: 3.5rem;
+    }
+  }
+  .visual {
+    border-radius: 1.25rem;
+    overflow: hidden;
+  }
+  .content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-timber-700);
+  }
+  .title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.85rem, 3.4vw, 2.5rem);
+    color: var(--color-ink-950);
+    line-height: 1.2;
+  }
+  .body {
+    margin: 0;
+    color: var(--color-ink-700);
+    font-size: 1.02rem;
+    line-height: 1.85;
+    max-width: 36rem;
+  }
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+    color: var(--color-timber-800);
+    border-bottom: 2px solid var(--color-timber-400);
+    padding-bottom: 0.25rem;
+    width: fit-content;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 200ms var(--ease-snappy), border-color 200ms var(--ease-snappy);
+  }
+  .cta:hover {
+    color: var(--color-timber-950);
+    border-bottom-color: var(--color-timber-700);
+  }
+</style>

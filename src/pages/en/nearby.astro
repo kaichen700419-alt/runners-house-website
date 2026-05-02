@@ -1,0 +1,32 @@
+---
+/**
+ * Nearby page (English)
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import NearbySections from '@/components/nearby/NearbySections.astro';
+import Breadcrumbs from '@/components/ui/Breadcrumbs.astro';
+import { useTranslations } from '@/i18n/utils';
+import { SITE } from '@/lib/site';
+
+const locale = 'en';
+const t = useTranslations(locale);
+
+const breadcrumbItems = [
+  { label: t('nearby.pageTitle') },
+];
+const schemaBreadcrumbs = [
+  { name: t('ui.breadcrumbHome'), url: new URL('/en', SITE.url).toString() },
+  { name: t('nearby.pageTitle'), url: new URL('/en/nearby', SITE.url).toString() },
+];
+---
+
+<BaseLayout
+  title={t('seo.nearbyTitle')}
+  description={t('seo.nearbyDescription')}
+  breadcrumbs={schemaBreadcrumbs}
+>
+  <div class="container-wide">
+    <Breadcrumbs locale={locale} items={breadcrumbItems} />
+  </div>
+  <NearbySections locale={locale} />
+</BaseLayout>

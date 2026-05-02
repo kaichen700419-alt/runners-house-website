@@ -1,0 +1,46 @@
+---
+/**
+ * 房型詳情頁（zh-TW，動態路由 /rooms/[slug]）
+ */
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import RoomDetail from '@/components/rooms/RoomDetail.astro';
+import Breadcrumbs from '@/components/ui/Breadcrumbs.astro';
+import { useTranslations } from '@/i18n/utils';
+import { SITE } from '@/lib/site';
+
+export async function getStaticPaths() {
+  const rooms = await getCollection('rooms');
+  return rooms.map((room) => ({
+    params: { slug: room.data.slug },
+    props: { room },
+  }));
+}
+
+const locale = 'zh-TW';
+const t = useTranslations(locale);
+const { room } = Astro.props;
+const name = room.data.name_zh;
+
+const breadcrumbItems = [
+  { label: t('rooms.pageTitle'), href: '/rooms' },
+  { label: name },
+];
+const schemaBreadcrumbs = [
+  { name: t('ui.breadcrumbHome'), url: new URL('/', SITE.url).toString() },
+  { name: t('rooms.pageTitle'), url: new URL('/rooms', SITE.url).toString() },
+  { name, url: new URL(`/rooms/${room.data.slug}`, SITE.url).toString() },
+];
+const title = t('seo.roomDetailTitleTemplate', { room: name });
+---
+
+<BaseLayout
+  title={title}
+  description={t('seo.roomDetailDescription')}
+  breadcrumbs={schemaBreadcrumbs}
+>
+  <div class="container-wide">
+    <Breadcrumbs locale={locale} items={breadcrumbItems} />
+  </div>
+  <RoomDetail locale={locale} room={room} />
+</BaseLayout>

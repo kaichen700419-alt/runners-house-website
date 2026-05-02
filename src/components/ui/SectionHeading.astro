@@ -1,0 +1,86 @@
+---
+/**
+ * SectionHeading 元件
+ *
+ * 區塊主標 + 副標 + 分隔線的共用排版。
+ * 用於頁內主要區塊標題；頁面層級 h1 仍使用各 page 自身樣式。
+ *
+ * 為何不用 slot：
+ *   - 標題與副標頻繁重複出現於多頁，固定 props 強制保持資訊架構一致
+ *   - 部分頁面需要 schema.org 標頭結構，直接用 props 寫死等級較易維護
+ */
+interface Props {
+  /** 主標題文字 */
+  title: string;
+  /** 副標題（lead）文字；可省略 */
+  subtitle?: string;
+  /** 標題語意層級（h2 / h3）；預設 h2 */
+  level?: 'h2' | 'h3';
+  /** 對齊方式；預設 left */
+  align?: 'left' | 'center';
+  /** 主題色彩變體；預設 ocean（首頁／跑者主場），wabi 為日系侘寂（內頁） */
+  variant?: 'ocean' | 'wabi';
+}
+
+const {
+  title,
+  subtitle,
+  level = 'h2',
+  align = 'left',
+  variant = 'ocean',
+} = Astro.props;
+
+const HeadingTag = level;
+---
+
+<header class:list={['section-heading', `align-${align}`, `variant-${variant}`]}>
+  <span class="divider" aria-hidden="true"></span>
+  <HeadingTag class="title">{title}</HeadingTag>
+  {subtitle ? <p class="subtitle">{subtitle}</p> : null}
+</header>
+
+<style>
+  .section-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    margin-block: 0 2.25rem;
+  }
+  .align-left {
+    text-align: left;
+    align-items: flex-start;
+  }
+  .align-center {
+    text-align: center;
+    align-items: center;
+  }
+  .divider {
+    display: block;
+    width: 3rem;
+    height: 3px;
+    border-radius: 2px;
+  }
+  .variant-ocean .divider {
+    background: linear-gradient(90deg, var(--color-ocean-600), var(--color-sand-400));
+  }
+  .variant-wabi .divider {
+    background: linear-gradient(90deg, var(--color-timber-600), var(--color-timber-300));
+  }
+  .title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.65rem, 3vw, 2.4rem);
+    color: var(--color-ink-950);
+    line-height: 1.2;
+  }
+  .subtitle {
+    margin: 0;
+    max-width: 48rem;
+    font-size: 1.02rem;
+    color: var(--color-ink-600);
+    line-height: 1.7;
+  }
+  .align-center .subtitle {
+    margin-inline: auto;
+  }
+</style>

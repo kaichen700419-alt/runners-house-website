@@ -1,0 +1,32 @@
+---
+/**
+ * Rooms list (English)
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import RoomsList from '@/components/rooms/RoomsList.astro';
+import Breadcrumbs from '@/components/ui/Breadcrumbs.astro';
+import { useTranslations } from '@/i18n/utils';
+import { SITE } from '@/lib/site';
+
+const locale = 'en';
+const t = useTranslations(locale);
+
+const breadcrumbItems = [
+  { label: t('rooms.pageTitle') },
+];
+const schemaBreadcrumbs = [
+  { name: t('ui.breadcrumbHome'), url: new URL('/en', SITE.url).toString() },
+  { name: t('rooms.pageTitle'), url: new URL('/en/rooms', SITE.url).toString() },
+];
+---
+
+<BaseLayout
+  title={t('seo.roomsTitle')}
+  description={t('seo.roomsDescription')}
+  breadcrumbs={schemaBreadcrumbs}
+>
+  <div class="container-wide">
+    <Breadcrumbs locale={locale} items={breadcrumbItems} />
+  </div>
+  <RoomsList locale={locale} />
+</BaseLayout>

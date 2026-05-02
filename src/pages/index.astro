@@ -2,11 +2,16 @@
 /**
  * 首頁（zh-TW 預設語系）
  *
- * 渲染 BaseLayout + HeroSection，並在頁面層注入 LodgingBusiness JSON-LD。
- * 所有可見字串透過 useTranslations('zh-TW') 從 i18n 字典讀取。
+ * 區塊：HeroSection → FeaturePillars → RoomPreview → StoryTeaser → LocationMap → ClosingCta
+ * 注入 LodgingBusiness JSON-LD 至 <head>。
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import HeroSection from '@/components/home/HeroSection.astro';
+import FeaturePillars from '@/components/home/FeaturePillars.astro';
+import RoomPreview from '@/components/home/RoomPreview.astro';
+import StoryTeaser from '@/components/home/StoryTeaser.astro';
+import LocationMap from '@/components/home/LocationMap.astro';
+import ClosingCta from '@/components/home/ClosingCta.astro';
 import { useTranslations } from '@/i18n/utils';
 import { lodgingBusinessSchema } from '@/lib/schema';
 import { SITE } from '@/lib/site';
@@ -29,4 +34,9 @@ const lodging = lodgingBusinessSchema({
   schema={lodging}
 >
   <HeroSection locale={locale} />
+  <FeaturePillars locale={locale} />
+  <RoomPreview locale={locale} />
+  <StoryTeaser locale={locale} />
+  <LocationMap locale={locale} />
+  <ClosingCta locale={locale} />
 </BaseLayout>

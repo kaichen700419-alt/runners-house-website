@@ -1,0 +1,365 @@
+---
+/**
+ * ChargingSections
+ *
+ * 特斯拉超充頁主體：付費聲明 → 規格 → 規則 → 位置 → 非住客歡迎。
+ * 強調「付費」、「非免費」，避免使用者誤解。
+ */
+import { useTranslations } from '@/i18n/utils';
+import { GEO } from '@/lib/site';
+import SectionHeading from '@/components/ui/SectionHeading.astro';
+import ImagePlaceholder from '@/components/ui/ImagePlaceholder.astro';
+import type { Locale } from '@/i18n/types';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+const mapQuery = encodeURIComponent(`${GEO.latitude},${GEO.longitude}`);
+const mapEmbedSrc = `https://www.google.com/maps?q=${mapQuery}&hl=${locale === 'en' ? 'en' : 'zh-TW'}&z=17&output=embed`;
+const lineUrl = t('common.realLineUrl');
+---
+
+<article class="charging">
+  <header class="page-header container-wide">
+    <span class="eyebrow">CHARGE · Tesla Wall Connector</span>
+    <h1 class="page-title">{t('charging.pageTitle')}</h1>
+    <p class="page-lead">{t('charging.pageLead')}</p>
+  </header>
+
+  <section class="paid-notice">
+    <div class="container-wide notice-box">
+      <span class="badge" aria-hidden="true">$</span>
+      <div>
+        <h2 class="notice-title">{t('charging.paidNoticeHeading')}</h2>
+        <p class="notice-body">{t('charging.paidNoticeBody')}</p>
+        <dl class="notice-meta">
+          <div>
+            <dt>{t('charging.paidPriceTitle')}</dt>
+            <dd>{t('charging.paidPriceBody')}</dd>
+          </div>
+          <div>
+            <dt>{t('charging.paidGuestTitle')}</dt>
+            <dd>{t('charging.paidGuestBody')}</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section class="specs">
+    <div class="container-wide">
+      <SectionHeading title={t('charging.specsHeading')} variant="ocean" />
+      <ul class="spec-grid">
+        <li>
+          <h3>{t('charging.specsConnectorTitle')}</h3>
+          <p>{t('charging.specsConnectorBody')}</p>
+        </li>
+        <li>
+          <h3>{t('charging.specsPowerTitle')}</h3>
+          <p>{t('charging.specsPowerBody')}</p>
+        </li>
+        <li>
+          <h3>{t('charging.specsCompatTitle')}</h3>
+          <p>{t('charging.specsCompatBody')}</p>
+        </li>
+        <li>
+          <h3>{t('charging.specsParkingTitle')}</h3>
+          <p>{t('charging.specsParkingBody')}</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="rules">
+    <div class="container-wide">
+      <SectionHeading title={t('charging.rulesHeading')} variant="ocean" />
+      <ol class="rules-list">
+        <li>{t('charging.ruleReserve')}</li>
+        <li>{t('charging.ruleNoOvernight')}</li>
+        <li>{t('charging.ruleEtiquette')}</li>
+        <li>{t('charging.ruleSafety')}</li>
+      </ol>
+      <a class="reserve-cta" href={lineUrl} target="_blank" rel="noopener noreferrer">
+        {t('common.addLine')} → {t('charging.ruleReserve')}
+      </a>
+    </div>
+  </section>
+
+  <section class="location">
+    <div class="container-wide grid">
+      <div class="info">
+        <SectionHeading title={t('charging.locationHeading')} variant="ocean" />
+        <p>{t('charging.locationBody')}</p>
+        <p class="address">{t('common.addressFull')}</p>
+      </div>
+      <div class="map">
+        <iframe
+          title={t('charging.locationHeading')}
+          src={mapEmbedSrc}
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          sandbox="allow-scripts allow-same-origin allow-popups"
+          width="100%"
+          height="380"
+        ></iframe>
+      </div>
+    </div>
+  </section>
+
+  <section class="non-guest">
+    <div class="container-wide non-guest-inner">
+      <div class="visual">
+        <ImagePlaceholder locale={locale} alt={t('charging.nonGuestHeading')} ratio="4:3" variant="ocean" />
+      </div>
+      <div class="content">
+        <SectionHeading title={t('charging.nonGuestHeading')} variant="ocean" />
+        <p>{t('charging.nonGuestBody')}</p>
+      </div>
+    </div>
+  </section>
+</article>
+
+<style>
+  .charging { background-color: var(--color-ocean-50); padding-bottom: 5rem; }
+  .page-header {
+    padding-block: 4rem 2rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-ocean-700);
+  }
+  .page-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(2.25rem, 5vw, 3.25rem);
+    color: var(--color-ink-950);
+  }
+  .page-lead {
+    margin: 0;
+    max-width: 42rem;
+    color: var(--color-ink-700);
+    font-size: 1.05rem;
+    line-height: 1.85;
+  }
+
+  section { padding-block: 3.5rem; }
+  section + section { border-top: 1px solid var(--color-ocean-100); }
+
+  .paid-notice { padding-block: 2rem; }
+  .notice-box {
+    display: grid;
+    grid-template-columns: 4rem 1fr;
+    gap: 1.5rem;
+    padding: 2rem;
+    background: linear-gradient(140deg, var(--color-sand-100), white);
+    border-radius: 1.25rem;
+    border: 1px solid var(--color-sand-300);
+    align-items: start;
+  }
+  .badge {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    background-color: var(--color-sand-500);
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 2rem;
+  }
+  .notice-title {
+    margin: 0 0 0.85rem;
+    font-family: var(--font-display);
+    font-size: 1.45rem;
+    color: var(--color-sand-900);
+  }
+  .notice-body {
+    margin: 0 0 1.25rem;
+    color: var(--color-ink-800);
+    line-height: 1.75;
+  }
+  .notice-meta {
+    margin: 0;
+    display: grid;
+    gap: 0.85rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 768px) {
+    .notice-meta { grid-template-columns: 1fr 1fr; }
+  }
+  .notice-meta div {
+    padding: 0.85rem 1rem;
+    background-color: white;
+    border-radius: 0.6rem;
+  }
+  .notice-meta dt {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-sand-700);
+    margin-bottom: 0.25rem;
+  }
+  .notice-meta dd {
+    margin: 0;
+    color: var(--color-ink-900);
+    font-weight: 500;
+    line-height: 1.6;
+  }
+
+  .specs { background-color: white; }
+  .spec-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 768px) { .spec-grid { grid-template-columns: 1fr 1fr; } }
+  .spec-grid li {
+    padding: 1.5rem;
+    background-color: var(--color-ocean-50);
+    border-radius: 0.85rem;
+  }
+  .spec-grid h3 {
+    margin: 0 0 0.5rem;
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    color: var(--color-ocean-900);
+  }
+  .spec-grid p {
+    margin: 0;
+    color: var(--color-ink-800);
+    line-height: 1.7;
+    font-size: 0.95rem;
+  }
+
+  .rules-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    counter-reset: rule;
+  }
+  .rules-list li {
+    counter-increment: rule;
+    padding: 1rem 1rem 1rem 3rem;
+    background-color: white;
+    border-radius: 0.6rem;
+    border-left: 3px solid var(--color-ocean-500);
+    color: var(--color-ink-800);
+    line-height: 1.65;
+    position: relative;
+  }
+  .rules-list li::before {
+    content: counter(rule);
+    position: absolute;
+    left: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    background-color: var(--color-ocean-700);
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .reserve-cta {
+    display: inline-block;
+    margin-top: 1.5rem;
+    padding: 0.85rem 1.5rem;
+    border-radius: 999px;
+    background-color: #00b900;
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 200ms var(--ease-snappy);
+  }
+  .reserve-cta:hover { background-color: #009900; }
+
+  .location { background-color: white; }
+  .grid {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 1024px) {
+    .grid {
+      grid-template-columns: 1fr 1.5fr;
+      gap: 3rem;
+      align-items: center;
+    }
+  }
+  .info {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    color: var(--color-ink-700);
+    line-height: 1.85;
+    font-size: 1.02rem;
+  }
+  .info p { margin: 0; }
+  .address {
+    padding: 0.85rem 1rem;
+    border-radius: 0.5rem;
+    background-color: var(--color-ocean-50);
+    color: var(--color-ocean-900);
+    font-weight: 500;
+    font-size: 0.95rem;
+  }
+  .map {
+    border-radius: 1rem;
+    overflow: hidden;
+    border: 1px solid var(--color-ocean-200);
+  }
+  .map iframe {
+    display: block;
+    border: 0;
+    width: 100%;
+  }
+
+  .non-guest { background-color: var(--color-ocean-50); }
+  .non-guest-inner {
+    display: grid;
+    gap: 2.5rem;
+    grid-template-columns: 1fr;
+    align-items: center;
+  }
+  @media (min-width: 768px) {
+    .non-guest-inner {
+      grid-template-columns: 1fr 1.2fr;
+      gap: 3rem;
+    }
+  }
+  .visual { border-radius: 1rem; overflow: hidden; }
+  .non-guest .content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    color: var(--color-ink-700);
+    font-size: 1.02rem;
+    line-height: 1.85;
+  }
+  .non-guest .content p { margin: 0; }
+</style>

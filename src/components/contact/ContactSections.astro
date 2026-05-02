@@ -1,0 +1,535 @@
+---
+/**
+ * ContactSections
+ *
+ * 聯絡頁主體：CtaTrio → ContactForm → 完整聯絡資訊 → Google Maps。
+ *
+ * 表單採 HTML5 native validation + Web3Forms POST（無自有後端）。
+ * 提交按鈕滾動位置：CTA 按鈕「Email 表單」用 anchor `#contact-form`。
+ *
+ * 注意：
+ *  - access_key 使用 placeholder「YOUR_WEB3FORMS_KEY」，業主後續以環境變數方式覆蓋
+ *  - 客戶端不寫 JS（無 alert/confirm）；錯誤訊息靠 :user-invalid CSS 與字典提示文字
+ *  - 真正提交後 Web3Forms 會 redirect 到自家 thank-you 頁面（已內建）
+ */
+import { useTranslations } from '@/i18n/utils';
+import { GEO } from '@/lib/site';
+import SectionHeading from '@/components/ui/SectionHeading.astro';
+import type { Locale } from '@/i18n/types';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+const lineUrl = t('common.realLineUrl');
+const phone = t('common.realPhonePrimary');
+const phone2 = t('common.realPhoneSecondary');
+const mapQuery = encodeURIComponent(`${GEO.latitude},${GEO.longitude}`);
+const mapEmbedSrc = `https://www.google.com/maps?q=${mapQuery}&hl=${locale === 'en' ? 'en' : 'zh-TW'}&z=14&output=embed`;
+
+const roomOptions: Array<{ value: string; key: string }> = [
+  { value: '', key: 'contact.formRoomOptionAny' },
+  { value: 'standard-double', key: 'contact.formRoomOptionDoubleStandard' },
+  { value: 'standard-quad', key: 'contact.formRoomOptionQuadStandard' },
+  { value: 'backpack-4', key: 'contact.formRoomOptionBackpack4' },
+  { value: 'backpack-6', key: 'contact.formRoomOptionBackpack6' },
+  { value: 'sea-suite', key: 'contact.formRoomOptionSeaSuite' },
+];
+const subjectOptions: Array<{ value: string; key: string }> = [
+  { value: 'booking', key: 'contact.formSubjectBooking' },
+  { value: 'charging', key: 'contact.formSubjectCharging' },
+  { value: 'collab', key: 'contact.formSubjectCollab' },
+  { value: 'media', key: 'contact.formSubjectMedia' },
+  { value: 'other', key: 'contact.formSubjectOther' },
+];
+---
+
+<article class="contact">
+  <header class="page-header container-wide">
+    <h1 class="page-title">{t('contact.pageTitle')}</h1>
+    <p class="page-lead">{t('contact.pageLead')}</p>
+  </header>
+
+  <section class="cta-trio">
+    <div class="container-wide">
+      <SectionHeading title={t('contact.ctaTrioHeading')} align="center" variant="ocean" />
+      <ul class="trio">
+        <li class="trio-card line">
+          <span class="badge">L</span>
+          <h3>{t('contact.ctaTrioLineTitle')}</h3>
+          <p>{t('contact.ctaTrioLineBody')}</p>
+          <a class="trio-btn" href={lineUrl} target="_blank" rel="noopener noreferrer">
+            {t('common.addLine')}
+          </a>
+        </li>
+        <li class="trio-card phone">
+          <span class="badge">☎</span>
+          <h3>{t('contact.ctaTrioPhoneTitle')}</h3>
+          <p>{t('contact.ctaTrioPhoneBody')}</p>
+          <a class="trio-btn" href={`tel:${phone.replace(/\s+/g, '')}`}>
+            {phone}
+          </a>
+        </li>
+        <li class="trio-card form">
+          <span class="badge">@</span>
+          <h3>{t('contact.ctaTrioFormTitle')}</h3>
+          <p>{t('contact.ctaTrioFormBody')}</p>
+          <a class="trio-btn" href="#contact-form">
+            {t('contact.formSubmitLabel')}
+          </a>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="form-section">
+    <div class="container-wide form-wrap">
+      <SectionHeading
+        title={t('contact.formHeading')}
+        subtitle={t('contact.formLead')}
+        variant="ocean"
+      />
+
+      <form
+        id="contact-form"
+        class="contact-form"
+        action="https://api.web3forms.com/submit"
+        method="POST"
+      >
+        <input type="hidden" name="access_key" value="YOUR_WEB3FORMS_KEY" />
+        <input type="hidden" name="from_name" value="Runners House Website" />
+        <input
+          type="hidden"
+          name="subject"
+          value={locale === 'en'
+            ? '[Runners House] New inquiry from website'
+            : '[跑者之家] 官網新詢問'}
+        />
+        <input type="checkbox" name="botcheck" class="botcheck" tabindex="-1" autocomplete="off" />
+
+        <div class="row">
+          <label class="field">
+            <span class="label-text">
+              {t('contact.formNameLabel')}
+              <span class="req" aria-hidden="true">{t('ui.required')}</span>
+            </span>
+            <input
+              type="text"
+              name="name"
+              required
+              minlength="1"
+              maxlength="80"
+              placeholder={t('contact.formNamePlaceholder')}
+              autocomplete="name"
+            />
+            <span class="error-msg">{t('contact.errorRequired')}</span>
+          </label>
+        </div>
+
+        <div class="row two">
+          <label class="field">
+            <span class="label-text">
+              {t('contact.formEmailLabel')}
+              <span class="req" aria-hidden="true">{t('ui.required')}</span>
+            </span>
+            <input
+              type="email"
+              name="email"
+              required
+              placeholder={t('contact.formEmailPlaceholder')}
+              autocomplete="email"
+            />
+            <span class="error-msg">{t('contact.errorEmail')}</span>
+          </label>
+          <label class="field">
+            <span class="label-text">
+              {t('contact.formPhoneLabel')}
+              <span class="req" aria-hidden="true">{t('ui.required')}</span>
+            </span>
+            <input
+              type="tel"
+              name="phone"
+              required
+              pattern="^(\+886|0)[0-9\s\-()]{8,15}$"
+              placeholder={t('contact.formPhonePlaceholder')}
+              autocomplete="tel"
+            />
+            <span class="error-msg">{t('contact.errorPhone')}</span>
+          </label>
+        </div>
+
+        <div class="row two">
+          <label class="field">
+            <span class="label-text">
+              {t('contact.formCheckInLabel')}
+              <span class="req" aria-hidden="true">{t('ui.required')}</span>
+            </span>
+            <input type="date" name="check_in" required />
+            <span class="error-msg">{t('contact.errorRequired')}</span>
+          </label>
+          <label class="field">
+            <span class="label-text">
+              {t('contact.formCheckOutLabel')}
+              <span class="req" aria-hidden="true">{t('ui.required')}</span>
+            </span>
+            <input type="date" name="check_out" required />
+            <span class="error-msg">{t('contact.errorCheckOutBeforeIn')}</span>
+          </label>
+        </div>
+
+        <div class="row two">
+          <label class="field">
+            <span class="label-text">
+              {t('contact.formGuestsLabel')}
+              <span class="req" aria-hidden="true">{t('ui.required')}</span>
+            </span>
+            <input
+              type="number"
+              name="guests"
+              required
+              min="1"
+              max="10"
+              step="1"
+              value="2"
+            />
+            <span class="hint-text">{t('contact.formGuestsHint')}</span>
+            <span class="error-msg">{t('contact.errorGuestsRange')}</span>
+          </label>
+          <label class="field">
+            <span class="label-text">{t('contact.formRoomLabel')}</span>
+            <select name="room_preference">
+              {roomOptions.map((opt) => (
+                <option value={opt.value}>{t(opt.key)}</option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        <div class="row">
+          <label class="field">
+            <span class="label-text">
+              {t('contact.formSubjectLabel')}
+              <span class="req" aria-hidden="true">{t('ui.required')}</span>
+            </span>
+            <select name="subject_topic" required>
+              {subjectOptions.map((opt) => (
+                <option value={opt.value}>{t(opt.key)}</option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        <div class="row">
+          <label class="field">
+            <span class="label-text">
+              {t('contact.formMessageLabel')}
+              <span class="req" aria-hidden="true">{t('ui.required')}</span>
+            </span>
+            <textarea
+              name="message"
+              required
+              minlength="10"
+              maxlength="2000"
+              rows="6"
+              placeholder={t('contact.formMessagePlaceholder')}
+            ></textarea>
+            <span class="error-msg">{t('contact.errorMessageMin')}</span>
+          </label>
+        </div>
+
+        <p class="privacy">{t('contact.formPrivacyNote')}</p>
+
+        <button class="submit" type="submit">{t('contact.formSubmitLabel')}</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="info-section">
+    <div class="container-wide">
+      <SectionHeading title={t('contact.contactInfoHeading')} variant="ocean" />
+      <p class="prefer">{t('contact.contactPreferLine')}</p>
+      <dl class="info-grid">
+        <div>
+          <dt>{t('contact.contactInfoAddress')}</dt>
+          <dd>{t('contact.contactInfoAddressValue')}</dd>
+        </div>
+        <div>
+          <dt>{t('contact.contactInfoPhonePrimary')}</dt>
+          <dd><a href={`tel:${phone.replace(/\s+/g, '')}`}>{phone}</a></dd>
+        </div>
+        <div>
+          <dt>{t('contact.contactInfoPhoneSecondary')}</dt>
+          <dd><a href={`tel:${phone2.replace(/\s+/g, '')}`}>{phone2}</a></dd>
+        </div>
+        <div>
+          <dt>{t('contact.contactInfoLine')}</dt>
+          <dd><a href={lineUrl} target="_blank" rel="noopener noreferrer">{t('common.realLineId')}</a></dd>
+        </div>
+        <div>
+          <dt>{t('contact.contactInfoCheckIn')}</dt>
+          <dd>{t('contact.contactInfoCheckInValue')}</dd>
+        </div>
+        <div>
+          <dt>{t('contact.contactInfoOffice')}</dt>
+          <dd>{t('contact.contactInfoOfficeValue')}</dd>
+        </div>
+        <div>
+          <dt>{t('contact.contactInfoBookingOpen')}</dt>
+          <dd>{t('contact.contactInfoBookingOpenValue')}</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="map-section">
+    <div class="container-wide map-wrap">
+      <iframe
+        title={t('home.locationHeading')}
+        src={mapEmbedSrc}
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        sandbox="allow-scripts allow-same-origin allow-popups"
+        width="100%"
+        height="420"
+      ></iframe>
+    </div>
+  </section>
+</article>
+
+<style>
+  .contact { background-color: var(--color-timber-50); padding-bottom: 5rem; }
+  .page-header {
+    padding-block: 4rem 2rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  .page-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(2.25rem, 5vw, 3.25rem);
+    color: var(--color-ink-950);
+  }
+  .page-lead {
+    margin: 0;
+    max-width: 38rem;
+    color: var(--color-ink-700);
+    font-size: 1.05rem;
+    line-height: 1.85;
+  }
+
+  section { padding-block: 3.5rem; }
+  section + section { border-top: 1px solid var(--color-timber-200); }
+
+  .trio {
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 768px) {
+    .trio { grid-template-columns: repeat(3, 1fr); }
+  }
+  .trio-card {
+    padding: 1.75rem;
+    border-radius: 1rem;
+    background-color: white;
+    border: 1px solid var(--color-timber-200);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    text-align: center;
+    align-items: center;
+  }
+  .trio .badge {
+    width: 3.25rem;
+    height: 3.25rem;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: white;
+  }
+  .trio-card.line .badge { background-color: #00b900; }
+  .trio-card.phone .badge { background-color: var(--color-ocean-700); }
+  .trio-card.form .badge { background-color: var(--color-timber-700); }
+  .trio-card h3 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    color: var(--color-ink-950);
+  }
+  .trio-card p {
+    margin: 0;
+    color: var(--color-ink-700);
+    font-size: 0.92rem;
+    line-height: 1.7;
+    flex: 1;
+  }
+  .trio-btn {
+    display: inline-block;
+    padding: 0.7rem 1.25rem;
+    border-radius: 999px;
+    text-decoration: none;
+    font-weight: 600;
+    color: white;
+    font-size: 0.95rem;
+  }
+  .trio-card.line .trio-btn { background-color: #00b900; }
+  .trio-card.line .trio-btn:hover { background-color: #009900; }
+  .trio-card.phone .trio-btn { background-color: var(--color-ocean-700); font-family: var(--font-mono); }
+  .trio-card.phone .trio-btn:hover { background-color: var(--color-ocean-800); }
+  .trio-card.form .trio-btn { background-color: var(--color-timber-700); }
+  .trio-card.form .trio-btn:hover { background-color: var(--color-timber-800); }
+
+  .form-section { background-color: white; }
+  .form-wrap { max-width: 48rem; }
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .botcheck {
+    position: absolute;
+    left: -9999px;
+    visibility: hidden;
+  }
+  .row { display: flex; flex-direction: column; gap: 1rem; }
+  @media (min-width: 640px) {
+    .row.two { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .label-text {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    color: var(--color-ink-900);
+    font-weight: 500;
+  }
+  .req {
+    color: #dc2626;
+    margin-left: 0.25rem;
+  }
+  .field input,
+  .field select,
+  .field textarea {
+    padding: 0.7rem 0.85rem;
+    border: 1px solid var(--color-timber-300);
+    border-radius: 0.5rem;
+    background-color: white;
+    color: var(--color-ink-900);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    transition: border-color 160ms var(--ease-snappy), box-shadow 160ms var(--ease-snappy);
+  }
+  .field textarea {
+    resize: vertical;
+    min-height: 6rem;
+  }
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    outline: none;
+    border-color: var(--color-ocean-600);
+    box-shadow: 0 0 0 3px rgb(2 132 199 / 0.18);
+  }
+  .field input:user-invalid,
+  .field textarea:user-invalid {
+    border-color: #dc2626;
+    background-color: #fef2f2;
+  }
+  .error-msg {
+    color: #dc2626;
+    font-size: 0.82rem;
+    display: none;
+  }
+  .field input:user-invalid ~ .error-msg,
+  .field textarea:user-invalid ~ .error-msg {
+    display: inline;
+  }
+  .hint-text {
+    color: var(--color-ink-500);
+    font-size: 0.82rem;
+  }
+  .privacy {
+    margin: 0;
+    color: var(--color-ink-500);
+    font-size: 0.82rem;
+    line-height: 1.7;
+  }
+  .submit {
+    align-self: flex-start;
+    padding: 0.85rem 2rem;
+    border-radius: 999px;
+    background-color: var(--color-ocean-700);
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 160ms var(--ease-snappy), transform 160ms var(--ease-snappy);
+  }
+  .submit:hover { background-color: var(--color-ocean-800); transform: translateY(-1px); }
+
+  .info-section { background-color: var(--color-timber-50); }
+  .prefer {
+    margin: 0 0 1.5rem;
+    padding: 0.85rem 1rem;
+    background-color: var(--color-ocean-50);
+    border-left: 3px solid var(--color-ocean-600);
+    color: var(--color-ocean-900);
+    font-size: 0.95rem;
+  }
+  .info-grid {
+    margin: 0;
+    display: grid;
+    gap: 0.85rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 768px) { .info-grid { grid-template-columns: 1fr 1fr; } }
+  .info-grid div {
+    padding: 0.85rem 1rem;
+    background-color: white;
+    border-radius: 0.5rem;
+    display: grid;
+    grid-template-columns: 9rem 1fr;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  .info-grid dt {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--color-timber-700);
+    letter-spacing: 0.04em;
+  }
+  .info-grid dd {
+    margin: 0;
+    color: var(--color-ink-900);
+    font-weight: 500;
+  }
+  .info-grid a { color: var(--color-ocean-700); text-decoration: none; }
+  .info-grid a:hover { color: var(--color-ocean-900); }
+
+  .map-section { padding-block: 0 3rem; background-color: white; }
+  .map-wrap {
+    border-radius: 1rem;
+    overflow: hidden;
+    border: 1px solid var(--color-timber-200);
+  }
+  .map-wrap iframe {
+    display: block;
+    border: 0;
+  }
+</style>

@@ -1,0 +1,32 @@
+---
+/**
+ * About page (English)
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import AboutSections from '@/components/about/AboutSections.astro';
+import Breadcrumbs from '@/components/ui/Breadcrumbs.astro';
+import { useTranslations } from '@/i18n/utils';
+import { SITE } from '@/lib/site';
+
+const locale = 'en';
+const t = useTranslations(locale);
+
+const breadcrumbItems = [
+  { label: t('about.pageTitle') },
+];
+const schemaBreadcrumbs = [
+  { name: t('ui.breadcrumbHome'), url: new URL('/en', SITE.url).toString() },
+  { name: t('about.pageTitle'), url: new URL('/en/about', SITE.url).toString() },
+];
+---
+
+<BaseLayout
+  title={t('seo.aboutTitle')}
+  description={t('seo.aboutDescription')}
+  breadcrumbs={schemaBreadcrumbs}
+>
+  <div class="container-wide">
+    <Breadcrumbs locale={locale} items={breadcrumbItems} />
+  </div>
+  <AboutSections locale={locale} />
+</BaseLayout>

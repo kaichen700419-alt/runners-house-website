@@ -1,0 +1,96 @@
+---
+/**
+ * Breadcrumbs 元件
+ *
+ * 顯示視覺化麵包屑；Schema.org BreadcrumbList JSON-LD 由 BaseLayout
+ * 透過 props.breadcrumbs 自動產生，避免兩處重複。
+ *
+ * 第一項一律為「首頁」，最後一項為當前頁（無連結，aria-current）。
+ */
+import { useTranslations, getLocalizedPath } from '@/i18n/utils';
+import type { Locale } from '@/i18n/types';
+
+export interface BreadcrumbLink {
+  /** 顯示文字 */
+  label: string;
+  /** 站內路徑（不含語系前綴）；最後一項可省略表示當前頁 */
+  href?: string;
+}
+
+interface Props {
+  locale: Locale;
+  /** 不含「首頁」的路徑陣列；元件會自動補上首頁為第一項 */
+  items: ReadonlyArray<BreadcrumbLink>;
+}
+
+const { locale, items } = Astro.props;
+const t = useTranslations(locale);
+const homeHref = getLocalizedPath('/', locale);
+const separator = t('ui.breadcrumbSeparator');
+---
+
+<nav class="breadcrumbs" aria-label="breadcrumb">
+  <ol>
+    <li>
+      <a href={homeHref}>{t('ui.breadcrumbHome')}</a>
+      <span class="sep" aria-hidden="true">{separator}</span>
+    </li>
+    {
+      items.map((item, idx) => {
+        const isLast = idx === items.length - 1;
+        const href = item.href ? getLocalizedPath(item.href, locale) : undefined;
+        return (
+          <li>
+            {isLast || !href ? (
+              <span aria-current="page" class="current">{item.label}</span>
+            ) : (
+              <>
+                <a href={href}>{item.label}</a>
+                <span class="sep" aria-hidden="true">{separator}</span>
+              </>
+            )}
+          </li>
+        );
+      })
+    }
+  </ol>
+</nav>
+
+<style>
+  .breadcrumbs {
+    font-size: 0.86rem;
+    color: var(--color-ink-500);
+    padding-block: 1rem;
+  }
+  ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  a {
+    color: var(--color-ink-600);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: color 160ms var(--ease-snappy), border-color 160ms var(--ease-snappy);
+  }
+  a:hover {
+    color: var(--color-ocean-700);
+    border-bottom-color: var(--color-ocean-300);
+  }
+  .current {
+    color: var(--color-ink-900);
+    font-weight: 500;
+  }
+  .sep {
+    color: var(--color-ink-300);
+    user-select: none;
+  }
+</style>
