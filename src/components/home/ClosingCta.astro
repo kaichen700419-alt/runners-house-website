@@ -1,12 +1,9 @@
 ---
 /**
- * ClosingCta v4 — D1 Screen 12「Ready to slow down?」
+ * ClosingCta — 首頁底部 CTA（自己設計版）
  *
- * 設計依據：研究報告 D1.Screen 12 + B17 Hotel Garden 矛盾感標語
- *   - 全寬深 charcoal 收尾區塊
- *   - 巨字「Ready to slow down?」（Bodoni Moda Italic）
- *   - 三聯 CTA：LINE / 電話 / 看房型 — 每個一個 SVG icon + 大標 + 副字
- *   - 不再 emoji，不再色塊，僅用線稿與細線
+ * 結構：深色背景 + 置中標題 + 三聯按鈕（LINE / 電話 / 房型）
+ * 完全無：彩色裝飾、章節編號、複雜佈局
  */
 import { getLocalizedPath, useTranslations } from '@/i18n/utils';
 import { CONTACT } from '@/lib/site';
@@ -18,179 +15,127 @@ interface Props {
 
 const { locale } = Astro.props;
 const t = useTranslations(locale);
-const lineUrl = CONTACT.lineUrl;
-const phone = CONTACT.phonePrimary;
-const phoneTel = CONTACT.phonePrimaryTel;
+
+const heading = t('home.closingCtaHeading');
+const subtitle = t('home.closingCtaSubtitle');
+const ctaRooms = locale === 'en' ? 'View Rooms' : '查看房型';
+const ctaLine = locale === 'en' ? 'Book via LINE' : 'LINE 訂房';
+const ctaPhone = locale === 'en' ? 'Call us' : '致電聯絡';
 ---
 
 <section class="closing" aria-labelledby="closing-heading">
-  <div class="container-wide chapter-row reveal">
-    <div class="chapter-mark on-dark">
-      <span class="num">XII</span>
-      <span class="label">CHAPTER · {locale === 'en' ? 'COME HOME' : '回到海邊'}</span>
+  <div class="closing-inner">
+    <h2 id="closing-heading" class="heading">{heading}</h2>
+    <p class="subtitle">{subtitle}</p>
+
+    <div class="ctas">
+      <a class="cta cta-primary" href={getLocalizedPath('/rooms', locale)}>
+        {ctaRooms}
+        <span class="arrow" aria-hidden="true">→</span>
+      </a>
+      <a class="cta cta-line" href={CONTACT.lineUrl} target="_blank" rel="noopener noreferrer">
+        {ctaLine}
+      </a>
+      <a class="cta cta-phone" href={`tel:${CONTACT.phone}`}>
+        {ctaPhone} {CONTACT.phoneDisplay}
+      </a>
     </div>
   </div>
-
-  <div class="container-wide inner reveal" data-delay="1">
-    <h2 id="closing-heading" class="title">{t('home.closingHeading')}</h2>
-    <p class="lead">{t('home.closingLead')}</p>
-  </div>
-
-  <ul class="ctas reveal" data-delay="2">
-    <li>
-      <a class="cta-card" href={lineUrl} target="_blank" rel="noopener noreferrer">
-        <svg class="cta-icon" viewBox="0 0 60 60" aria-hidden="true">
-          <rect x="14" y="14" width="32" height="26" rx="13" fill="none" stroke="currentColor" stroke-width="1.4" />
-          <path d="M22 46 L26 40 L18 40 Z" fill="currentColor" />
-          <line x1="22" y1="26" x2="22" y2="32" stroke="currentColor" stroke-width="1.2" />
-          <line x1="30" y1="26" x2="30" y2="32" stroke="currentColor" stroke-width="1.2" />
-          <line x1="38" y1="26" x2="38" y2="32" stroke="currentColor" stroke-width="1.2" />
-        </svg>
-        <span class="cta-label">{t('home.closingCtaLine')}</span>
-        <span class="cta-sub">{locale === 'en' ? 'Fastest reply' : '最快回覆'}</span>
-      </a>
-    </li>
-    <li>
-      <a class="cta-card" href={`tel:${phoneTel}`}>
-        <svg class="cta-icon" viewBox="0 0 60 60" aria-hidden="true">
-          <path d="M16 16 C16 14 18 14 20 14 L24 14 L26 22 L22 26 C26 32 28 34 34 38 L38 34 L46 36 L46 40 C46 42 46 44 44 44 C30 44 16 30 16 16 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
-        </svg>
-        <span class="cta-label">{t('home.closingCtaPhone')}</span>
-        <span class="cta-sub">{phone}</span>
-      </a>
-    </li>
-    <li>
-      <a class="cta-card" href={getLocalizedPath('/rooms', locale)}>
-        <svg class="cta-icon" viewBox="0 0 60 60" aria-hidden="true">
-          <rect x="14" y="22" width="32" height="22" fill="none" stroke="currentColor" stroke-width="1.4" />
-          <path d="M10 26 L30 12 L50 26" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
-          <line x1="22" y1="44" x2="22" y2="34" stroke="currentColor" stroke-width="1.2" />
-          <line x1="22" y1="34" x2="38" y2="34" stroke="currentColor" stroke-width="1.2" />
-          <line x1="38" y1="34" x2="38" y2="44" stroke="currentColor" stroke-width="1.2" />
-        </svg>
-        <span class="cta-label">{t('home.closingCtaRooms')}</span>
-        <span class="cta-sub">{locale === 'en' ? 'See all rooms' : '看完整房型'}</span>
-      </a>
-    </li>
-  </ul>
 </section>
 
 <style>
   .closing {
-    padding-block: 9rem 11rem;
-    background-color: var(--color-ink-950);
-    color: var(--color-sand-100);
-    overflow: hidden;
+    background:
+      radial-gradient(ellipse at 50% 30%, rgba(184, 142, 92, 0.18) 0%, transparent 60%),
+      linear-gradient(160deg, #2d2520 0%, #1a1411 60%, #1a1411 100%);
+    color: #f5efe5;
+    padding: 6rem 1.5rem;
   }
-  @media (min-width: 1024px) {
-    .closing { padding-block: 12rem 14rem; }
+  @media (min-width: 768px) {
+    .closing { padding: 8rem 2.5rem; }
   }
-  .chapter-row { margin-bottom: 5rem; }
-  .chapter-mark.on-dark .num { color: var(--color-sun-400); }
-  .chapter-mark.on-dark .label { color: var(--color-sand-300); }
-
-  .inner {
+  .closing-inner {
     max-width: 56rem;
+    margin: 0 auto;
+    text-align: center;
     display: flex;
     flex-direction: column;
-    gap: 2rem;
-    margin-bottom: 6rem;
+    align-items: center;
+    gap: 1.5rem;
   }
-  .title {
+  .heading {
     margin: 0;
-    font-family: var(--font-display);
-    font-size: clamp(2.4rem, 6.5vw, 5.25rem);
-    color: var(--color-sand-100);
-    letter-spacing: -0.005em;
-    line-height: 1.05;
-    font-weight: 500;
+    font-family: 'Noto Serif TC', Georgia, serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 600;
+    color: #ffffff;
+    letter-spacing: 0.04em;
+    line-height: 1.3;
   }
-  :lang(en) .title {
-    font-family: var(--font-display-en);
-    font-style: italic;
-    font-weight: 400;
-    letter-spacing: -0.04em;
-  }
-  .lead {
+  .subtitle {
     margin: 0;
-    color: var(--color-sand-300);
-    font-family: var(--font-display);
-    font-size: 1.1rem;
-    font-style: italic;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 1.0625rem;
+    line-height: 1.85;
+    color: rgba(255, 255, 255, 0.78);
     font-weight: 300;
-    line-height: 1.95;
     max-width: 36rem;
   }
-  :lang(en) .lead { font-family: var(--font-display-en); }
-
   .ctas {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: 1fr;
-    border-top: 1px solid rgb(201 125 93 / 0.3);
-    border-bottom: 1px solid rgb(201 125 93 / 0.3);
-  }
-  @media (min-width: 768px) {
-    .ctas {
-      grid-template-columns: repeat(3, 1fr);
-    }
-    .ctas li + li {
-      border-left: 1px solid rgb(201 125 93 / 0.3);
-    }
-  }
-  .ctas li {
-    border-top: 1px solid rgb(201 125 93 / 0.3);
-  }
-  .ctas li:first-child { border-top: none; }
-  @media (min-width: 768px) {
-    .ctas li { border-top: none; }
-  }
-  .cta-card {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1.25rem;
-    padding: 3.5rem 2.5rem;
-    text-decoration: none;
-    color: var(--color-sand-100);
-    transition: background-color 540ms var(--ease-editorial);
-    height: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.875rem;
+    margin-top: 1.5rem;
   }
-  .cta-card:hover {
-    background-color: rgb(201 125 93 / 0.06);
-  }
-  .cta-icon {
-    width: 56px;
-    height: 56px;
-    color: var(--color-sun-400);
-    transition: transform 540ms var(--ease-editorial), color 540ms var(--ease-editorial);
-  }
-  .cta-card:hover .cta-icon {
-    transform: translateX(4px);
-    color: var(--color-sun-300);
-  }
-  .cta-label {
-    font-family: var(--font-display);
-    font-size: clamp(1.4rem, 2vw, 1.75rem);
-    color: var(--color-sand-100);
-    letter-spacing: 0.01em;
-    line-height: 1.2;
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 1.05rem 2.25rem;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 0.9375rem;
     font-weight: 500;
-    margin-top: 0.5rem;
+    letter-spacing: 0.15em;
+    text-decoration: none;
+    border: 1.5px solid transparent;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+    min-width: 11rem;
   }
-  :lang(en) .cta-label {
-    font-family: var(--font-display-en);
-    font-style: italic;
-    font-weight: 400;
-    letter-spacing: -0.015em;
+  .cta-primary {
+    background-color: #ffffff;
+    color: #1a1411;
+    border-color: #ffffff;
   }
-  .cta-sub {
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    letter-spacing: 0.32em;
-    color: var(--color-sand-400);
-    text-transform: uppercase;
+  .cta-primary:hover {
+    background-color: transparent;
+    color: #ffffff;
+  }
+  .cta-line {
+    background-color: #00b900;
+    color: #ffffff;
+    border-color: #00b900;
+  }
+  .cta-line:hover {
+    background-color: #009900;
+    border-color: #009900;
+  }
+  .cta-phone {
+    background-color: transparent;
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.65);
+  }
+  .cta-phone:hover {
+    background-color: #ffffff;
+    color: #1a1411;
+    border-color: #ffffff;
+  }
+  .arrow { transition: transform 0.3s ease; }
+  .cta-primary:hover .arrow { transform: translateX(4px); }
+
+  @media (max-width: 640px) {
+    .cta { width: 100%; max-width: 280px; }
   }
 </style>

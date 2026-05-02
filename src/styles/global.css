@@ -74,13 +74,13 @@
   --color-sea-800: #16262d;
   --color-sea-900: #0e1a1f;
 
-  /* sun（晨曦橘）— accent 跳色，全站不超過 5% 視覺面積 */
-  --color-sun-100: #f5e0d2;
-  --color-sun-200: #ecc4ab;
-  --color-sun-300: #dca282;
-  --color-sun-400: #c97d5d;    /* 配色 A 晨曦橘主值 */
-  --color-sun-500: #b56646;
-  --color-sun-600: #95502f;
+  /* sun — 業主反饋橘色塊很醜，accent 全部改為「沉穩木金」減少飽和、不刺眼 */
+  --color-sun-100: #ede0cd;
+  --color-sun-200: #d6c2a3;
+  --color-sun-300: #b89e75;
+  --color-sun-400: #8b6f47;    /* 沉穩木金（取代花俏橘色） */
+  --color-sun-500: #6f5634;
+  --color-sun-600: #5a4524;
 
   /* divider（沙色礦物分隔） */
   --color-divider: #d5cfc2;
