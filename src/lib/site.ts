@@ -5,7 +5,18 @@
  * Schema.org 產生器、SEOHead、Footer、Header 皆從此檔取得單一真相。
  */
 
-export const SITE_URL = 'https://runnershouse.tw';
+/**
+ * 站點 URL — 僅含 origin（協定+主機名），不含子路徑。
+ * 子路徑由 getLocalizedPath 透過 import.meta.env.BASE_URL 自動加上，
+ * 兩者拼接後即為完整 canonical URL，避免雙重前綴問題。
+ *
+ * - production（自訂網域）→ https://runnershouse.tw
+ * - gh-pages（GitHub Pages 預覽）→ https://kaichen700419-alt.github.io
+ */
+const DEPLOY_TARGET = process.env.DEPLOY_TARGET ?? 'production';
+export const SITE_URL = DEPLOY_TARGET === 'gh-pages'
+  ? 'https://kaichen700419-alt.github.io'
+  : 'https://runnershouse.tw';
 
 export const SITE = {
   /** 中文官方名稱 */
