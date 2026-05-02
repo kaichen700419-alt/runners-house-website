@@ -1,15 +1,14 @@
 ---
 /**
- * SectionHeading 元件
+ * SectionHeading 元件 v3 — Editorial
  *
- * 區塊主標 + 副標 + 視覺錨點的共用排版。
- * 用於頁內主要區塊標題；頁面層級 h1 仍使用各 page 自身樣式。
+ * 區塊主標 + 副標 + 銅金細線視覺錨點。
  *
- * v2 變更：
- *   - 將原本「上方水平 3rem 色條」升級為「左側 4px 垂直色帶」（visual anchor），
- *     符合 polish-final 階段對視覺節奏錨點的要求；align=center 仍保留水平色條。
- *   - 兩種色帶共存：垂直色帶為主錨點、水平色條僅在置中時使用，避免置中對齊下
- *     左側垂直色帶看起來偏離標題中軸。
+ * 與 v2 差異：
+ *   - 移除舊版「左側 4px 垂直色帶 / 水平 3px 漸層色條」（過於 cookie-cutter）
+ *   - 改為精品民宿風的「銅金細線 1px + 大字距小寫 eyebrow（可選）」
+ *   - 標題襯線體 + 寬字距，:lang(en) 自動切換 Cormorant Garamond italic
+ *   - 副標 italic display 字、line-height 2.0 散文感
  */
 interface Props {
   /** 主標題文字 */
@@ -20,10 +19,12 @@ interface Props {
   level?: 'h2' | 'h3';
   /** 對齊方式；預設 left */
   align?: 'left' | 'center';
-  /** 主題色彩變體；預設 ocean（首頁／跑者主場），wabi 為日系侘寂（內頁） */
+  /** 主題色彩變體；保留以兼容舊呼叫端，但 v3 視覺上幾乎無差 */
   variant?: 'ocean' | 'wabi';
   /** 主標題 id，供外層 section 以 aria-labelledby 串接 a11y 名稱 */
   id?: string;
+  /** 上方 eyebrow 文字（可選，常為 mono caps） */
+  eyebrow?: string;
 }
 
 const {
@@ -31,97 +32,71 @@ const {
   subtitle,
   level = 'h2',
   align = 'left',
-  variant = 'ocean',
+  variant: _variant = 'wabi',
   id,
+  eyebrow,
 } = Astro.props;
 
 const HeadingTag = level;
 ---
 
-<header class:list={['section-heading', `align-${align}`, `variant-${variant}`]}>
-  {/* 置中時保留水平色條（左側色帶在置中下會錯位） */}
-  {align === 'center' ? <span class="divider-h" aria-hidden="true"></span> : null}
-  <div class="heading-row">
-    {/* 左對齊時顯示左側 4px 寬色帶作為視覺錨點 */}
-    {align === 'left' ? <span class="divider-v" aria-hidden="true"></span> : null}
-    <div class="heading-text">
-      <HeadingTag class="title" id={id}>{title}</HeadingTag>
-      {subtitle ? <p class="subtitle">{subtitle}</p> : null}
-    </div>
-  </div>
+<header class:list={['section-heading', `align-${align}`]}>
+  {eyebrow ? <span class="eyebrow">{eyebrow}</span> : null}
+  {align === 'center' && !eyebrow ? <span class="rule-gold rule-gold-center" aria-hidden="true"></span> : null}
+  <HeadingTag class="title" id={id}>{title}</HeadingTag>
+  {subtitle ? <p class="subtitle">{subtitle}</p> : null}
+  {align === 'left' && !eyebrow ? <span class="rule-gold under" aria-hidden="true"></span> : null}
 </header>
 
 <style>
   .section-heading {
     display: flex;
     flex-direction: column;
-    gap: 0.85rem;
-    margin-block: 0 2.25rem;
+    gap: 1.25rem;
+    margin-block: 0 2.75rem;
   }
-  .align-left {
-    text-align: left;
-    align-items: flex-start;
-  }
-  .align-center {
-    text-align: center;
-    align-items: center;
-  }
-  .heading-row {
-    display: flex;
-    align-items: stretch;
-    gap: 1rem;
-    width: 100%;
-  }
-  .align-center .heading-row {
-    justify-content: center;
-  }
-  /* 左側 4px 垂直色帶 — 自動撐到與 heading-text 等高 */
-  .divider-v {
-    flex: 0 0 4px;
-    width: 4px;
-    border-radius: 2px;
-    align-self: stretch;
-    min-height: 2.4rem;
-  }
-  .variant-ocean .divider-v {
-    background: linear-gradient(180deg, var(--color-ocean-600), var(--color-sand-400));
-  }
-  .variant-wabi .divider-v {
-    background: linear-gradient(180deg, var(--color-timber-600), var(--color-timber-300));
-  }
-  /* 置中對齊保留的水平色條（舊版相容） */
-  .divider-h {
-    display: block;
-    width: 3rem;
-    height: 3px;
-    border-radius: 2px;
-  }
-  .variant-ocean .divider-h {
-    background: linear-gradient(90deg, var(--color-ocean-600), var(--color-sand-400));
-  }
-  .variant-wabi .divider-h {
-    background: linear-gradient(90deg, var(--color-timber-600), var(--color-timber-300));
-  }
-  .heading-text {
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-  }
+  .align-left { text-align: left; align-items: flex-start; }
+  .align-center { text-align: center; align-items: center; }
+
   .title {
     margin: 0;
     font-family: var(--font-display);
-    font-size: clamp(1.65rem, 3vw, 2.4rem);
-    color: var(--color-ink-950);
-    line-height: 1.2;
+    font-size: clamp(1.75rem, 3.4vw, 2.75rem);
+    color: var(--color-ink-900);
+    line-height: 1.18;
+    letter-spacing: 0.02em;
+    font-weight: 400;
+  }
+  :lang(en) .title {
+    font-family: var(--font-display-en);
+    font-style: italic;
+    font-weight: 500;
   }
   .subtitle {
     margin: 0;
-    max-width: 48rem;
+    max-width: 46rem;
+    font-family: var(--font-display);
     font-size: 1.02rem;
     color: var(--color-ink-600);
-    line-height: 1.7;
+    line-height: 2;
+    font-style: italic;
+    font-weight: 300;
+    letter-spacing: 0.015em;
   }
   .align-center .subtitle {
     margin-inline: auto;
+  }
+  /* eyebrow 細字大字距 */
+  .section-heading .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.32em;
+    color: var(--color-copper-600);
+    font-weight: 500;
+  }
+  /* 左對齊時，標題下方放一條短銅金線當錨點 */
+  .rule-gold.under {
+    margin-top: 0.4rem;
   }
 </style>

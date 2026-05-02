@@ -69,12 +69,15 @@ const navItems = resolveNavHrefs(NAV_ITEMS, locale);
     left: 1rem;
     top: -3rem;
     z-index: 100;
-    background-color: var(--color-ocean-700);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
+    background-color: var(--color-ink-900);
+    color: var(--color-bone-100);
+    padding: 0.55rem 1.1rem;
+    border-radius: 2px;
     text-decoration: none;
-    transition: top 160ms var(--ease-snappy);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    transition: top 200ms var(--ease-editorial);
   }
   .skip-link:focus {
     top: 1rem;
@@ -84,54 +87,62 @@ const navItems = resolveNavHrefs(NAV_ITEMS, locale);
     position: sticky;
     top: 0;
     z-index: 50;
-    background-color: rgb(255 255 255 / 0.85);
-    backdrop-filter: saturate(160%) blur(12px);
-    -webkit-backdrop-filter: saturate(160%) blur(12px);
-    border-bottom: 1px solid var(--color-timber-200);
+    /* 精品感：象牙白半透明 + 細銅金底線取代厚重 timber 邊 */
+    background-color: rgb(251 248 242 / 0.92);
+    backdrop-filter: saturate(140%) blur(14px);
+    -webkit-backdrop-filter: saturate(140%) blur(14px);
+    border-bottom: 1px solid rgb(160 134 96 / 0.25);
   }
 
   .header-inner {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
-    height: 4rem;
+    gap: 1.25rem;
+    height: 4.75rem;
   }
 
   .brand {
     display: inline-flex;
     align-items: center;
-    gap: 0.65rem;
+    gap: 0.85rem;
     text-decoration: none;
-    color: var(--color-ink-950);
+    color: var(--color-ink-900);
   }
   .brand-mark {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 2.25rem;
-    height: 2.25rem;
-    border-radius: 50%;
-    background: linear-gradient(140deg, var(--color-ocean-600), var(--color-ocean-800));
-    color: white;
+    width: 2.4rem;
+    height: 2.4rem;
+    /* 銅金細描邊取代填色圓徽，呼應 Aman 的 monogram */
+    background-color: transparent;
+    border: 1px solid var(--color-copper-500);
+    color: var(--color-ink-900);
     font-family: var(--font-display);
-    font-weight: 700;
-    letter-spacing: 0.04em;
+    font-weight: 500;
+    font-size: 0.95rem;
+    letter-spacing: 0.08em;
   }
   .brand-text {
     display: flex;
     flex-direction: column;
-    line-height: 1.1;
+    line-height: 1.15;
   }
   .brand-name {
     font-family: var(--font-display);
-    font-size: 1rem;
-    font-weight: 600;
+    font-size: 1.02rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--color-ink-900);
   }
   .brand-tagline {
-    font-size: 0.7rem;
-    color: var(--color-ink-500);
-    letter-spacing: 0.04em;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    color: var(--color-copper-600);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    margin-top: 0.15rem;
   }
 
   .desktop-nav {
@@ -139,54 +150,80 @@ const navItems = resolveNavHrefs(NAV_ITEMS, locale);
   }
   .desktop-nav ul {
     display: flex;
-    gap: 0.25rem;
+    gap: 0.5rem;
     list-style: none;
     padding: 0;
     margin: 0;
   }
   .desktop-nav a {
     display: inline-block;
-    padding: 0.5rem 0.85rem;
+    padding: 0.55rem 0.9rem;
     color: var(--color-ink-700);
-    font-size: 0.95rem;
+    font-family: var(--font-display);
+    font-size: 0.92rem;
+    letter-spacing: 0.06em;
     text-decoration: none;
-    border-radius: 0.5rem;
-    transition: color 160ms var(--ease-snappy), background-color 160ms var(--ease-snappy);
+    position: relative;
+    transition: color 220ms var(--ease-editorial);
+  }
+  .desktop-nav a::after {
+    content: '';
+    position: absolute;
+    left: 0.9rem;
+    right: 0.9rem;
+    bottom: 0.35rem;
+    height: 1px;
+    background-color: var(--color-copper-500);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 320ms var(--ease-editorial);
   }
   .desktop-nav a:hover {
-    color: var(--color-ocean-800);
-    background-color: var(--color-ocean-50);
+    color: var(--color-ink-950);
+  }
+  .desktop-nav a:hover::after {
+    transform: scaleX(1);
   }
   .desktop-nav a[aria-current='page'] {
-    color: var(--color-ocean-900);
-    font-weight: 600;
+    color: var(--color-ink-950);
+  }
+  .desktop-nav a[aria-current='page']::after {
+    transform: scaleX(1);
+    background-color: var(--color-ink-900);
   }
 
   .header-tail {
     display: inline-flex;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.85rem;
   }
   .cta-inline {
     display: none;
-    padding: 0.55rem 1rem;
-    border-radius: 999px;
-    background-color: var(--color-ocean-700);
-    color: white;
-    font-size: 0.9rem;
+    padding: 0.55rem 1.2rem;
+    border: 1px solid var(--color-ink-900);
+    color: var(--color-ink-900);
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
     text-decoration: none;
-    transition: background-color 160ms var(--ease-snappy), transform 160ms var(--ease-snappy);
+    transition:
+      background-color 280ms var(--ease-editorial),
+      color 280ms var(--ease-editorial);
   }
   .cta-inline:hover {
-    background-color: var(--color-ocean-800);
-    transform: translateY(-1px);
+    background-color: var(--color-ink-900);
+    color: var(--color-bone-100);
   }
 
   @media (min-width: 1024px) {
     .desktop-nav {
       display: block;
       flex: 1;
-      margin-inline: 1rem;
+      margin-inline: 1.5rem;
+    }
+    .desktop-nav ul {
+      justify-content: center;
     }
     .cta-inline {
       display: inline-block;

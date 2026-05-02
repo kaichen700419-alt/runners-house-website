@@ -1,29 +1,29 @@
 ---
 /**
- * ImagePlaceholder 元件
+ * ImagePlaceholder 元件 v3
  *
- * 因業主未提供實景照片，全站圖片改用此元件渲染：
- *  - 一塊有品牌色漸層的 SVG 區塊
- *  - 中央顯示 alt 文字（也即圖片描述）
- *  - 角落顯示「實景陸續更新」標籤
+ * 業主未提供實景照片，全站圖片改用此元件渲染。
+ * 設計語言更新（v3）：
+ *   - 拋棄漸層 + 點狀紋理的「色塊感」
+ *   - 改為精品民宿風的「米色 + 銅金細線描邊」幾何
+ *   - 中央 minimal 符號（圓 / 方 / 線）+ 小字「PHOTO COMING SOON」
+ *   - 配上極細的銅金內框，呼應 Aman / Hoshinoya 的留白語彙
  *
- * 為何不用真實占位圖片：
- *  - 真實占位（如 placehold.it）會增加外部請求、傷害效能與隱私
- *  - 自製 SVG 漸層在 print / dark mode / no-image 環境都安全
- *  - 內嵌 alt 與標籤直接告訴使用者「等待實景」，比模糊的灰色塊有意義
+ * variant 參數仍保留以兼容呼叫端，但視覺差異已收斂為微妙的色相層次，
+ * 不再是強烈飽和色塊；避免「每張卡片大色塊強搶版面」的失衡感。
  */
 import { useTranslations } from '@/i18n/utils';
 import type { Locale } from '@/i18n/types';
 
 interface Props {
   locale: Locale;
-  /** 圖片 alt 文字（用於 aria-label 與中央顯示） */
+  /** 圖片 alt 文字（用於 aria-label 與中央 caption） */
   alt: string;
   /** 寬高比；預設 16:9 */
   ratio?: '1:1' | '4:3' | '16:9' | '21:9' | '3:4';
-  /** 主題色彩變體；預設 ocean */
+  /** 主題色相變體；預設 ocean。v3 改為極微差色相，視覺上接近一致 */
   variant?: 'ocean' | 'sand' | 'timber' | 'ink';
-  /** 是否顯示「實景陸續更新」標籤；預設 true */
+  /** 是否顯示「PHOTO COMING SOON」標籤；預設 true */
   showBadge?: boolean;
 }
 
@@ -47,15 +47,14 @@ const aspectRatio = ratioMap[ratio];
 const badgeText = t('common.photoComingSoon');
 
 /**
- * 唯一 ID 後綴：避免同頁多個 ImagePlaceholder 元件因為 variant 相同而 SVG <linearGradient>
- * 與 <pattern> id 重複，導致瀏覽器只解析第一個、後續元件 fill="url(#grad-ocean)" 失效。
- *
- * 用 Math.random().toString(36) 產生 6 位 base36 字元；因為僅在 SSR 渲染時生成，
- * 不影響 hydration 也不需要 crypto 強度。
+ * variant 對應幾何符號：
+ *   ocean   → 雙圓（海平面 + 太陽）
+ *   sand    → 單水平線（沙岸）
+ *   timber  → 細直線格（木紋）
+ *   ink     → 細十字（指北）
+ * 全部以單色銅金描繪，不填色，呼應「線稿筆記本」的精品手稿感
  */
-const uid = Math.random().toString(36).slice(2, 8);
-const gradId = `grad-${variant}-${uid}`;
-const dotsId = `dots-${variant}-${uid}`;
+const symbol = variant;
 ---
 
 <figure
@@ -64,27 +63,47 @@ const dotsId = `dots-${variant}-${uid}`;
   role="img"
   aria-label={alt}
 >
-  <svg
-    class="bg"
-    viewBox="0 0 400 225"
-    preserveAspectRatio="xMidYMid slice"
-    aria-hidden="true"
-  >
-    <defs>
-      <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" class="stop-from" />
-        <stop offset="100%" class="stop-to" />
-      </linearGradient>
-      <pattern id={dotsId} width="24" height="24" patternUnits="userSpaceOnUse">
-        <circle cx="12" cy="12" r="1.2" class="dot" />
-      </pattern>
-    </defs>
-    <rect width="400" height="225" fill={`url(#${gradId})`} />
-    <rect width="400" height="225" fill={`url(#${dotsId})`} />
+  {/* 背景：純色米底（依 variant 微調，不再用漸層） */}
+  <div class="bg" aria-hidden="true"></div>
+
+  {/* 銅金內框：1px 細線，內縮 12px，呼應藝廊裝裱感 */}
+  <div class="frame" aria-hidden="true"></div>
+
+  {/* 中央 minimal 幾何符號 */}
+  <svg class="symbol" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+    {symbol === 'ocean' && (
+      <>
+        <line x1="20" y1="62" x2="80" y2="62" stroke="currentColor" stroke-width="0.6" />
+        <circle cx="50" cy="44" r="9" fill="none" stroke="currentColor" stroke-width="0.6" />
+      </>
+    )}
+    {symbol === 'sand' && (
+      <>
+        <line x1="20" y1="55" x2="80" y2="55" stroke="currentColor" stroke-width="0.6" />
+        <line x1="30" y1="62" x2="70" y2="62" stroke="currentColor" stroke-width="0.6" opacity="0.5" />
+      </>
+    )}
+    {symbol === 'timber' && (
+      <>
+        <line x1="40" y1="30" x2="40" y2="70" stroke="currentColor" stroke-width="0.6" />
+        <line x1="50" y1="32" x2="50" y2="68" stroke="currentColor" stroke-width="0.6" opacity="0.7" />
+        <line x1="60" y1="34" x2="60" y2="66" stroke="currentColor" stroke-width="0.6" opacity="0.5" />
+      </>
+    )}
+    {symbol === 'ink' && (
+      <>
+        <line x1="50" y1="35" x2="50" y2="65" stroke="currentColor" stroke-width="0.6" />
+        <line x1="35" y1="50" x2="65" y2="50" stroke="currentColor" stroke-width="0.6" />
+        <circle cx="50" cy="50" r="14" fill="none" stroke="currentColor" stroke-width="0.4" opacity="0.6" />
+      </>
+    )}
   </svg>
+
+  {/* 中央 caption：小字 + 寬字距，僅作為說明而非搶眼 */}
   <figcaption class="caption">
     <span class="caption-text">{alt}</span>
   </figcaption>
+
   {showBadge ? <span class="badge">{badgeText}</span> : null}
 </figure>
 
@@ -95,60 +114,79 @@ const dotsId = `dots-${variant}-${uid}`;
     width: 100%;
     aspect-ratio: var(--placeholder-aspect);
     overflow: hidden;
-    border-radius: 0.85rem;
     isolation: isolate;
+    /* 不再 round 大圓角，改為 4px 收斂感 */
+    border-radius: 2px;
   }
   .bg {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
-    display: block;
   }
+  /* 各 variant 用米色系微差，整體視覺一致；避免色塊堆疊 */
+  .variant-ocean .bg { background-color: #e8e2d3; }
+  .variant-sand .bg { background-color: #ede5d2; }
+  .variant-timber .bg { background-color: #dfd5c0; }
+  .variant-ink .bg { background-color: #2a2722; }
+
+  .frame {
+    position: absolute;
+    inset: 12px;
+    border: 1px solid var(--color-copper-500);
+    pointer-events: none;
+  }
+  .variant-ink .frame {
+    border-color: var(--color-copper-400);
+    opacity: 0.65;
+  }
+
+  .symbol {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -56%);
+    width: 64px;
+    height: 64px;
+    color: var(--color-copper-500);
+    opacity: 0.85;
+  }
+  .variant-ink .symbol {
+    color: var(--color-copper-400);
+    opacity: 0.75;
+  }
+
   .caption {
     position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1.5rem;
-    background-color: rgb(0 0 0 / 0.18);
+    inset: auto 0 22%;
+    padding: 0 2rem;
+    text-align: center;
   }
   .caption-text {
+    display: inline-block;
     font-family: var(--font-display);
-    font-size: clamp(0.95rem, 1.6vw, 1.15rem);
-    color: white;
-    text-align: center;
-    text-shadow: 0 1px 4px rgb(0 0 0 / 0.45);
-    line-height: 1.45;
+    font-size: clamp(0.78rem, 1.2vw, 0.92rem);
+    color: var(--color-ink-700);
+    line-height: 1.5;
     max-width: 32ch;
+    letter-spacing: 0.04em;
   }
+  .variant-ink .caption-text {
+    color: var(--color-bone-200);
+  }
+
   .badge {
     position: absolute;
-    top: 0.85rem;
-    right: 0.85rem;
-    padding: 0.25rem 0.6rem;
-    border-radius: 999px;
-    background-color: rgb(255 255 255 / 0.92);
-    color: var(--color-ink-800);
-    font-size: 0.7rem;
-    letter-spacing: 0.04em;
+    bottom: 18px;
+    left: 0;
+    right: 0;
+    text-align: center;
     font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.32em;
+    color: var(--color-copper-600);
   }
-  /* 漸層配色與點狀紋理 — 透過 currentColor 對應變體 */
-  .variant-ocean .stop-from { stop-color: var(--color-ocean-500); }
-  .variant-ocean .stop-to { stop-color: var(--color-ocean-900); }
-  .variant-ocean .dot { fill: rgb(255 255 255 / 0.10); }
-
-  .variant-sand .stop-from { stop-color: var(--color-sand-300); }
-  .variant-sand .stop-to { stop-color: var(--color-sand-700); }
-  .variant-sand .dot { fill: rgb(255 255 255 / 0.18); }
-
-  .variant-timber .stop-from { stop-color: var(--color-timber-400); }
-  .variant-timber .stop-to { stop-color: var(--color-timber-800); }
-  .variant-timber .dot { fill: rgb(255 255 255 / 0.10); }
-
-  .variant-ink .stop-from { stop-color: var(--color-ink-700); }
-  .variant-ink .stop-to { stop-color: var(--color-ink-950); }
-  .variant-ink .dot { fill: rgb(255 255 255 / 0.08); }
+  .variant-ink .badge {
+    color: var(--color-copper-300);
+  }
 </style>
