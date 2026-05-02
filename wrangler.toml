@@ -1,0 +1,25 @@
+# Cloudflare Pages 設定（含 Wrangler 部署）
+#
+# 用途：
+#   1. `wrangler pages deploy` 從本地推送 dist/ 至 Cloudflare Pages 時讀取此檔
+#   2. 在 Cloudflare Pages 後台連結 GitHub repo 後，build 設定可直接沿用 [build] 區塊
+#
+# 部署細節參見 docs/deployment.md。
+
+name = "runners-house-website"
+compatibility_date = "2026-05-01"
+pages_build_output_dir = "dist"
+
+# Pages 專用 build 指令；Cloudflare Pages 後台連結 GitHub 後可直接使用
+[build]
+command = "npm run build"
+publish = "dist"
+
+# 環境變數（業主於 Cloudflare Pages 後台 Project → Settings → Environment variables 設定）
+#   PUBLIC_WEB3FORMS_KEY  必填  聯絡頁表單 access_key
+#   PUBLIC_GA_ID          選填  Google Analytics 4 measurement id（如需啟用）
+#
+# 此處不寫入實際值（避免 secret 進 git）；以下以註解列出 key 與用途。
+# [env.production.vars]
+# PUBLIC_WEB3FORMS_KEY = "..."
+# PUBLIC_GA_ID = "..."

@@ -9,6 +9,14 @@ node_modules/
 # 測試覆蓋率報告
 coverage/
 
+# Playwright E2E 產出
+playwright-report/
+test-results/
+.playwright/
+
+# Lighthouse CI 報告
+.lighthouseci/
+
 # git worktrees（避免巢狀 worktree 被追蹤）
 worktrees/
 

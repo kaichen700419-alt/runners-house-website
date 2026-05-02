@@ -24,7 +24,10 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: false,
+    // unit 測試走 *.test.ts；E2E（Playwright）一律走 tests/e2e/**/*.spec.ts，
+    // 兩條測試線完全分離，避免 vitest 誤吃 @playwright/test 的 import 而炸開。
     include: ['tests/**/*.test.ts'],
+    exclude: ['tests/e2e/**', 'node_modules/**', 'dist/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
