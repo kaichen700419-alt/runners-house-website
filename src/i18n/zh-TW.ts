@@ -124,6 +124,8 @@ const zhTW = {
     storyTeaserBody:
       '主理人是一位返鄉的長距離跑者，與爺爺的稻穀一起長大。把米倉留下來，把海風留下來，把跑步留下來。',
     storyTeaserCta: '閱讀完整故事',
+    storyTeaserSince: 'SINCE 1972',
+    storyTeaserCaption: '自 1972 年米倉重生',
     locationHeading: '位置與交通',
     locationLead: '台 11 線 91K 旁，自駕、電動車、大眾運輸都可抵達。',
     locationDriveSouth: '南下｜花蓮台 11 線約 90 分鐘車程',
@@ -204,6 +206,12 @@ const zhTW = {
     detailContactHeading: '預約這間房',
     detailContactBody: '透過 LINE 官方帳號或電話直接洽訂，主理人親自回覆。',
     backToList: '回到房型總覽',
+    bentoEyebrow: 'ROOMS · 5 種房型',
+    breadcrumbLabel: '房型',
+    customRequestTitle: '客製需求',
+    customRequestBody: '包棟、長住、跑團特別需求，主理人親自客製方案。',
+    customRequestCta: '加 LINE 詢問客製',
+    featuredBadge: '主理人推薦',
   },
   runners: {
     pageTitle: '跑者主場',

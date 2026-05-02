@@ -2,12 +2,14 @@
 /**
  * SectionHeading 元件
  *
- * 區塊主標 + 副標 + 分隔線的共用排版。
+ * 區塊主標 + 副標 + 視覺錨點的共用排版。
  * 用於頁內主要區塊標題；頁面層級 h1 仍使用各 page 自身樣式。
  *
- * 為何不用 slot：
- *   - 標題與副標頻繁重複出現於多頁，固定 props 強制保持資訊架構一致
- *   - 部分頁面需要 schema.org 標頭結構，直接用 props 寫死等級較易維護
+ * v2 變更：
+ *   - 將原本「上方水平 3rem 色條」升級為「左側 4px 垂直色帶」（visual anchor），
+ *     符合 polish-final 階段對視覺節奏錨點的要求；align=center 仍保留水平色條。
+ *   - 兩種色帶共存：垂直色帶為主錨點、水平色條僅在置中時使用，避免置中對齊下
+ *     左側垂直色帶看起來偏離標題中軸。
  */
 interface Props {
   /** 主標題文字 */
@@ -37,9 +39,16 @@ const HeadingTag = level;
 ---
 
 <header class:list={['section-heading', `align-${align}`, `variant-${variant}`]}>
-  <span class="divider" aria-hidden="true"></span>
-  <HeadingTag class="title" id={id}>{title}</HeadingTag>
-  {subtitle ? <p class="subtitle">{subtitle}</p> : null}
+  {/* 置中時保留水平色條（左側色帶在置中下會錯位） */}
+  {align === 'center' ? <span class="divider-h" aria-hidden="true"></span> : null}
+  <div class="heading-row">
+    {/* 左對齊時顯示左側 4px 寬色帶作為視覺錨點 */}
+    {align === 'left' ? <span class="divider-v" aria-hidden="true"></span> : null}
+    <div class="heading-text">
+      <HeadingTag class="title" id={id}>{title}</HeadingTag>
+      {subtitle ? <p class="subtitle">{subtitle}</p> : null}
+    </div>
+  </div>
 </header>
 
 <style>
@@ -57,17 +66,46 @@ const HeadingTag = level;
     text-align: center;
     align-items: center;
   }
-  .divider {
+  .heading-row {
+    display: flex;
+    align-items: stretch;
+    gap: 1rem;
+    width: 100%;
+  }
+  .align-center .heading-row {
+    justify-content: center;
+  }
+  /* 左側 4px 垂直色帶 — 自動撐到與 heading-text 等高 */
+  .divider-v {
+    flex: 0 0 4px;
+    width: 4px;
+    border-radius: 2px;
+    align-self: stretch;
+    min-height: 2.4rem;
+  }
+  .variant-ocean .divider-v {
+    background: linear-gradient(180deg, var(--color-ocean-600), var(--color-sand-400));
+  }
+  .variant-wabi .divider-v {
+    background: linear-gradient(180deg, var(--color-timber-600), var(--color-timber-300));
+  }
+  /* 置中對齊保留的水平色條（舊版相容） */
+  .divider-h {
     display: block;
     width: 3rem;
     height: 3px;
     border-radius: 2px;
   }
-  .variant-ocean .divider {
+  .variant-ocean .divider-h {
     background: linear-gradient(90deg, var(--color-ocean-600), var(--color-sand-400));
   }
-  .variant-wabi .divider {
+  .variant-wabi .divider-h {
     background: linear-gradient(90deg, var(--color-timber-600), var(--color-timber-300));
+  }
+  .heading-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
   }
   .title {
     margin: 0;

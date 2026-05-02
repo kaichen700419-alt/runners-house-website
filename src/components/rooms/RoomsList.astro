@@ -2,12 +2,20 @@
 /**
  * RoomsList
  *
- * 房型列表頁主體：以 Bento Grid 不規則卡片排版呈現所有房型。
- * 第一張卡片（海景套房或第一個 order 的高階房）佔較大比例做視覺重點。
+ * 房型列表頁主體：以對稱 3-up Bento Grid 呈現。
+ * 排版邏輯（桌面 ≥1024px）：
+ *   - 第 1 列：標準雙人 / 標準四人 / 4 人背包房（各佔 1 col）
+ *   - 第 2 列：6 人背包房（1 col）+ 海景套房（col-span-2 作為 hero room 強調）
+ * 行動 / 平板：1~2 col 普通堆疊；hero col-span 僅在 ≥1024px 才生效，
+ * 避免在小螢幕產生不對稱排版。
+ *
+ * 與舊版差異：
+ *   - 移除 SectionHeading，避免「麵包屑 / eyebrow / H1」三層重複「房型介紹」
+ *   - hero 卡片改以 slug === 'sea-suite' 判定（穩定、不依賴陣列 index 漂移）
+ *   - 加入 eyebrow 行 + 房型數量微標示，提供視覺節奏錨點
  */
 import { getCollection } from 'astro:content';
 import { getLocalizedPath, useTranslations } from '@/i18n/utils';
-import SectionHeading from '@/components/ui/SectionHeading.astro';
 import ImagePlaceholder from '@/components/ui/ImagePlaceholder.astro';
 import type { Locale } from '@/i18n/types';
 
@@ -26,7 +34,17 @@ if (!all.length) {
 const rooms = all
   .slice()
   .sort((a, b) => a.data.order - b.data.order || a.data.slug.localeCompare(b.data.slug));
-const variants = ['ocean', 'timber', 'sand', 'ink', 'ocean'] as const;
+
+// hero 卡片以 slug 鎖定，不再依賴陣列 idx；未來新增 / 重新排序房型也不會誤把背包房變 hero。
+const HERO_SLUG = 'sea-suite';
+// 卡片色塊 variant 以 slug 對應，順序變動不影響色彩；缺省 fallback 'ocean'。
+const variantBySlug: Record<string, 'ocean' | 'timber' | 'sand' | 'ink'> = {
+  'standard-double': 'ocean',
+  'standard-quad': 'timber',
+  'backpack-4': 'sand',
+  'backpack-6': 'ink',
+  'sea-suite': 'ocean',
+};
 ---
 
 <section class="rooms-list" aria-labelledby="rooms-list-page-heading">
@@ -37,18 +55,21 @@ const variants = ['ocean', 'timber', 'sand', 'ink', 'ocean'] as const;
   </header>
 
   <div class="container-wide">
-    <SectionHeading title={t('rooms.pageTitle')} variant="wabi" />
+    <p class="bento-eyebrow" aria-hidden="true">
+      <span class="bar"></span>
+      <span class="text">{t('rooms.bentoEyebrow')}</span>
+    </p>
     <ul class="bento">
       {
-        rooms.map((room, idx) => {
+        rooms.map((room) => {
           const name = locale === 'en' ? room.data.name_en : room.data.name_zh;
           const view = locale === 'en' ? room.data.view_en : room.data.view_zh;
           const beds = locale === 'en' ? room.data.beds_en : room.data.beds_zh;
           const desc = locale === 'en' ? room.data.description_en : room.data.description_zh;
           const priceNote = locale === 'en' ? room.data.price_note_en : room.data.price_note_zh;
-          const variant = variants[idx % variants.length] ?? 'ocean';
+          const variant = variantBySlug[room.data.slug] ?? 'ocean';
           const href = getLocalizedPath(`/rooms/${room.data.slug}`, locale);
-          const isFeatured = idx === 0;
+          const isFeatured = room.data.slug === HERO_SLUG;
           return (
             <li class:list={['card', isFeatured ? 'featured' : '']}>
               <a class="card-link" href={href} aria-label={name}>
@@ -59,6 +80,9 @@ const variants = ['ocean', 'timber', 'sand', 'ink', 'ocean'] as const;
                     ratio={isFeatured ? '16:9' : '4:3'}
                     variant={variant}
                   />
+                  {isFeatured ? (
+                    <span class="badge">{t('rooms.featuredBadge')}</span>
+                  ) : null}
                 </div>
                 <div class="body">
                   <h2 class="name">{name}</h2>
@@ -132,6 +156,25 @@ const variants = ['ocean', 'timber', 'sand', 'ink', 'ocean'] as const;
     font-size: 0.88rem;
     font-style: italic;
   }
+  /* eyebrow：以細色帶 + 等寬字當作 grid 的視覺節奏錨點，取代原本重複標題的 SectionHeading */
+  .bento-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin: 0 0 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    color: var(--color-timber-700);
+    text-transform: uppercase;
+  }
+  .bento-eyebrow .bar {
+    display: inline-block;
+    width: 2.5rem;
+    height: 3px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--color-timber-600), var(--color-sand-400));
+  }
   .bento {
     list-style: none;
     margin: 0;
@@ -145,16 +188,15 @@ const variants = ['ocean', 'timber', 'sand', 'ink', 'ocean'] as const;
       grid-template-columns: repeat(2, 1fr);
       gap: 1.5rem;
     }
-    .bento .featured {
-      grid-column: span 2;
-    }
   }
   @media (min-width: 1024px) {
     .bento {
       grid-template-columns: repeat(3, 1fr);
     }
+    /* hero 房型獨佔 2 col：order=5 排序最後，自然落在第 2 列右側兩格，
+       與第 2 列第 1 格（6 人背包房）合計 3 col 完整覆蓋一列，視覺對稱無破洞。 */
     .bento .featured {
-      grid-column: span 3;
+      grid-column: span 2;
     }
   }
   .card {
@@ -165,11 +207,12 @@ const variants = ['ocean', 'timber', 'sand', 'ink', 'ocean'] as const;
     transition: transform 240ms var(--ease-snappy), box-shadow 240ms var(--ease-snappy);
   }
   .card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 18px 40px -22px rgb(15 23 42 / 0.18);
+    transform: translateY(-4px);
+    box-shadow: 0 22px 48px -22px rgb(15 23 42 / 0.22);
   }
   .featured {
     background-color: var(--color-ocean-50);
+    border-color: var(--color-ocean-200);
   }
   .card-link {
     display: block;
@@ -177,7 +220,22 @@ const variants = ['ocean', 'timber', 'sand', 'ink', 'ocean'] as const;
     text-decoration: none;
   }
   .image {
+    position: relative;
     overflow: hidden;
+  }
+  .badge {
+    position: absolute;
+    top: 0.85rem;
+    left: 0.85rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    background-color: rgb(255 255 255 / 0.92);
+    color: var(--color-ocean-800);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    box-shadow: 0 4px 12px -6px rgb(15 23 42 / 0.18);
   }
   .body {
     padding: 1.5rem 1.5rem 1.75rem;

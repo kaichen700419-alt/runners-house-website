@@ -97,6 +97,8 @@ const en: Dictionary = {
     storyTeaserBody:
       'A returning long-distance runner kept the barn, kept the sea breeze, and kept the running. The rest of the house grew around it.',
     storyTeaserCta: 'Read the full story',
+    storyTeaserSince: 'SINCE 1972',
+    storyTeaserCaption: 'Reborn from a 1972 rice barn',
     locationHeading: 'Location & access',
     locationLead: 'Right beside Highway 11 KM 91 — reachable by car, EV, or local bus.',
     locationDriveSouth: 'Southbound | About 90 min from Hualien on Highway 11',
@@ -177,6 +179,12 @@ const en: Dictionary = {
     detailContactHeading: 'Reserve this room',
     detailContactBody: 'Reach the host directly via LINE Official or phone.',
     backToList: 'Back to all rooms',
+    bentoEyebrow: 'ROOMS · 5 room types',
+    breadcrumbLabel: 'Rooms',
+    customRequestTitle: 'Custom requests',
+    customRequestBody: 'Whole-house bookings, long stays, or runner-team needs — the host crafts a plan with you.',
+    customRequestCta: 'Ask via LINE',
+    featuredBadge: 'Host’s pick',
   },
   runners: {
     pageTitle: 'Runners',
