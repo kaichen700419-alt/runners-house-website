@@ -204,20 +204,57 @@ function stripEnglishPrefix(path: string): string {
 }
 
 /**
- * 將任意路徑轉換為指定語系的合法路徑：
- *   - zh-TW：移除 `/en` 前綴，不再加任何前綴
+ * 取得 Astro `base` 設定的標準化前綴（不含尾斜線）。
+ * - 預設部署（自訂網域，base 為 `/` 或 undefined）→ 回傳空字串
+ * - GitHub Pages 子路徑（base 為 `/runners-house-website/`）→ 回傳 `/runners-house-website`
+ *
+ * 此函式統一所有路徑生成走相同的 base 處理邏輯，避免硬編碼 base。
+ */
+function getBasePrefix(): string {
+  const raw = import.meta.env.BASE_URL ?? '/';
+  if (raw === '/' || raw === '') {
+    return '';
+  }
+  return raw.replace(/\/$/, '');
+}
+
+/**
+ * 移除路徑開頭的 base 子路徑，確保 getLocalizedPath 為冪等操作
+ *（即使呼叫端誤傳已含 base 的路徑亦能正確處理）。
+ */
+function stripBasePrefix(path: string): string {
+  const base = getBasePrefix();
+  if (!base) {
+    return path;
+  }
+  if (path === base) {
+    return '/';
+  }
+  if (path.startsWith(`${base}/`)) {
+    return path.slice(base.length);
+  }
+  return path;
+}
+
+/**
+ * 將任意路徑轉換為指定語系的合法路徑（含 Astro base 子路徑前綴）：
+ *   - zh-TW：移除 `/en` 前綴，不再加任何語系前綴
  *   - en：確保開頭為 `/en`
+ *   - 兩者都會自動加上 `BASE_URL` 子路徑（如 GitHub Pages 的 `/runners-house-website`）
+ *   - 冪等：傳入已含 base 的路徑不會雙重加前綴
  */
 export function getLocalizedPath(path: string, locale: Locale): string {
-  const normalized = normalizePath(path);
+  const stripped = stripBasePrefix(path);
+  const normalized = normalizePath(stripped);
   const bare = stripEnglishPrefix(normalized);
+  const base = getBasePrefix();
   if (locale === 'zh-TW') {
-    return bare;
+    return `${base}${bare}`;
   }
   if (bare === '/') {
-    return '/en';
+    return `${base}/en`;
   }
-  return `/en${bare}`;
+  return `${base}/en${bare}`;
 }
 
 /**

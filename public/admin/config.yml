@@ -1,0 +1,197 @@
+# Sveltia CMS 設定 — 跑者之家民宿內容後台
+#
+# 業主操作流程：
+#   1. 至 https://github.com/settings/tokens 申請 fine-grained PAT，
+#      勾選此 repo + Contents/Pull Requests 寫入權限
+#   2. 開啟 https://kaichen700419-alt.github.io/runners-house-website/admin/
+#   3. 用 GitHub PAT 登入即可編輯所有內容、上傳照片
+#   4. 儲存 → 自動 commit 至 GitHub → gh-pages 約 1-2 分鐘自動更新
+
+backend:
+  name: github
+  repo: kaichen700419-alt/runners-house-website
+  branch: main
+  # 編輯後直接 commit 到 main（無 PR 流程，業主修改即時生效）
+  commit_messages:
+    create: '[CMS] 新增 {{collection}}：{{slug}}'
+    update: '[CMS] 修改 {{collection}}：{{slug}}'
+    delete: '[CMS] 刪除 {{collection}}：{{slug}}'
+    uploadMedia: '[CMS] 上傳照片：{{path}}'
+    deleteMedia: '[CMS] 刪除照片：{{path}}'
+
+# 後台介面語系
+locale: zh_Hant
+
+# 上傳照片儲存位置（相對於 repo root）
+media_folder: 'public/uploads'
+public_folder: '/runners-house-website/uploads'
+
+# 媒體庫設定 — 自動壓縮上傳的圖片
+media_library:
+  config:
+    multiple: true
+    accept: 'image/jpeg,image/png,image/webp,image/avif'
+
+# 顯示在後台側邊欄的內容類別
+collections:
+  # ====== 房型 ======
+  - name: rooms
+    label: '房型'
+    label_singular: '房型'
+    folder: 'src/content/rooms'
+    extension: 'md'
+    create: true
+    delete: false  # 防止業主誤刪 — 如需刪除請聯絡開發者
+    slug: '{{fields.slug}}'
+    summary: '{{name_zh}} ／ {{capacity}} 人 ／ {{size}} ㎡'
+    sortable_fields: ['order', 'name_zh', 'capacity']
+    fields:
+      - { name: slug, label: '網址識別碼（英文小寫，建立後勿改）', widget: string, hint: '例：standard-double' }
+      - { name: name_zh, label: '中文房型名稱', widget: string }
+      - { name: name_en, label: '英文房型名稱', widget: string }
+      - { name: size, label: '坪數（平方公尺）', widget: number, value_type: int, min: 1 }
+      - { name: capacity, label: '可住人數', widget: number, value_type: int, min: 1, max: 12 }
+      - { name: beds_zh, label: '中文床型描述', widget: string }
+      - { name: beds_en, label: '英文床型描述', widget: string }
+      - { name: view_zh, label: '中文景觀描述', widget: string }
+      - { name: view_en, label: '英文景觀描述', widget: string }
+      - { name: amenities_zh, label: '中文設施清單', widget: list, hint: '每項一個值（如：冷氣、衛浴、Wi-Fi）' }
+      - { name: amenities_en, label: '英文設施清單', widget: list }
+      - { name: description_zh, label: '中文詳細介紹', widget: text }
+      - { name: description_en, label: '英文詳細介紹', widget: text }
+      - { name: gallery, label: '房型照片（可拖曳排序）', widget: list, allow_add: true, field: { name: image, widget: image, label: '圖片', media_library: { config: { multiple: false } } } }
+      - { name: price_note_zh, label: '中文價格說明', widget: string }
+      - { name: price_note_en, label: '英文價格說明', widget: string }
+      - { name: order, label: '排序（越小越前面）', widget: number, value_type: int, default: 99 }
+
+  # ====== 馬拉松賽事 ======
+  - name: races
+    label: '馬拉松賽事'
+    folder: 'src/content/races'
+    extension: 'md'
+    create: true
+    delete: true
+    slug: '{{fields.id}}'
+    summary: '{{month}} 月 ／ {{name_zh}} ／ {{distance}}'
+    fields:
+      - { name: id, label: '英文識別碼', widget: string, hint: '例：changbin-king-kong' }
+      - { name: name_zh, label: '中文賽事名稱', widget: string }
+      - { name: name_en, label: '英文賽事名稱', widget: string }
+      - { name: month, label: '舉辦月份（1-12）', widget: number, value_type: int, min: 1, max: 12 }
+      - { name: distance, label: '距離（如 42K / 半馬 / 10K）', widget: string }
+      - { name: description_zh, label: '中文賽事介紹', widget: text }
+      - { name: description_en, label: '英文賽事介紹', widget: text }
+      - { name: registrationUrl, label: '報名網址', widget: string, pattern: ['^https://', '必須以 https:// 開頭'] }
+      - { name: image, label: '賽事照片', widget: image, required: false }
+      - { name: order, label: '排序', widget: number, value_type: int, default: 99 }
+
+  # ====== 晨跑路線 ======
+  - name: routes
+    label: '晨跑路線'
+    folder: 'src/content/routes'
+    extension: 'md'
+    create: true
+    delete: true
+    slug: '{{fields.id}}'
+    summary: '{{distance}} ／ {{difficulty}} ／ {{name_zh}}'
+    fields:
+      - { name: id, label: '英文識別碼', widget: string, hint: '例：coast-5k' }
+      - { name: name_zh, label: '中文路線名稱', widget: string }
+      - { name: name_en, label: '英文路線名稱', widget: string }
+      - { name: distance, label: '距離（如 5K / 10K）', widget: string }
+      - { name: elevation, label: '海拔變化（如 +50m）', widget: string }
+      - { name: difficulty, label: '難度', widget: select, options: ['easy', 'medium', 'hard'] }
+      - { name: description_zh, label: '中文路線介紹', widget: text }
+      - { name: description_en, label: '英文路線介紹', widget: text }
+      - { name: mapUrl, label: 'Google Maps 路線網址', widget: string, pattern: ['^https://', '必須以 https:// 開頭'] }
+      - { name: image, label: '路線照片', widget: image, required: false }
+      - { name: order, label: '排序', widget: number, value_type: int, default: 99 }
+
+  # ====== 周邊景點 ======
+  - name: attractions
+    label: '周邊景點'
+    folder: 'src/content/attractions'
+    extension: 'md'
+    create: true
+    delete: true
+    slug: '{{fields.id}}'
+    summary: '{{distanceMin}} 分鐘 ／ {{name_zh}}'
+    fields:
+      - { name: id, label: '英文識別碼', widget: string }
+      - { name: name_zh, label: '中文景點名稱', widget: string }
+      - { name: name_en, label: '英文景點名稱', widget: string }
+      - { name: distanceMin, label: '車程（分鐘）', widget: number, value_type: int, min: 1 }
+      - { name: description_zh, label: '中文景點介紹', widget: text }
+      - { name: description_en, label: '英文景點介紹', widget: text }
+      - { name: mapUrl, label: 'Google Maps 網址', widget: string, pattern: ['^https://', '必須以 https:// 開頭'] }
+      - { name: image, label: '景點照片', widget: image, required: false }
+      - { name: order, label: '排序', widget: number, value_type: int, default: 99 }
+
+  # ====== 周邊餐廳 ======
+  - name: restaurants
+    label: '周邊餐廳'
+    folder: 'src/content/restaurants'
+    extension: 'md'
+    create: true
+    delete: true
+    slug: '{{fields.id}}'
+    summary: '{{distanceMin}} 分鐘 ／ {{type_zh}} ／ {{name_zh}}'
+    fields:
+      - { name: id, label: '英文識別碼', widget: string }
+      - { name: name_zh, label: '中文餐廳名稱', widget: string }
+      - { name: name_en, label: '英文餐廳名稱', widget: string }
+      - { name: type_zh, label: '中文類型（如：早餐、咖啡、原民風味）', widget: string }
+      - { name: type_en, label: '英文類型', widget: string }
+      - { name: distanceMin, label: '車程（分鐘）', widget: number, value_type: int, min: 1 }
+      - { name: description_zh, label: '中文餐廳介紹', widget: text }
+      - { name: description_en, label: '英文餐廳介紹', widget: text }
+      - { name: image, label: '餐廳照片', widget: image, required: false }
+      - { name: order, label: '排序', widget: number, value_type: int, default: 99 }
+
+  # ====== 全站文字內容（i18n 字典 — 中文與英文） ======
+  - name: i18n
+    label: '網站文字內容'
+    label_singular: '語系字典'
+    folder: 'src/content/strings'
+    extension: 'json'
+    format: 'json'
+    create: false
+    delete: false
+    identifier_field: locale
+    summary: '{{locale}} 語系'
+    editor:
+      preview: false
+    fields:
+      - { name: locale, label: '語系代碼', widget: hidden }
+      - { name: common, label: '通用文字', widget: object, collapsed: true, fields: [
+          { name: siteName, label: '站名', widget: string },
+          { name: brandStatement, label: '品牌標語', widget: text, required: false },
+          { name: ctaCallNow, label: '電話 CTA', widget: string, required: false },
+          { name: ctaLineNow, label: 'LINE CTA', widget: string, required: false },
+          { name: ctaEmailUs, label: 'Email CTA', widget: string, required: false },
+          { name: ctaInquireBooking, label: '詢問訂房按鈕', widget: string, required: false },
+        ] }
+      - { name: nav, label: '導覽列', widget: object, collapsed: true, fields: [
+          { name: home, label: '首頁', widget: string },
+          { name: about, label: '關於', widget: string },
+          { name: rooms, label: '房型', widget: string },
+          { name: runners, label: '跑者體驗', widget: string },
+          { name: charging, label: '特斯拉超充', widget: string },
+          { name: nearby, label: '周邊推薦', widget: string },
+          { name: contact, label: '聯絡', widget: string },
+        ] }
+      - { name: home, label: '首頁文案', widget: object, collapsed: true, fields: [
+          { name: heroTitle, label: '主視覺標題', widget: string },
+          { name: heroSubtitle, label: '主視覺副標題', widget: text, required: false },
+          { name: pillarsHeading, label: '三特色區塊標題', widget: string, required: false },
+          { name: storyTeaserTitle, label: '故事預告標題', widget: string, required: false },
+        ] }
+      - { name: about, label: '關於我們文案', widget: object, collapsed: true, required: false, fields: [] }
+      - { name: rooms, label: '房型頁文案', widget: object, collapsed: true, required: false, fields: [] }
+      - { name: runners, label: '跑者體驗文案', widget: object, collapsed: true, required: false, fields: [] }
+      - { name: charging, label: '充電頁文案', widget: object, collapsed: true, required: false, fields: [] }
+      - { name: nearby, label: '周邊頁文案', widget: object, collapsed: true, required: false, fields: [] }
+      - { name: contact, label: '聯絡頁文案', widget: object, collapsed: true, required: false, fields: [] }
+      - { name: footer, label: '頁尾文案', widget: object, collapsed: true, required: false, fields: [] }
+      - { name: ui, label: 'UI 元件文案', widget: object, collapsed: true, required: false, fields: [] }
+      - { name: seo, label: 'SEO 文案', widget: object, collapsed: true, required: false, fields: [] }
