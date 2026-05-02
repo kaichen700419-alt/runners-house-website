@@ -58,14 +58,17 @@ const separator = t('ui.breadcrumbSeparator');
 
 <style>
   .breadcrumbs {
-    font-size: 0.86rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
     color: var(--color-ink-500);
-    padding-block: 1rem;
+    text-transform: uppercase;
+    padding-block: 1.5rem;
   }
   ol {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.25rem;
+    gap: 0.4rem;
     list-style: none;
     padding: 0;
     margin: 0;
@@ -73,24 +76,24 @@ const separator = t('ui.breadcrumbSeparator');
   li {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.6rem;
   }
   a {
-    color: var(--color-ink-600);
+    color: var(--color-ink-500);
     text-decoration: none;
     border-bottom: 1px solid transparent;
-    transition: color 160ms var(--ease-snappy), border-color 160ms var(--ease-snappy);
+    transition: color 280ms var(--ease-editorial), border-color 280ms var(--ease-editorial);
   }
   a:hover {
-    color: var(--color-ocean-700);
-    border-bottom-color: var(--color-ocean-300);
+    color: var(--color-copper-600);
+    border-bottom-color: var(--color-copper-500);
   }
   .current {
     color: var(--color-ink-900);
-    font-weight: 500;
   }
   .sep {
-    color: var(--color-ink-300);
+    color: var(--color-copper-500);
     user-select: none;
+    font-family: var(--font-display);
   }
 </style>

@@ -75,10 +75,9 @@ const labelClose = tUi(t, 'nav.menuClose');
     width: 2.5rem;
     height: 2.5rem;
     padding: 0.55rem;
-    border-radius: 0.5rem;
     cursor: pointer;
     background-color: transparent;
-    border: 1px solid var(--color-ink-200);
+    border: 1px solid rgb(160 134 96 / 0.4);
     list-style: none;
   }
   .menu-toggle::-webkit-details-marker {
@@ -136,38 +135,42 @@ const labelClose = tUi(t, 'nav.menuClose');
   }
   .drawer {
     position: fixed;
-    inset: 4rem 0 0 0;
-    background-color: var(--color-timber-50);
-    padding: 2rem 1.5rem 4rem;
-    box-shadow: 0 -1px 0 var(--color-ink-200) inset;
+    inset: 4.75rem 0 0 0;
+    background-color: var(--color-bone-50);
+    padding: 3rem 1.75rem 4rem;
+    border-top: 1px solid rgb(160 134 96 / 0.3);
     overflow-y: auto;
-    animation: slideDown 220ms var(--ease-natural);
+    animation: slideDown 320ms var(--ease-editorial);
   }
   .link-list {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0;
     list-style: none;
     padding: 0;
     margin: 0;
   }
   .link-list a {
     display: block;
-    padding: 0.9rem 0.5rem;
-    font-size: 1.15rem;
+    padding: 1.1rem 0;
+    font-size: 1.25rem;
     font-family: var(--font-display);
+    letter-spacing: 0.04em;
     color: var(--color-ink-900);
     text-decoration: none;
-    border-bottom: 1px solid var(--color-timber-200);
+    border-bottom: 1px solid rgb(160 134 96 / 0.18);
+  }
+  :lang(en) .link-list a {
+    font-family: var(--font-display-en);
+    font-style: italic;
   }
   .link-list a[aria-current='page'] {
-    color: var(--color-ocean-800);
-    font-weight: 600;
+    color: var(--color-copper-600);
   }
   .lang-wrap {
-    margin-top: 1.5rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--color-timber-200);
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgb(160 134 96 / 0.25);
   }
   @keyframes slideDown {
     from { opacity: 0; transform: translateY(-1rem); }

@@ -47,28 +47,28 @@ const enHref = getAlternateLocaleUrl(pathname, 'en');
   .language-switcher {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    font-size: 0.85rem;
-    letter-spacing: 0.05em;
-    color: var(--color-ink-700);
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-ink-500);
   }
   .lang-link {
-    padding: 0.15rem 0.35rem;
-    border-radius: 0.25rem;
+    padding: 0.25rem 0.4rem;
     text-decoration: none;
     color: inherit;
-    transition: color 160ms var(--ease-snappy), background-color 160ms var(--ease-snappy);
+    transition: color 280ms var(--ease-editorial);
   }
   .lang-link:hover {
-    color: var(--color-ocean-700);
+    color: var(--color-copper-600);
   }
   .lang-link.active {
-    color: var(--color-ocean-800);
-    background-color: var(--color-ocean-50);
-    font-weight: 600;
+    color: var(--color-ink-900);
     pointer-events: none;
   }
   .divider {
-    color: var(--color-ink-300);
+    color: var(--color-copper-500);
+    font-family: var(--font-display);
   }
 </style>
