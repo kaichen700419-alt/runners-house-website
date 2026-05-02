@@ -1,17 +1,13 @@
 ---
 /**
- * RoomPreview v4 — D1 Screen 5「房型 magazine 展演」
+ * RoomPreview — 首頁房型快覽（自己設計版）
  *
- * 設計依據：研究報告 D1.Screen 5 + B5 Omai Villas 房型分類精緻化
- *   - 拋棄 v3 sticky 兩欄排版
- *   - 改為「橫向 spread」全寬展演：頂部章節 marker + 大標 + 4 張房型卡片
- *   - 卡片 hover：圖右上角顯示「VIEW ROOM →」滑入動畫
- *   - 編號 01–04 + 房名 + meta（坪數／人數／景觀）放在卡片下方左對齊
- *   - 整體無圓角、無 box-shadow（嚴格遵守研究報告 E 禁忌 3）
+ * 4 房型 2x2 網格（桌面）/ 1 column（行動）
+ * 每張卡片：上方深木色 placeholder + 下方資訊（房名 / 容納 / 坪數 / 詳情按鈕）
+ * 完全無：羅馬數字、橘色 hover 線、編號裝飾
  */
 import { getCollection } from 'astro:content';
 import { getLocalizedPath, useTranslations } from '@/i18n/utils';
-import ImagePlaceholder from '@/components/ui/ImagePlaceholder.astro';
 import type { Locale } from '@/i18n/types';
 
 interface Props {
@@ -23,230 +19,189 @@ const t = useTranslations(locale);
 
 const allRooms = await getCollection('rooms');
 if (!allRooms.length) {
-  throw new Error('[content] rooms collection 為空');
+  throw new Error('[home/RoomPreview] rooms collection 為空');
 }
-const previewRooms = allRooms
+const rooms = allRooms
   .slice()
   .sort((a, b) => a.data.order - b.data.order || a.data.slug.localeCompare(b.data.slug))
   .slice(0, 4);
 
-const placeholderVariants = ['ocean', 'timber', 'sand', 'ink'] as const;
+const peopleLabel = locale === 'en' ? 'guests' : '人';
+const sizeLabel = locale === 'en' ? 'm²' : '坪';
+const ctaLabel = locale === 'en' ? 'View details' : '查看詳情';
+const allRoomsLabel = locale === 'en' ? 'All rooms' : '查看所有房型';
 ---
 
-<section class="room-preview" aria-labelledby="room-preview-heading">
-  <div class="container-wide chapter-row reveal">
-    <div class="chapter-mark">
-      <span class="num">V</span>
-      <span class="label">CHAPTER · {locale === 'en' ? 'WHERE YOU SLEEP' : '住的房間'}</span>
-    </div>
-  </div>
+<section class="rooms" aria-labelledby="rooms-heading">
+  <div class="rooms-inner">
+    <header class="rooms-header">
+      <p class="eyebrow">{locale === 'en' ? 'Stay' : '房型介紹'}</p>
+      <h2 id="rooms-heading" class="heading">{t('home.roomPreviewHeading')}</h2>
+    </header>
 
-  <div class="container-wide header reveal" data-delay="1">
-    <h2 id="room-preview-heading" class="title">{t('home.roomPreviewHeading')}</h2>
-    <div class="lead-row">
-      <p class="lead">{t('home.roomPreviewLead')}</p>
-      <a class="text-link" href={getLocalizedPath('/rooms', locale)}>
-        {t('home.roomPreviewSeeAll')}
-        <span aria-hidden="true">→</span>
+    <div class="grid">
+      {rooms.map((room) => (
+        <article class="card">
+          <a class="card-link" href={getLocalizedPath(`/rooms/${room.data.slug}`, locale)}>
+            <div class="card-image" aria-hidden="true">
+              <span class="image-label">{locale === 'en' ? 'PHOTO' : '照片更新中'}</span>
+            </div>
+            <div class="card-body">
+              <h3 class="card-name">{locale === 'en' ? room.data.name_en : room.data.name_zh}</h3>
+              <div class="card-meta">
+                <span>{room.data.capacity} {peopleLabel}</span>
+                <span class="dot" aria-hidden="true">·</span>
+                <span>{room.data.size} {sizeLabel}</span>
+              </div>
+              <span class="cta">{ctaLabel} →</span>
+            </div>
+          </a>
+        </article>
+      ))}
+    </div>
+
+    <div class="all-link-wrap">
+      <a class="all-link" href={getLocalizedPath('/rooms', locale)}>
+        {allRoomsLabel}
+        <span class="arrow" aria-hidden="true">→</span>
       </a>
     </div>
-  </div>
-
-  <div class="container-wide">
-    <ul class="cards">
-      {
-        previewRooms.map((room, idx) => {
-          const name = locale === 'en' ? room.data.name_en : room.data.name_zh;
-          const view = locale === 'en' ? room.data.view_en : room.data.view_zh;
-          const variant = placeholderVariants[idx % placeholderVariants.length] ?? 'ocean';
-          const href = getLocalizedPath(`/rooms/${room.data.slug}`, locale);
-          const num = String(idx + 1).padStart(2, '0');
-          return (
-            <li class="card reveal" data-delay={(idx % 4) + 1}>
-              <a href={href} class="card-link" aria-label={name}>
-                <div class="image-wrap">
-                  <ImagePlaceholder
-                    locale={locale}
-                    alt={name}
-                    ratio="3:4"
-                    variant={variant}
-                  />
-                  <span class="hover-cta" aria-hidden="true">
-                    {locale === 'en' ? 'VIEW ROOM →' : '進入房間 →'}
-                  </span>
-                </div>
-                <div class="card-body">
-                  <div class="card-head">
-                    <span class="card-num" aria-hidden="true">{num}</span>
-                    <h3 class="name">{name}</h3>
-                  </div>
-                  <p class="meta">
-                    <span>{room.data.size}{t('rooms.sizeUnit')}</span>
-                    <span class="dot" aria-hidden="true">·</span>
-                    <span>{room.data.capacity}{t('rooms.capacityUnit')}</span>
-                    <span class="dot" aria-hidden="true">·</span>
-                    <span>{view}</span>
-                  </p>
-                </div>
-              </a>
-            </li>
-          );
-        })
-      }
-    </ul>
   </div>
 </section>
 
 <style>
-  .room-preview {
-    padding-block: 4rem 4.5rem;
-    background-color: var(--color-sand-100);
-  }
-  @media (min-width: 1024px) {
-    .room-preview { padding-block: 5.5rem 6rem; }
-  }
-  .chapter-row { margin-bottom: 2rem; }
-  .header {
-    margin-bottom: 3rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-  .title {
-    margin: 0;
-    font-family: var(--font-display);
-    font-size: clamp(2.25rem, 5vw, 4rem);
-    color: var(--color-ink-900);
-    line-height: 1.1;
-    letter-spacing: -0.005em;
-    font-weight: 500;
-    max-width: 30rem;
-  }
-  :lang(en) .title {
-    font-family: var(--font-display-en);
-    font-style: italic;
-    font-weight: 400;
-    letter-spacing: -0.025em;
-  }
-  .lead-row {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    align-items: flex-start;
+  .rooms {
+    background-color: #faf6ee;
+    padding: 6rem 1.5rem;
   }
   @media (min-width: 768px) {
-    .lead-row {
-      flex-direction: row;
-      align-items: flex-end;
-      justify-content: space-between;
-    }
+    .rooms { padding: 8rem 2.5rem; }
   }
-  .lead {
+  .rooms-inner {
+    max-width: 78rem;
+    margin: 0 auto;
+  }
+  .rooms-header {
+    text-align: center;
+    margin-bottom: 4rem;
+  }
+  .eyebrow {
+    margin: 0 0 0.75rem;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: #8b6f47;
+    font-weight: 500;
+  }
+  .heading {
     margin: 0;
-    color: var(--color-ink-500);
-    font-family: var(--font-display);
-    font-size: 1.05rem;
-    font-style: italic;
-    font-weight: 300;
-    line-height: 1.95;
-    max-width: 30rem;
+    font-family: 'Noto Serif TC', Georgia, serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+    font-weight: 600;
+    color: #1a1411;
+    letter-spacing: 0.04em;
   }
-  :lang(en) .lead { font-family: var(--font-display-en); }
 
-  .cards {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+  .grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 3rem;
-  }
-  @media (min-width: 640px) {
-    .cards { grid-template-columns: repeat(2, 1fr); gap: 3.5rem 2rem; }
-  }
-  @media (min-width: 1024px) {
-    .cards { grid-template-columns: repeat(4, 1fr); gap: 3rem 1.5rem; }
-  }
-  .card { display: flex; flex-direction: column; }
-  .card-link {
-    display: flex;
-    flex-direction: column;
-    text-decoration: none;
-    color: inherit;
     gap: 1.5rem;
   }
-  .image-wrap {
-    position: relative;
-    overflow: hidden;
+  @media (min-width: 720px) {
+    .grid { grid-template-columns: repeat(2, 1fr); gap: 2rem; }
   }
-  .image-wrap > :global(figure) {
-    transition: transform 1000ms var(--ease-editorial);
-  }
-  .card-link:hover .image-wrap > :global(figure) { transform: scale(1.025); }
 
-  .hover-cta {
-    position: absolute;
-    inset: auto 0 0 0;
-    padding: 1rem 1.25rem;
-    background: linear-gradient(to top, rgba(26, 26, 26, 0.85), rgba(26, 26, 26, 0));
-    color: var(--color-sand-100);
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    letter-spacing: 0.32em;
-    text-transform: uppercase;
-    text-align: center;
-    transform: translateY(100%);
-    transition: transform 540ms var(--ease-editorial);
+  .card {
+    background-color: #ffffff;
+    border: 1px solid #ebe1ce;
+    overflow: hidden;
+    transition: border-color 0.3s ease, transform 0.3s ease;
   }
-  .card-link:hover .hover-cta { transform: translateY(0); }
+  .card:hover {
+    border-color: #8b6f47;
+    transform: translateY(-4px);
+  }
+  .card-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .card-image {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background:
+      linear-gradient(135deg, rgba(184, 142, 92, 0.18) 0%, rgba(60, 50, 40, 0.45) 100%),
+      linear-gradient(160deg, #2d2520 0%, #1a1411 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .image-label {
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.35em;
+    color: rgba(255, 255, 255, 0.55);
+    text-transform: uppercase;
+  }
 
   .card-body {
+    padding: 1.75rem 1.75rem 2rem;
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.875rem;
   }
-  .card-head {
-    display: flex;
-    align-items: baseline;
-    gap: 1rem;
-  }
-  .card-num {
-    font-family: var(--font-display-en);
-    font-style: italic;
-    font-size: 1.4rem;
-    color: var(--color-sun-400);
-    letter-spacing: -0.03em;
-    font-weight: 400;
-  }
-  .name {
+  .card-name {
     margin: 0;
-    font-family: var(--font-display);
-    font-size: clamp(1.2rem, 1.6vw, 1.4rem);
-    color: var(--color-ink-900);
-    letter-spacing: 0.01em;
-    font-weight: 500;
-    line-height: 1.25;
-    transition: color 280ms var(--ease-editorial);
+    font-family: 'Noto Serif TC', Georgia, serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1a1411;
+    letter-spacing: 0.03em;
   }
-  .card-link:hover .name { color: var(--color-sea-500); }
-  :lang(en) .name {
-    font-family: var(--font-display-en);
-    font-style: italic;
-    font-weight: 400;
-  }
-  .meta {
-    margin: 0;
-    color: var(--color-ink-500);
-    font-family: var(--font-mono);
-    font-size: 0.74rem;
-    letter-spacing: 0.12em;
+  .card-meta {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
     align-items: center;
+    gap: 0.5rem;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 0.875rem;
+    color: #6e6c63;
   }
-  .dot {
-    color: var(--color-sun-400);
-    opacity: 0.8;
+  .card-meta .dot { color: #c5c2b9; }
+  .cta {
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 0.85rem;
+    color: #8b6f47;
+    letter-spacing: 0.08em;
+    margin-top: 0.25rem;
   }
+
+  .all-link-wrap {
+    text-align: center;
+    margin-top: 4rem;
+  }
+  .all-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 1.05rem 2.5rem;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    color: #1a1411;
+    background-color: transparent;
+    border: 1.5px solid #1a1411;
+    border-radius: 2px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+  .all-link:hover {
+    background-color: #1a1411;
+    color: #faf6ee;
+  }
+  .arrow { transition: transform 0.3s ease; }
+  .all-link:hover .arrow { transform: translateX(4px); }
 </style>

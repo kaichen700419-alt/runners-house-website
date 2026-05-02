@@ -1,16 +1,12 @@
 ---
 /**
- * StoryTeaser v4 — D1 Screen 4「米倉故事三幕劇」
+ * StoryTeaser — 米倉故事預告（自己設計版）
  *
- * 設計依據：研究報告 D1.Screen 4 + B7 Hotarutei 時間軸品牌敘事 +
- *           D4「過去 → 現在 → 未來」三幕劇結構
- *   - 深 charcoal 全寬區塊 + 巨大浮水印 1972 + magazine spread split
- *   - 左：年份時間軸（1972 → 2025 → 未來）
- *   - 右：主理人引言 + 銅金細線 + CTA
- *   - 1972 浮水印改為 Bodoni Moda Italic 巨字（更戲劇）
+ * 結構：左圖右文 50/50（桌面）/ 圖在上文在下（行動）
+ * 深木色 placeholder + 米色文字區
+ * 完全無：時間軸、1972 浮水印、引言裝飾、章節 IV
  */
 import { getLocalizedPath, useTranslations } from '@/i18n/utils';
-import ImagePlaceholder from '@/components/ui/ImagePlaceholder.astro';
 import type { Locale } from '@/i18n/types';
 
 interface Props {
@@ -20,254 +16,122 @@ interface Props {
 const { locale } = Astro.props;
 const t = useTranslations(locale);
 
-// 三幕劇時間軸
-const timeline = [
-  { year: '1972', label: locale === 'en' ? 'Built' : '建成', desc: locale === 'en' ? 'A rice barn for the changbin coast.' : '為長濱海岸而生的米倉。' },
-  { year: '1995', label: locale === 'en' ? 'Quiet' : '靜默', desc: locale === 'en' ? 'Agriculture fades. The barn waits.' : '農業沒落，米倉等待。' },
-  { year: '2024', label: locale === 'en' ? 'Reborn' : '重生', desc: locale === 'en' ? 'A runner returns home, restores the walls.' : '跑者返鄉，修復牆面。' },
-  { year: '2026', label: locale === 'en' ? 'Now' : '現在', desc: locale === 'en' ? 'Open for those who come to slow down.' : '為慢下來的人開門。' },
-];
+const eyebrow = locale === 'en' ? 'Our Story' : '品牌故事';
+const ctaLabel = locale === 'en' ? 'Read the full story' : '閱讀完整故事';
 ---
 
-<section class="story" aria-labelledby="story-teaser-heading">
-  {/* 巨大浮水印年份（1972 → 2026 兩個交錯） */}
-  <span class="watermark wm-a" aria-hidden="true">1972</span>
-  <span class="watermark wm-b" aria-hidden="true">2026</span>
-
-  <div class="container-wide">
-    <div class="chapter-row reveal">
-      <div class="chapter-mark on-dark">
-        <span class="num">IV</span>
-        <span class="label">CHAPTER · {locale === 'en' ? 'A BARN, A BREATH' : '米倉與時間'}</span>
+<section class="story" aria-labelledby="story-heading">
+  <div class="story-inner">
+    <div class="image-wrap" aria-hidden="true">
+      <div class="image-placeholder">
+        <span class="image-label">{locale === 'en' ? 'PHOTO' : '米倉外觀照片'}</span>
       </div>
     </div>
 
-    {/* 米倉外觀大圖框（業主明確要求左 50% 大圖框） */}
-    <div class="story-photo reveal" data-delay="1">
-      <ImagePlaceholder
-        locale={locale}
-        alt={locale === 'en' ? 'The 1972 rice barn · Coastal exterior at dusk' : '1972 年米倉外觀（黃昏的海岸夯土牆）'}
-        ratio="21:9"
-        variant="ink"
-      />
-    </div>
-
-    <div class="grid">
-      {/* 左：時間軸 */}
-      <ol class="timeline reveal" data-delay="2">
-        {
-          timeline.map((row) => (
-            <li class="time-row">
-              <div class="time-year-col">
-                <span class="time-year">{row.year}</span>
-                <span class="time-label">{row.label}</span>
-              </div>
-              <p class="time-desc">{row.desc}</p>
-            </li>
-          ))
-        }
-      </ol>
-
-      {/* 右：引言 + CTA */}
-      <div class="content reveal" data-delay="3">
-        <h2 id="story-teaser-heading" class="title">
-          {t('home.storyTeaserHeading')}
-        </h2>
-        <span class="rule-gold" aria-hidden="true"></span>
-        <blockquote class="pull-quote">
-          <span class="quote-mark" aria-hidden="true">“</span>
-          <p>{t('home.storyTeaserBody')}</p>
-        </blockquote>
-        <a class="btn-line on-dark is-sun" href={getLocalizedPath('/about', locale)}>
-          {t('home.storyTeaserCta')}
-        </a>
-      </div>
+    <div class="content">
+      <p class="eyebrow">{eyebrow}</p>
+      <h2 id="story-heading" class="heading">{t('home.storyTeaserTitle')}</h2>
+      <p class="body">{t('home.storyTeaserBody')}</p>
+      <a class="cta" href={getLocalizedPath('/about', locale)}>
+        {ctaLabel}
+        <span class="arrow" aria-hidden="true">→</span>
+      </a>
     </div>
   </div>
 </section>
 
 <style>
   .story {
-    position: relative;
-    padding-block: 4.5rem 5rem;
-    background-color: var(--color-ink-950);
-    color: var(--color-sand-100);
-    overflow: hidden;
-    isolation: isolate;
-  }
-  @media (min-width: 1024px) {
-    .story { padding-block: 6rem 7rem; }
-  }
-  /* 浮水印巨字：兩個年份交錯排列、不同透明度 */
-  .watermark {
-    position: absolute;
-    font-family: var(--font-display-en);
-    font-style: italic;
-    font-weight: 400;
-    line-height: 0.85;
-    letter-spacing: -0.05em;
-    user-select: none;
-    pointer-events: none;
-    z-index: 0;
-  }
-  .wm-a {
-    right: -2rem;
-    top: -2rem;
-    font-size: clamp(10rem, 22vw, 20rem);
-    color: var(--color-sea-500);
-    opacity: 0.18;
-  }
-  .wm-b {
-    left: -1rem;
-    bottom: -3rem;
-    font-size: clamp(8rem, 18vw, 16rem);
-    color: var(--color-sun-400);
-    opacity: 0.07;
-  }
-
-  .chapter-row { margin-bottom: 2.5rem; }
-
-  /* 米倉外觀大圖框 */
-  .story-photo {
-    position: relative;
-    z-index: 1;
-    margin: 0 auto 3rem;
-    max-width: 1240px;
-    padding-inline: 1.5rem;
+    background-color: #f5efe5;
+    padding: 6rem 1.5rem;
   }
   @media (min-width: 768px) {
-    .story-photo { padding-inline: 2.5rem; margin-bottom: 4rem; }
+    .story { padding: 8rem 2.5rem; }
   }
-  @media (min-width: 1280px) {
-    .story-photo { padding-inline: 4rem; }
-  }
-  .chapter-mark.on-dark .num { color: var(--color-sun-400); }
-  .chapter-mark.on-dark .label { color: var(--color-sand-300); }
-
-  .grid {
-    position: relative;
-    z-index: 1;
+  .story-inner {
+    max-width: 78rem;
+    margin: 0 auto;
     display: grid;
-    gap: 4rem;
     grid-template-columns: 1fr;
-    align-items: start;
+    gap: 3rem;
+    align-items: center;
   }
   @media (min-width: 900px) {
-    .grid {
+    .story-inner {
       grid-template-columns: 1fr 1fr;
-      gap: 6rem;
+      gap: 5rem;
     }
   }
 
-  /* === 時間軸 === */
-  .timeline {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    border-left: 1px solid rgb(201 125 93 / 0.4);
+  .image-wrap {
+    width: 100%;
   }
-  .time-row {
-    padding: 0 0 2.5rem 2.5rem;
-    position: relative;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-  @media (min-width: 640px) {
-    .time-row {
-      grid-template-columns: 9rem 1fr;
-      gap: 2rem;
-      align-items: baseline;
-    }
-  }
-  .time-row::before {
-    content: '';
-    position: absolute;
-    left: -5px;
-    top: 0.5rem;
-    width: 9px;
-    height: 9px;
-    background-color: var(--color-sun-400);
-    transform: rotate(45deg);
-  }
-  .time-year-col {
+  .image-placeholder {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    background:
+      linear-gradient(135deg, rgba(184, 142, 92, 0.25) 0%, rgba(60, 50, 40, 0.55) 100%),
+      linear-gradient(160deg, #2d2520 0%, #1a1411 50%, #251c16 100%);
     display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
+    align-items: center;
+    justify-content: center;
   }
-  .time-year {
-    font-family: var(--font-display-en);
-    font-style: italic;
-    font-size: clamp(2rem, 3vw, 2.6rem);
-    color: var(--color-sand-100);
-    letter-spacing: -0.02em;
-    font-weight: 400;
-    line-height: 0.9;
-  }
-  .time-label {
-    font-family: var(--font-mono);
-    font-size: 0.66rem;
-    letter-spacing: 0.36em;
-    color: var(--color-sun-400);
+  .image-label {
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.4em;
+    color: rgba(255, 255, 255, 0.6);
     text-transform: uppercase;
   }
-  .time-desc {
-    margin: 0;
-    color: var(--color-sand-300);
-    font-family: var(--font-display);
-    font-size: 1rem;
-    font-style: italic;
-    line-height: 1.85;
-    font-weight: 300;
-  }
-  :lang(en) .time-desc { font-family: var(--font-display-en); }
 
-  /* === 右側引言 === */
   .content {
     display: flex;
     flex-direction: column;
-    gap: 1.75rem;
+    gap: 1.5rem;
+    max-width: 32rem;
   }
-  .title {
+  .eyebrow {
     margin: 0;
-    font-family: var(--font-display);
-    font-size: clamp(2rem, 4vw, 3.25rem);
-    color: var(--color-sand-100);
-    line-height: 1.18;
-    letter-spacing: -0.005em;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: #8b6f47;
     font-weight: 500;
   }
-  :lang(en) .title {
-    font-family: var(--font-display-en);
-    font-style: italic;
-    font-weight: 400;
-    letter-spacing: -0.025em;
-  }
-  .pull-quote {
+  .heading {
     margin: 0;
-    padding-left: 1.75rem;
-    border-left: 1px solid var(--color-sun-400);
-    position: relative;
+    font-family: 'Noto Serif TC', Georgia, serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+    font-weight: 600;
+    color: #1a1411;
+    letter-spacing: 0.04em;
+    line-height: 1.35;
   }
-  .pull-quote .quote-mark {
-    position: absolute;
-    left: 0.4rem;
-    top: -0.6rem;
-    font-family: var(--font-display-en);
-    font-size: 2.4rem;
-    color: var(--color-sun-300);
-    line-height: 1;
-    font-style: italic;
-  }
-  .pull-quote p {
+  .body {
     margin: 0;
-    color: var(--color-sand-200);
-    font-family: var(--font-display);
-    font-size: 1.1rem;
-    line-height: 2;
-    font-style: italic;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 1rem;
+    line-height: 1.95;
+    color: #4a3f33;
     font-weight: 300;
-    max-width: 36rem;
   }
-  :lang(en) .pull-quote p { font-family: var(--font-display-en); }
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.875rem;
+    margin-top: 0.75rem;
+    color: #8b6f47;
+    text-decoration: none;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    border-bottom: 1px solid #8b6f47;
+    padding-bottom: 6px;
+    align-self: flex-start;
+    transition: gap 0.3s ease;
+  }
+  .cta:hover { gap: 1.25rem; }
+  .arrow { transition: transform 0.3s ease; }
 </style>
