@@ -36,10 +36,12 @@ const phoneTel = CONTACT.phonePrimaryTel;
 ---
 
 <article class="room-detail" aria-labelledby="room-detail-heading">
-  <header class="header container-narrow">
-    <span class="eyebrow">{t('rooms.breadcrumbLabel')}</span>
+  <header class="header container-wide reveal">
+    <div class="chapter-mark">
+      <span class="num">·</span>
+      <span class="label">{t('rooms.breadcrumbLabel')}</span>
+    </div>
     <h1 id="room-detail-heading" class="title">{name}</h1>
-    <span class="rule-gold rule-gold-center" aria-hidden="true"></span>
     <p class="lead">{desc}</p>
   </header>
 
@@ -137,52 +139,73 @@ const phoneTel = CONTACT.phonePrimaryTel;
 
 <style>
   .room-detail {
-    background-color: var(--color-bone-50);
+    background-color: var(--color-sand-50);
     padding-bottom: 0;
   }
   .header {
-    padding-block: 6rem 4rem;
-    text-align: center;
+    padding-block: 9rem 5rem;
+    text-align: left;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
+    align-items: flex-start;
+    gap: 2rem;
+    max-width: 56rem;
   }
-  .header .eyebrow {
+  @media (min-width: 1024px) {
+    .header { padding-block: 12rem 7rem; }
+  }
+  .header .chapter-mark {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .header .chapter-mark .num {
+    font-family: var(--font-display-en);
+    font-style: italic;
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    color: var(--color-sun-400);
+    letter-spacing: -0.02em;
+    line-height: 0.9;
+    font-weight: 400;
+  }
+  .header .chapter-mark .label {
     font-family: var(--font-mono);
-    font-size: 0.7rem;
+    font-size: 0.66rem;
+    letter-spacing: 0.4em;
+    color: var(--color-ink-500);
     text-transform: uppercase;
-    letter-spacing: 0.32em;
-    color: var(--color-copper-600);
   }
   .title {
     margin: 0;
     font-family: var(--font-display);
-    font-size: clamp(2.25rem, 5.4vw, 4rem);
+    font-size: clamp(2.5rem, 6vw, 4.75rem);
     color: var(--color-ink-900);
-    line-height: 1.1;
-    letter-spacing: 0.02em;
-    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.005em;
+    font-weight: 500;
   }
   :lang(en) .title {
     font-family: var(--font-display-en);
     font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.04em;
   }
   .lead {
     margin: 0;
-    color: var(--color-ink-600);
+    color: var(--color-ink-500);
     font-family: var(--font-display);
-    font-size: 1.05rem;
+    font-size: 1.15rem;
     font-style: italic;
-    line-height: 2;
+    line-height: 1.85;
     font-weight: 300;
     max-width: 38rem;
   }
+  :lang(en) .lead { font-family: var(--font-display-en); }
 
   .overview-section {
     padding-block: 3rem;
-    border-top: 1px solid rgb(160 134 96 / 0.2);
-    border-bottom: 1px solid rgb(160 134 96 / 0.2);
+    border-top: 1px solid rgb(213 207 194 / 0.2);
+    border-bottom: 1px solid rgb(213 207 194 / 0.2);
   }
   .overview {
     display: grid;
@@ -279,7 +302,7 @@ const phoneTel = CONTACT.phonePrimaryTel;
     gap: 0.6rem;
     align-items: start;
     padding-block: 0.85rem;
-    border-bottom: 1px solid rgb(160 134 96 / 0.18);
+    border-bottom: 1px solid rgb(213 207 194 / 0.18);
     font-size: 0.95rem;
   }
   .check {
@@ -297,7 +320,7 @@ const phoneTel = CONTACT.phonePrimaryTel;
   .rule-list li {
     counter-increment: rule;
     padding: 1.1rem 0 1.1rem 3rem;
-    border-bottom: 1px solid rgb(160 134 96 / 0.18);
+    border-bottom: 1px solid rgb(213 207 194 / 0.18);
     color: var(--color-ink-700);
     line-height: 1.85;
     position: relative;
@@ -341,7 +364,7 @@ const phoneTel = CONTACT.phonePrimaryTel;
   }
   .cta-body {
     margin: 0;
-    color: rgb(245 239 230 / 0.78);
+    color: rgb(244 241 234 / 0.78);
     font-family: var(--font-display);
     font-size: 1rem;
     font-style: italic;

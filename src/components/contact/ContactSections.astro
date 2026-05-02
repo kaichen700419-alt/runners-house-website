@@ -89,7 +89,11 @@ const clientI18n = {
 ---
 
 <article class="contact" aria-labelledby="contact-page-heading">
-  <header class="page-header container-wide">
+  <header class="page-header container-wide reveal">
+    <div class="chapter-mark">
+      <span class="num">VI</span>
+      <span class="label">{locale === 'en' ? 'CHAPTER · COME IN' : 'CHAPTER · 來找我們'}</span>
+    </div>
     <h1 id="contact-page-heading" class="page-title">{t('contact.pageTitle')}</h1>
     <p class="page-lead">{t('contact.pageLead')}</p>
   </header>
@@ -619,45 +623,73 @@ const clientI18n = {
 </script>
 
 <style>
-  /* === Contact — Editorial v3 === */
+  /* === Contact — Mineral Coast v4 === */
   .contact {
-    background-color: var(--color-bone-50);
+    background-color: var(--color-sand-50);
     padding-bottom: 0;
   }
   .page-header {
-    padding-block: 7rem 4rem;
-    text-align: center;
+    padding-block: 9rem 6rem;
+    text-align: left;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 1.25rem;
+    align-items: flex-start;
+    gap: 2rem;
+    max-width: 56rem;
+  }
+  @media (min-width: 1024px) {
+    .page-header { padding-block: 12rem 8rem; }
+  }
+  .page-header .chapter-mark {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .page-header .chapter-mark .num {
+    font-family: var(--font-display-en);
+    font-style: italic;
+    font-size: clamp(2.5rem, 4vw, 3.5rem);
+    color: var(--color-sun-400);
+    letter-spacing: -0.02em;
+    line-height: 0.9;
+    font-weight: 400;
+  }
+  .page-header .chapter-mark .label {
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.4em;
+    color: var(--color-ink-500);
+    text-transform: uppercase;
   }
   .page-title {
     margin: 0;
     font-family: var(--font-display);
-    font-size: clamp(2.5rem, 6vw, 4.25rem);
+    font-size: clamp(2.75rem, 7vw, 5.25rem);
     color: var(--color-ink-900);
-    letter-spacing: 0.02em;
-    line-height: 1.1;
-    font-weight: 400;
+    letter-spacing: -0.005em;
+    line-height: 1.05;
+    font-weight: 500;
   }
   :lang(en) .page-title {
     font-family: var(--font-display-en);
     font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.04em;
   }
   .page-lead {
     margin: 0;
     max-width: 38rem;
-    color: var(--color-ink-600);
+    color: var(--color-ink-500);
     font-family: var(--font-display);
-    font-size: 1.05rem;
+    font-size: 1.15rem;
     font-style: italic;
-    line-height: 2;
+    line-height: 1.85;
     font-weight: 300;
   }
+  :lang(en) .page-lead { font-family: var(--font-display-en); }
 
   section { padding-block: 5rem; }
-  section + section { border-top: 1px solid rgb(160 134 96 / 0.18); }
+  section + section { border-top: 1px solid rgb(213 207 194 / 0.18); }
 
   .trio {
     list-style: none;
@@ -666,11 +698,11 @@ const clientI18n = {
     display: grid;
     gap: 0;
     grid-template-columns: 1fr;
-    border-top: 1px solid rgb(160 134 96 / 0.25);
+    border-top: 1px solid rgb(213 207 194 / 0.25);
   }
   @media (min-width: 768px) {
     .trio { grid-template-columns: repeat(3, 1fr); border-top: none; }
-    .trio-card + .trio-card { border-left: 1px solid rgb(160 134 96 / 0.25); }
+    .trio-card + .trio-card { border-left: 1px solid rgb(213 207 194 / 0.25); }
     .trio-card { border-bottom: none; }
   }
   .trio-card {
@@ -680,7 +712,7 @@ const clientI18n = {
     gap: 1.25rem;
     text-align: center;
     align-items: center;
-    border-bottom: 1px solid rgb(160 134 96 / 0.25);
+    border-bottom: 1px solid rgb(213 207 194 / 0.25);
   }
   .trio .badge {
     width: 2.6rem;
@@ -777,7 +809,7 @@ const clientI18n = {
   .field select,
   .field textarea {
     padding: 0.85rem 1rem;
-    border: 1px solid rgb(160 134 96 / 0.4);
+    border: 1px solid rgb(213 207 194 / 0.4);
     border-radius: 0;
     background-color: var(--color-bone-50);
     color: var(--color-ink-900);
@@ -913,11 +945,11 @@ const clientI18n = {
     display: grid;
     gap: 0;
     grid-template-columns: 1fr;
-    border-top: 1px solid rgb(160 134 96 / 0.25);
+    border-top: 1px solid rgb(213 207 194 / 0.25);
   }
   @media (min-width: 768px) {
     .info-grid { grid-template-columns: 1fr 1fr; }
-    .info-grid div:nth-child(odd) { border-right: 1px solid rgb(160 134 96 / 0.18); }
+    .info-grid div:nth-child(odd) { border-right: 1px solid rgb(213 207 194 / 0.18); }
   }
   .info-grid div {
     padding: 1.25rem 1rem;
@@ -925,7 +957,7 @@ const clientI18n = {
     grid-template-columns: 9rem 1fr;
     gap: 0.5rem;
     align-items: center;
-    border-bottom: 1px solid rgb(160 134 96 / 0.18);
+    border-bottom: 1px solid rgb(213 207 194 / 0.18);
   }
   .info-grid dt {
     font-family: var(--font-mono);
@@ -947,7 +979,7 @@ const clientI18n = {
 
   .map-section { padding-block: 0 5rem; background-color: var(--color-bone-50); }
   .map-wrap {
-    border: 1px solid rgb(160 134 96 / 0.3);
+    border: 1px solid rgb(213 207 194 / 0.3);
     overflow: hidden;
   }
   .map-wrap iframe {

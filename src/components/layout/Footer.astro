@@ -1,14 +1,17 @@
 ---
 /**
- * Footer 元件
+ * Footer v4 — 海風礦物 Mineral Coast
  *
  * 三欄結構：
  *  1. 聯絡資訊（地址 / 電話 / Email / LINE / 營業時間）
  *  2. 快速連結（站內主要頁面）
  *  3. 追蹤與地圖（社群、Google Maps lazy iframe、版權）
  *
- * 所有外部連結皆 rel="noopener noreferrer" target="_blank"。
- * Google Maps iframe 使用 loading="lazy" 與 referrerpolicy 增加效能與隱私。
+ * 設計：
+ *  - 全寬深 charcoal 區塊 + 巨大 Bodoni Italic 「RUNNERS HOUSE」浮水印
+ *  - 三欄之間用海洋灰藍細線分隔
+ *  - 每欄標題用 mono caps + 下方晨曦橘短線
+ *  - 底部「Built by ○○」用 Italic 雜誌式署名
  */
 import { useTranslations } from '@/i18n/utils';
 import { NAV_ITEMS, resolveNavHrefs } from '@/lib/navigation';
@@ -21,8 +24,6 @@ interface Props {
 
 const { locale } = Astro.props;
 const t = useTranslations(locale);
-// SSG: 此年份固定於 build time；網站需於每年初 rebuild，
-// 或在 Cloudflare Pages 設定 cron build 自動更新（每年 1 月 1 日）。
 const currentYear = new Date().getFullYear().toString();
 
 const fullAddress = locale === 'en' ? ADDRESS.fullEn : ADDRESS.fullZh;
@@ -33,6 +34,11 @@ const quickLinks = resolveNavHrefs(NAV_ITEMS, locale);
 ---
 
 <footer class="site-footer" aria-label="site footer">
+  {/* 巨大浮水印品牌字 */}
+  <span class="footer-watermark" aria-hidden="true">
+    {locale === 'en' ? 'Runners House' : 'RUNNERS HOUSE'}
+  </span>
+
   <div class="container-wide footer-inner">
     <section class="col" aria-labelledby="footer-contact-heading">
       <h2 id="footer-contact-heading" class="col-heading">{t('footer.contactHeading')}</h2>
@@ -90,14 +96,6 @@ const quickLinks = resolveNavHrefs(NAV_ITEMS, locale);
         </li>
       </ul>
       <div class="map-frame">
-        {/*
-          Map iframe 高度策略：
-            - 桌面 (≥768px) 設為 300，避免在三欄 footer 中看起來像缺塊
-            - 行動 (<768px) 設為 220，比舊版 200 略增但不會壓縮整個 footer
-          同時加上 rounded border + 細白框，讓 iframe 看起來像一張卡片
-          而非單調的內嵌地圖。實際高度由 CSS 控制（min-height + height: auto），
-          width / height 屬性僅作為瀏覽器初始預留空間（CLS 避免）的提示。
-        */}
         <iframe
           title={t('footer.mapAria')}
           aria-label={t('footer.mapAria')}
@@ -106,7 +104,7 @@ const quickLinks = resolveNavHrefs(NAV_ITEMS, locale);
           referrerpolicy="no-referrer-when-downgrade"
           sandbox="allow-scripts allow-same-origin allow-popups"
           width="100%"
-          height="300"
+          height="280"
         ></iframe>
       </div>
     </section>
@@ -121,30 +119,53 @@ const quickLinks = resolveNavHrefs(NAV_ITEMS, locale);
 </footer>
 
 <style>
-  /* === Editorial Footer ===
-     深 ink 底 + 大量留白 + 銅金細線取代色塊；字級小、行距大 */
+  /* === Editorial Footer v4 ===
+     深 ink 底 + 大量留白 + Bodoni Italic 巨字浮水印 + 海洋灰藍細線 */
   .site-footer {
+    position: relative;
     margin-top: 0;
     background-color: var(--color-ink-950);
-    color: var(--color-bone-200);
+    color: var(--color-sand-200);
+    overflow: hidden;
+    isolation: isolate;
   }
-  .footer-inner {
-    display: grid;
-    gap: 3.5rem;
-    padding-block: 6rem 4rem;
-    grid-template-columns: 1fr;
-    position: relative;
-  }
-  /* 頂部 1px 銅金細線：取代厚重色塊邊界 */
+  /* 頂部 1px 海洋灰藍漸層細線 */
   .site-footer::before {
     content: '';
     display: block;
     height: 1px;
     background: linear-gradient(90deg,
       transparent 0%,
-      var(--color-copper-500) 30%,
-      var(--color-copper-500) 70%,
+      var(--color-sea-500) 30%,
+      var(--color-sun-400) 70%,
       transparent 100%);
+  }
+  /* 巨大品牌浮水印（Bodoni Italic） */
+  .footer-watermark {
+    position: absolute;
+    bottom: -3rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--font-display-en);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(6rem, 18vw, 16rem);
+    letter-spacing: -0.04em;
+    color: var(--color-sun-400);
+    opacity: 0.05;
+    user-select: none;
+    pointer-events: none;
+    line-height: 0.85;
+    white-space: nowrap;
+    z-index: 0;
+  }
+  .footer-inner {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: 4rem;
+    padding-block: 7rem 5rem;
+    grid-template-columns: 1fr;
   }
   .col {
     display: flex;
@@ -154,12 +175,11 @@ const quickLinks = resolveNavHrefs(NAV_ITEMS, locale);
   .col-heading {
     font-family: var(--font-mono);
     font-size: 0.7rem;
-    color: var(--color-copper-400);
+    color: var(--color-sun-400);
     margin: 0;
-    letter-spacing: 0.32em;
+    letter-spacing: 0.36em;
     text-transform: uppercase;
     font-weight: 500;
-    /* 標題下方銅金短線 */
     padding-bottom: 1rem;
     position: relative;
   }
@@ -170,15 +190,15 @@ const quickLinks = resolveNavHrefs(NAV_ITEMS, locale);
     bottom: 0;
     width: 28px;
     height: 1px;
-    background-color: var(--color-copper-500);
+    background-color: var(--color-sun-400);
   }
   .col-subheading {
     font-family: var(--font-mono);
-    font-size: 0.66rem;
-    color: var(--color-copper-300);
+    font-size: 0.65rem;
+    color: var(--color-sun-300);
     margin-top: 1.5rem;
     margin-bottom: 0.4rem;
-    letter-spacing: 0.28em;
+    letter-spacing: 0.32em;
     text-transform: uppercase;
   }
   .info-list, .link-list, .social-list {
@@ -197,36 +217,38 @@ const quickLinks = resolveNavHrefs(NAV_ITEMS, locale);
     line-height: 1.7;
   }
   .label {
-    color: var(--color-bone-400);
+    color: var(--color-sand-400);
     font-family: var(--font-mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.22em;
+    font-size: 0.6rem;
+    letter-spacing: 0.28em;
     text-transform: uppercase;
   }
   a {
-    color: var(--color-bone-200);
+    color: var(--color-sand-200);
     text-decoration: none;
     transition: color 280ms var(--ease-editorial);
   }
-  a:hover {
-    color: var(--color-copper-300);
-  }
+  a:hover { color: var(--color-sun-300); }
   .link-list a, .social-list a {
     font-family: var(--font-display);
-    font-size: 0.95rem;
-    letter-spacing: 0.06em;
+    font-size: 0.98rem;
+    letter-spacing: 0.04em;
     line-height: 1.7;
+  }
+  :lang(en) .link-list a, :lang(en) .social-list a {
+    font-family: var(--font-display-en);
+    font-style: italic;
+    font-weight: 400;
   }
   .hours {
     font-size: 0.85rem;
-    color: var(--color-bone-300);
+    color: var(--color-sand-300);
     margin: 0;
     line-height: 1.85;
   }
-  /* Map 框：1px 銅金細邊、無圓角，呼應藝廊裱框 */
   .map-frame {
     margin-top: 1.25rem;
-    border: 1px solid rgb(160 134 96 / 0.35);
+    border: 1px solid rgb(201 125 93 / 0.3);
     overflow: hidden;
   }
   .map-frame iframe {
@@ -234,16 +256,15 @@ const quickLinks = resolveNavHrefs(NAV_ITEMS, locale);
     border: 0;
     width: 100%;
     height: 220px;
-    /* 灰階柔化，讓地圖視覺退為背景 */
-    filter: grayscale(0.6) brightness(0.85) contrast(0.95);
+    filter: grayscale(0.65) brightness(0.82) contrast(0.95);
   }
   @media (min-width: 768px) {
-    .map-frame iframe {
-      height: 280px;
-    }
+    .map-frame iframe { height: 280px; }
   }
   .footer-base {
-    border-top: 1px solid rgb(160 134 96 / 0.18);
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid rgb(201 125 93 / 0.18);
     background-color: var(--color-ink-950);
     padding-block: 2rem;
   }
@@ -255,19 +276,18 @@ const quickLinks = resolveNavHrefs(NAV_ITEMS, locale);
     font-family: var(--font-mono);
     font-size: 0.7rem;
     letter-spacing: 0.16em;
-    color: var(--color-bone-400);
+    color: var(--color-sand-400);
   }
-  .copyright {
-    margin: 0;
-  }
+  .copyright { margin: 0; }
   .built-with {
     margin: 0;
     font-family: var(--font-display);
     font-style: italic;
-    font-size: 0.78rem;
+    font-size: 0.82rem;
     letter-spacing: 0.04em;
-    color: var(--color-bone-300);
+    color: var(--color-sand-300);
   }
+  :lang(en) .built-with { font-family: var(--font-display-en); }
 
   @media (min-width: 768px) {
     .footer-inner {

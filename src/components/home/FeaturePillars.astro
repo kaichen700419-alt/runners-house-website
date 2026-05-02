@@ -1,13 +1,13 @@
 ---
 /**
- * FeaturePillars 元件 v3 — Editorial Triptych
+ * FeaturePillars v4 — D1 Screen 3「三大主題大圖卡」
  *
- * 首頁三聯：Run / Stay / Charge。
- * 視覺改為「magazine 三聯式」雜誌排版：
- *   - 不再 emoji + 卡片堆疊
- *   - 三欄之間用銅金細直線分隔
- *   - 標題用小寫襯線斜體 + 大號編號
- *   - 描述用襯線體 + 散文行高
+ * 設計依據：研究報告 D1.Screen 3 + B6 Hoshinoya 統一感原則
+ *   - Magazine 三聯雜誌排版（Run / Stay / Charge）
+ *   - 每張卡片：大編號羅馬數字 + 線稿 SVG icon + 中文襯線標題 + Inter Tight body
+ *   - 不再用實圖，依 D2 策略 1+4：字型造景 + 手繪 SVG
+ *   - 卡片之間用 1px 海洋灰藍細線分隔，不用色塊堆疊
+ *   - hover 時編號右移、標題向上推、晨曦橘細線從左到右畫過底部
  */
 import { getLocalizedPath, useTranslations } from '@/i18n/utils';
 import type { Locale } from '@/i18n/types';
@@ -27,6 +27,7 @@ const pillars = [
     descKey: 'home.featureRunDescription',
     ctaKey: 'home.featureRunCta',
     href: '/runners',
+    icon: 'run',
   },
   {
     num: 'II',
@@ -35,6 +36,7 @@ const pillars = [
     descKey: 'home.featureStayDescription',
     ctaKey: 'home.featureStayCta',
     href: '/rooms',
+    icon: 'stay',
   },
   {
     num: 'III',
@@ -43,28 +45,66 @@ const pillars = [
     descKey: 'home.featureChargeDescription',
     ctaKey: 'home.featureChargeCta',
     href: '/charging',
+    icon: 'charge',
   },
-];
+] as const;
 ---
 
 <section class="features" aria-labelledby="features-heading">
-  <div class="container-narrow header">
-    <span class="rule-gold rule-gold-center" aria-hidden="true"></span>
+  {/* === 章節 marker === */}
+  <div class="container-wide chapter-row reveal">
+    <div class="chapter-mark">
+      <span class="num">II</span>
+      <span class="label">CHAPTER · {locale === 'en' ? 'WHAT WE OFFER' : '三件事'}</span>
+    </div>
+  </div>
+
+  {/* === 標題區（左對齊 editorial）=== */}
+  <div class="container-wide header reveal" data-delay="1">
     <h2 id="features-heading" class="title">{t('home.featuresHeading')}</h2>
     <p class="lead">{t('home.featuresLead')}</p>
   </div>
 
+  {/* === 三聯卡片 === */}
   <div class="container-wide">
     <ul class="grid">
       {
-        pillars.map((p) => (
-          <li class="pillar">
-            <span class="num" aria-hidden="true">{p.num}</span>
-            <span class="label" aria-hidden="true">{p.label}</span>
+        pillars.map((p, i) => (
+          <li class="pillar reveal" data-delay={i + 2}>
+            {/* 大編號 + 線稿 icon */}
+            <div class="pillar-mark">
+              <span class="pillar-num" aria-hidden="true">{p.num}</span>
+              <svg class="pillar-icon" viewBox="0 0 60 60" aria-hidden="true" focusable="false">
+                {p.icon === 'run' && (
+                  <>
+                    <circle cx="38" cy="14" r="4.5" fill="none" stroke="currentColor" stroke-width="1.2" />
+                    <path d="M14 50 L24 38 L34 42 L44 30 L48 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                    <path d="M22 30 L30 24 L38 28" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                  </>
+                )}
+                {p.icon === 'stay' && (
+                  <>
+                    <rect x="14" y="20" width="32" height="26" fill="none" stroke="currentColor" stroke-width="1.2" />
+                    <path d="M10 24 L30 10 L50 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" />
+                    <line x1="26" y1="34" x2="34" y2="34" stroke="currentColor" stroke-width="1.2" />
+                    <line x1="30" y1="32" x2="30" y2="46" stroke="currentColor" stroke-width="0.8" opacity="0.5" />
+                  </>
+                )}
+                {p.icon === 'charge' && (
+                  <>
+                    <rect x="16" y="14" width="22" height="32" fill="none" stroke="currentColor" stroke-width="1.2" rx="1" />
+                    <line x1="22" y1="14" x2="22" y2="11" stroke="currentColor" stroke-width="1.2" />
+                    <line x1="32" y1="14" x2="32" y2="11" stroke="currentColor" stroke-width="1.2" />
+                    <path d="M30 22 L24 32 L29 32 L25 40" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+                  </>
+                )}
+              </svg>
+            </div>
+            <span class="pillar-label" aria-hidden="true">{p.label}</span>
             <h3 class="pillar-title">{t(p.titleKey)}</h3>
-            <p class="desc">{t(p.descKey)}</p>
-            <a class="cta" href={getLocalizedPath(p.href, locale)}>
-              {t(p.ctaKey)}
+            <p class="pillar-desc">{t(p.descKey)}</p>
+            <a class="pillar-cta" href={getLocalizedPath(p.href, locale)}>
+              <span>{t(p.ctaKey)}</span>
               <span class="arrow" aria-hidden="true">→</span>
             </a>
           </li>
@@ -76,121 +116,182 @@ const pillars = [
 
 <style>
   .features {
-    padding-block: 8rem;
-    background-color: var(--color-bone-50);
+    padding-block: 8rem 9rem;
+    background-color: var(--color-sand-50);
   }
+  @media (min-width: 1024px) {
+    .features { padding-block: 11rem 12rem; }
+  }
+
+  .chapter-row { margin-bottom: 4rem; }
   .header {
-    text-align: center;
-    margin-bottom: 5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    align-items: center;
+    margin-bottom: 6rem;
+    display: grid;
+    gap: 1.75rem;
+    grid-template-columns: 1fr;
+    max-width: 56rem;
+  }
+  @media (min-width: 1024px) {
+    .header {
+      grid-template-columns: 1.2fr 1fr;
+      gap: 4rem;
+      align-items: end;
+      max-width: none;
+    }
   }
   .title {
     margin: 0;
     font-family: var(--font-display);
-    font-size: clamp(2rem, 4vw, 3rem);
+    font-size: clamp(2.25rem, 5vw, 4rem);
     color: var(--color-ink-900);
-    letter-spacing: 0.02em;
-    line-height: 1.18;
-    font-weight: 400;
+    letter-spacing: -0.005em;
+    line-height: 1.1;
+    font-weight: 500;
   }
   :lang(en) .title {
     font-family: var(--font-display-en);
     font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.025em;
   }
   .lead {
     margin: 0;
-    max-width: 38rem;
+    color: var(--color-ink-500);
     font-family: var(--font-display);
-    font-size: 1.02rem;
-    color: var(--color-ink-600);
+    font-size: 1.05rem;
     font-style: italic;
     font-weight: 300;
     line-height: 1.95;
+    max-width: 32rem;
   }
+  :lang(en) .lead {
+    font-family: var(--font-display-en);
+  }
+
   .grid {
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
-    gap: 3rem;
+    gap: 0;
     grid-template-columns: 1fr;
+    border-top: 1px solid var(--color-divider);
+    border-bottom: 1px solid var(--color-divider);
   }
   @media (min-width: 768px) {
     .grid {
       grid-template-columns: repeat(3, 1fr);
-      gap: 0;
     }
     .pillar + .pillar {
-      border-left: 1px solid rgb(160 134 96 / 0.25);
-      padding-left: 3rem;
-    }
-    .pillar:not(:last-child) {
-      padding-right: 3rem;
+      border-left: 1px solid var(--color-divider);
     }
   }
   .pillar {
+    position: relative;
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
-    padding-block: 1rem;
+    gap: 1.5rem;
+    padding: 4rem 2rem 3rem;
+    transition: background-color 600ms var(--ease-editorial);
   }
-  .num {
-    font-family: var(--font-display);
-    font-size: 2.4rem;
-    color: var(--color-copper-500);
-    line-height: 1;
-    font-weight: 300;
-    letter-spacing: 0.04em;
+  .pillar + .pillar {
+    border-top: 1px solid var(--color-divider);
   }
-  .label {
+  @media (min-width: 768px) {
+    .pillar + .pillar { border-top: none; }
+    .pillar {
+      padding: 5rem 2.5rem 4rem;
+    }
+  }
+  .pillar:hover { background-color: var(--color-sand-100); }
+  /* 底部從左到右畫過晨曦橘細線 hover */
+  .pillar::after {
+    content: '';
+    position: absolute;
+    left: 2rem;
+    right: 2rem;
+    bottom: 1.5rem;
+    height: 1px;
+    background-color: var(--color-sun-400);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 540ms var(--ease-editorial);
+  }
+  .pillar:hover::after { transform: scaleX(1); }
+
+  .pillar-mark {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    color: var(--color-sea-500);
+  }
+  .pillar-num {
+    font-family: var(--font-display-en);
+    font-size: clamp(3rem, 5vw, 4.5rem);
+    color: var(--color-sun-400);
+    line-height: 0.9;
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.04em;
+    transition: transform 540ms var(--ease-editorial);
+  }
+  .pillar:hover .pillar-num { transform: translateX(8px); }
+  .pillar-icon {
+    width: 48px;
+    height: 48px;
+    color: var(--color-sea-500);
+    opacity: 0.85;
+  }
+
+  .pillar-label {
     font-family: var(--font-mono);
-    font-size: 0.7rem;
+    font-size: 0.66rem;
     letter-spacing: 0.4em;
-    color: var(--color-copper-600);
+    color: var(--color-ink-500);
     text-transform: uppercase;
   }
   .pillar-title {
     margin: 0;
     font-family: var(--font-display);
-    font-size: 1.45rem;
+    font-size: clamp(1.5rem, 2.4vw, 1.85rem);
     color: var(--color-ink-900);
-    letter-spacing: 0.02em;
-    line-height: 1.25;
-    font-weight: 400;
+    letter-spacing: -0.005em;
+    line-height: 1.2;
+    font-weight: 500;
   }
   :lang(en) .pillar-title {
     font-family: var(--font-display-en);
     font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.02em;
   }
-  .desc {
+  .pillar-desc {
     margin: 0;
-    color: var(--color-ink-700);
-    font-size: 0.95rem;
+    color: var(--color-ink-600);
+    font-size: 0.96rem;
     line-height: 1.95;
     flex: 1;
   }
-  .cta {
+  .pillar-cta {
     align-self: flex-start;
     margin-top: 0.5rem;
     display: inline-flex;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.7rem;
     color: var(--color-ink-900);
     font-family: var(--font-mono);
     font-size: 0.7rem;
-    letter-spacing: 0.28em;
+    letter-spacing: 0.32em;
     text-transform: uppercase;
     text-decoration: none;
-    border-bottom: 1px solid var(--color-copper-500);
-    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--color-sun-400);
+    padding-bottom: 0.45rem;
     transition: color 280ms var(--ease-editorial), gap 280ms var(--ease-editorial);
   }
-  .cta:hover { color: var(--color-copper-600); gap: 0.95rem; }
+  .pillar-cta:hover { color: var(--color-sun-500); gap: 1rem; }
   .arrow {
     font-family: var(--font-display);
-    font-size: 0.95rem;
+    font-size: 0.9rem;
   }
 </style>

@@ -34,13 +34,20 @@ async function main() {
     const ctx = await browser.newContext({
       viewport: { width: vp.width, height: vp.height },
       deviceScaleFactor: 1,
+      // 模擬「reduce motion」讓 IntersectionObserver fallback 直接顯示所有 reveal 元件
+      // 否則 fullPage 截圖時 viewport 還沒滾到對應位置，元件仍處 opacity 0 狀態
+      reducedMotion: 'reduce',
     });
     for (const url of PAGES) {
       const page = await ctx.newPage();
       const safeName = url === '/' ? 'home' : url.replace(/^\//, '').replace(/\//g, '_');
       try {
         await page.goto(BASE + url, { waitUntil: 'networkidle', timeout: 15000 });
-        await page.waitForTimeout(300);
+        // 強制把所有 .reveal 加上 .is-in（保險措施，搭配 reducedMotion 的 fallback）
+        await page.evaluate(() => {
+          document.querySelectorAll('.reveal').forEach((el) => el.classList.add('is-in'));
+        });
+        await page.waitForTimeout(400);
         const file = path.join(outDir, `${vp.name}_${safeName}.png`);
         await page.screenshot({ path: file, fullPage: true });
         console.log(`✓ ${vp.name} ${url}`);

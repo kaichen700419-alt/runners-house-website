@@ -1,30 +1,28 @@
 ---
 /**
- * SectionHeading 元件 v3 — Editorial
+ * SectionHeading v4 — Mineral Coast Editorial
  *
- * 區塊主標 + 副標 + 銅金細線視覺錨點。
+ * 區塊主標 + 副標 + 章節編號 marker（取代純線條視覺）
  *
- * 與 v2 差異：
- *   - 移除舊版「左側 4px 垂直色帶 / 水平 3px 漸層色條」（過於 cookie-cutter）
- *   - 改為精品民宿風的「銅金細線 1px + 大字距小寫 eyebrow（可選）」
- *   - 標題襯線體 + 寬字距，:lang(en) 自動切換 Cormorant Garamond italic
- *   - 副標 italic display 字、line-height 2.0 散文感
+ * 與 v3 差異：
+ *   - 引入 chapter marker 作為錨點（依 D1 章節結構）
+ *   - 標題改為 mixed weight：中文 Noto Serif Medium + 英文 Fraunces Italic
+ *   - 留白拉大、底部支援自定義 number 顯示（讓 about / rooms / runners 等頁
+ *     都能像 D1 首頁一樣有編輯敘事感）
  */
 interface Props {
-  /** 主標題文字 */
   title: string;
-  /** 副標題（lead）文字；可省略 */
   subtitle?: string;
-  /** 標題語意層級（h2 / h3）；預設 h2 */
   level?: 'h2' | 'h3';
-  /** 對齊方式；預設 left */
   align?: 'left' | 'center';
-  /** 主題色彩變體；保留以兼容舊呼叫端，但 v3 視覺上幾乎無差 */
+  /** 對應舊呼叫端 — 視覺差異已收斂 */
   variant?: 'ocean' | 'wabi';
-  /** 主標題 id，供外層 section 以 aria-labelledby 串接 a11y 名稱 */
   id?: string;
-  /** 上方 eyebrow 文字（可選，常為 mono caps） */
   eyebrow?: string;
+  /** 章節編號（羅馬數字 I-XII），呼應 D1 首頁的 12 屏 chapter marker */
+  chapterNum?: string;
+  /** 章節 caption（小字 mono） */
+  chapterLabel?: string;
 }
 
 const {
@@ -35,25 +33,33 @@ const {
   variant: _variant = 'wabi',
   id,
   eyebrow,
+  chapterNum,
+  chapterLabel,
 } = Astro.props;
 
 const HeadingTag = level;
 ---
 
 <header class:list={['section-heading', `align-${align}`]}>
+  {chapterNum ? (
+    <div class="chapter-mark">
+      <span class="num">{chapterNum}</span>
+      {chapterLabel ? <span class="label">{chapterLabel}</span> : null}
+    </div>
+  ) : null}
   {eyebrow ? <span class="eyebrow">{eyebrow}</span> : null}
-  {align === 'center' && !eyebrow ? <span class="rule-gold rule-gold-center" aria-hidden="true"></span> : null}
+  {align === 'center' && !eyebrow && !chapterNum ? <span class="rule-gold rule-gold-center" aria-hidden="true"></span> : null}
   <HeadingTag class="title" id={id}>{title}</HeadingTag>
   {subtitle ? <p class="subtitle">{subtitle}</p> : null}
-  {align === 'left' && !eyebrow ? <span class="rule-gold under" aria-hidden="true"></span> : null}
+  {align === 'left' && !eyebrow && !chapterNum ? <span class="rule-gold under" aria-hidden="true"></span> : null}
 </header>
 
 <style>
   .section-heading {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
-    margin-block: 0 2.75rem;
+    gap: 1.5rem;
+    margin-block: 0 3rem;
   }
   .align-left { text-align: left; align-items: flex-start; }
   .align-center { text-align: center; align-items: center; }
@@ -61,42 +67,67 @@ const HeadingTag = level;
   .title {
     margin: 0;
     font-family: var(--font-display);
-    font-size: clamp(1.75rem, 3.4vw, 2.75rem);
+    font-size: clamp(1.85rem, 3.6vw, 2.85rem);
     color: var(--color-ink-900);
     line-height: 1.18;
-    letter-spacing: 0.02em;
-    font-weight: 400;
+    letter-spacing: -0.005em;
+    font-weight: 500;
   }
   :lang(en) .title {
     font-family: var(--font-display-en);
     font-style: italic;
-    font-weight: 500;
+    font-weight: 400;
+    letter-spacing: -0.025em;
   }
   .subtitle {
     margin: 0;
     max-width: 46rem;
     font-family: var(--font-display);
-    font-size: 1.02rem;
-    color: var(--color-ink-600);
+    font-size: 1.05rem;
+    color: var(--color-ink-500);
     line-height: 2;
     font-style: italic;
     font-weight: 300;
     letter-spacing: 0.015em;
   }
-  .align-center .subtitle {
-    margin-inline: auto;
-  }
-  /* eyebrow 細字大字距 */
+  :lang(en) .subtitle { font-family: var(--font-display-en); }
+  .align-center .subtitle { margin-inline: auto; }
+
   .section-heading .eyebrow {
     font-family: var(--font-mono);
     font-size: 0.7rem;
     text-transform: uppercase;
-    letter-spacing: 0.32em;
-    color: var(--color-copper-600);
+    letter-spacing: 0.36em;
+    color: var(--color-sun-500);
     font-weight: 500;
   }
-  /* 左對齊時，標題下方放一條短銅金線當錨點 */
-  .rule-gold.under {
-    margin-top: 0.4rem;
+
+  /* chapter marker（取代線條） */
+  .section-heading .chapter-mark {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    align-items: flex-start;
+    color: var(--color-sun-400);
+    margin-bottom: 0.5rem;
   }
+  .align-center .chapter-mark { align-items: center; }
+  .section-heading .chapter-mark .num {
+    font-family: var(--font-display-en);
+    font-style: italic;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    color: var(--color-sun-400);
+    font-weight: 400;
+  }
+  .section-heading .chapter-mark .label {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--color-ink-500);
+  }
+
+  .rule-gold.under { margin-top: 0.4rem; }
 </style>

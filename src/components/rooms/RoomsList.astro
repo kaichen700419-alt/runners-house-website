@@ -42,11 +42,14 @@ const variantBySlug: Record<string, 'ocean' | 'timber' | 'sand' | 'ink'> = {
 ---
 
 <section class="rooms-list" aria-labelledby="rooms-list-page-heading">
-  <header class="page-header container-narrow">
-    <span class="eyebrow">{t('rooms.bentoEyebrow')}</span>
+  <header class="page-header container-wide reveal">
+    <div class="chapter-mark">
+      <span class="num">II</span>
+      <span class="label">{locale === 'en' ? 'CHAPTER · WHERE YOU SLEEP' : 'CHAPTER · 住的房間'}</span>
+    </div>
     <h1 id="rooms-list-page-heading" class="page-title">{t('rooms.pageTitle')}</h1>
-    <span class="rule-gold rule-gold-center" aria-hidden="true"></span>
     <p class="page-lead">{t('rooms.pageLead')}</p>
+    <span class="brand-statement">{t('rooms.bentoEyebrow')}</span>
     <p class="meals-note">{t('common.noMealsNotice')}</p>
   </header>
 
@@ -117,50 +120,91 @@ const variantBySlug: Record<string, 'ocean' | 'timber' | 'sand' | 'ink'> = {
 
 <style>
   .rooms-list {
-    background-color: var(--color-bone-50);
-    padding-bottom: 7rem;
+    background-color: var(--color-sand-50);
+    padding-bottom: 8rem;
   }
   .page-header {
-    padding-block: 7rem 5rem;
-    text-align: center;
+    padding-block: 9rem 6rem;
+    text-align: left;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
+    align-items: flex-start;
+    gap: 2rem;
+    max-width: 56rem;
+  }
+  @media (min-width: 1024px) {
+    .page-header { padding-block: 12rem 8rem; }
+  }
+  .page-header .chapter-mark {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .page-header .chapter-mark .num {
+    font-family: var(--font-display-en);
+    font-style: italic;
+    font-size: clamp(2.5rem, 4vw, 3.5rem);
+    color: var(--color-sun-400);
+    letter-spacing: -0.02em;
+    line-height: 0.9;
+    font-weight: 400;
+  }
+  .page-header .chapter-mark .label {
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.4em;
+    color: var(--color-ink-500);
+    text-transform: uppercase;
   }
   .page-title {
     margin: 0;
     font-family: var(--font-display);
-    font-size: clamp(2.5rem, 6vw, 4.25rem);
+    font-size: clamp(2.75rem, 7vw, 5.25rem);
     color: var(--color-ink-900);
-    letter-spacing: 0.02em;
-    line-height: 1.1;
-    font-weight: 400;
+    letter-spacing: -0.005em;
+    line-height: 1.05;
+    font-weight: 500;
   }
   :lang(en) .page-title {
     font-family: var(--font-display-en);
     font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.04em;
   }
   .page-lead {
     margin: 0;
     max-width: 36rem;
-    color: var(--color-ink-600);
+    color: var(--color-ink-500);
     font-family: var(--font-display);
-    font-size: 1.05rem;
-    line-height: 2;
+    font-size: 1.15rem;
+    line-height: 1.85;
     font-style: italic;
     font-weight: 300;
   }
+  :lang(en) .page-lead { font-family: var(--font-display-en); }
+  .brand-statement {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--color-sun-500);
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    border-top: 1px solid var(--color-sun-400);
+    padding-top: 1rem;
+    width: fit-content;
+  }
   .meals-note {
     margin: 1rem 0 0;
-    padding: 0.85rem 1.25rem;
-    border: 1px solid rgb(160 134 96 / 0.35);
+    padding: 1rem 1.25rem;
+    border-left: 2px solid var(--color-sea-500);
+    background-color: var(--color-sand-100);
     color: var(--color-ink-700);
-    font-size: 0.85rem;
+    font-size: 0.92rem;
     font-style: italic;
     font-family: var(--font-display);
-    max-width: 36rem;
+    max-width: 38rem;
+    line-height: 1.7;
   }
+  :lang(en) .meals-note { font-family: var(--font-display-en); }
 
   /* === rows === */
   .rows {
@@ -170,10 +214,10 @@ const variantBySlug: Record<string, 'ocean' | 'timber' | 'sand' | 'ink'> = {
   }
   .row {
     padding-block: 5rem;
-    border-top: 1px solid rgb(160 134 96 / 0.18);
+    border-top: 1px solid rgb(213 207 194 / 0.18);
   }
   .row:last-child {
-    border-bottom: 1px solid rgb(160 134 96 / 0.18);
+    border-bottom: 1px solid rgb(213 207 194 / 0.18);
   }
   .row.featured {
     background-color: var(--color-bone-100);
@@ -266,7 +310,7 @@ const variantBySlug: Record<string, 'ocean' | 'timber' | 'sand' | 'ink'> = {
     gap: 1.25rem 2rem;
     font-size: 0.85rem;
     padding-top: 1rem;
-    border-top: 1px solid rgb(160 134 96 / 0.2);
+    border-top: 1px solid rgb(213 207 194 / 0.2);
   }
   .meta div { display: flex; flex-direction: column; gap: 0.3rem; }
   .meta dt {

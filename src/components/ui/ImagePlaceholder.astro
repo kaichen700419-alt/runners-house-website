@@ -1,29 +1,24 @@
 ---
 /**
- * ImagePlaceholder 元件 v3
+ * ImagePlaceholder v4 — 海風礦物 / 無照片視覺策略 D2
  *
  * 業主未提供實景照片，全站圖片改用此元件渲染。
- * 設計語言更新（v3）：
- *   - 拋棄漸層 + 點狀紋理的「色塊感」
- *   - 改為精品民宿風的「米色 + 銅金細線描邊」幾何
- *   - 中央 minimal 符號（圓 / 方 / 線）+ 小字「PHOTO COMING SOON」
- *   - 配上極細的銅金內框，呼應 Aman / Hoshinoya 的留白語彙
- *
- * variant 參數仍保留以兼容呼叫端，但視覺差異已收斂為微妙的色相層次，
- * 不再是強烈飽和色塊；避免「每張卡片大色塊強搶版面」的失衡感。
+ * 設計依據：研究報告 D2 無攝影視覺策略 1+4
+ *   - 拋棄漸層 + 點狀紋理
+ *   - 改為「沙白紙質 + 線稿幾何 + 細邊海洋灰藍框」精品手稿感
+ *   - 中央 SVG 線稿符號（依 variant 切換）
+ *   - 底部 PHOTO COMING SOON 小字（mono 字距 0.36em）
+ *   - 全部用配色 A 海洋灰藍細線 + 晨曦橘小符號
+ *   - 拋棄 box-shadow，遵守研究報告 E 禁忌 3
  */
 import { useTranslations } from '@/i18n/utils';
 import type { Locale } from '@/i18n/types';
 
 interface Props {
   locale: Locale;
-  /** 圖片 alt 文字（用於 aria-label 與中央 caption） */
   alt: string;
-  /** 寬高比；預設 16:9 */
   ratio?: '1:1' | '4:3' | '16:9' | '21:9' | '3:4';
-  /** 主題色相變體；預設 ocean。v3 改為極微差色相，視覺上接近一致 */
   variant?: 'ocean' | 'sand' | 'timber' | 'ink';
-  /** 是否顯示「PHOTO COMING SOON」標籤；預設 true */
   showBadge?: boolean;
 }
 
@@ -47,12 +42,11 @@ const aspectRatio = ratioMap[ratio];
 const badgeText = t('common.photoComingSoon');
 
 /**
- * variant 對應幾何符號：
- *   ocean   → 雙圓（海平面 + 太陽）
- *   sand    → 單水平線（沙岸）
- *   timber  → 細直線格（木紋）
- *   ink     → 細十字（指北）
- * 全部以單色銅金描繪，不填色，呼應「線稿筆記本」的精品手稿感
+ * variant 對應 SVG 線稿主題：
+ *   ocean   → 海平線 + 晨曦圓（呼應海岸）
+ *   sand    → 雙重水平線（沙岸層次）
+ *   timber  → 米倉木紋直線格 + 屋簷三角
+ *   ink     → 跑者剪影（hero 二級用）
  */
 const symbol = variant;
 ---
@@ -63,43 +57,62 @@ const symbol = variant;
   role="img"
   aria-label={alt}
 >
-  {/* 背景：純色米底（依 variant 微調，不再用漸層） */}
+  {/* 紙質底色 */}
   <div class="bg" aria-hidden="true"></div>
 
-  {/* 銅金內框：1px 細線，內縮 12px，呼應藝廊裝裱感 */}
+  {/* 細邊海洋灰藍裝裱框（內縮 14px） */}
   <div class="frame" aria-hidden="true"></div>
 
-  {/* 中央 minimal 幾何符號 */}
-  <svg class="symbol" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+  {/* 中央 SVG 線稿 */}
+  <svg class="symbol" viewBox="0 0 200 200" aria-hidden="true" focusable="false">
     {symbol === 'ocean' && (
       <>
-        <line x1="20" y1="62" x2="80" y2="62" stroke="currentColor" stroke-width="0.6" />
-        <circle cx="50" cy="44" r="9" fill="none" stroke="currentColor" stroke-width="0.6" />
+        {/* 晨曦圓 + 海平線 + 海浪柔線 */}
+        <circle cx="100" cy="78" r="22" fill="none" stroke="currentColor" stroke-width="0.7" />
+        <line x1="40" y1="116" x2="160" y2="116" stroke="currentColor" stroke-width="0.6" />
+        <path d="M40,132 C70,124 100,140 130,132 C150,127 160,138 160,134"
+              fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.7" />
+        <path d="M40,148 C75,140 105,154 135,148 C150,144 160,152 160,150"
+              fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.5" />
       </>
     )}
     {symbol === 'sand' && (
       <>
-        <line x1="20" y1="55" x2="80" y2="55" stroke="currentColor" stroke-width="0.6" />
-        <line x1="30" y1="62" x2="70" y2="62" stroke="currentColor" stroke-width="0.6" opacity="0.5" />
+        {/* 沙岸層次 — 三條漸近水平線 */}
+        <line x1="44" y1="100" x2="156" y2="100" stroke="currentColor" stroke-width="0.6" />
+        <line x1="56" y1="116" x2="144" y2="116" stroke="currentColor" stroke-width="0.5" opacity="0.7" />
+        <line x1="68" y1="130" x2="132" y2="130" stroke="currentColor" stroke-width="0.4" opacity="0.5" />
+        {/* 一個小石點 */}
+        <circle cx="128" cy="100" r="1.4" fill="currentColor" opacity="0.6" />
       </>
     )}
     {symbol === 'timber' && (
       <>
-        <line x1="40" y1="30" x2="40" y2="70" stroke="currentColor" stroke-width="0.6" />
-        <line x1="50" y1="32" x2="50" y2="68" stroke="currentColor" stroke-width="0.6" opacity="0.7" />
-        <line x1="60" y1="34" x2="60" y2="66" stroke="currentColor" stroke-width="0.6" opacity="0.5" />
+        {/* 米倉屋頂三角 + 木紋直線 */}
+        <path d="M55,100 L100,60 L145,100 L145,150 L55,150 Z" fill="none" stroke="currentColor" stroke-width="0.7" />
+        <line x1="80" y1="100" x2="80" y2="150" stroke="currentColor" stroke-width="0.5" opacity="0.7" />
+        <line x1="100" y1="100" x2="100" y2="150" stroke="currentColor" stroke-width="0.5" opacity="0.5" />
+        <line x1="120" y1="100" x2="120" y2="150" stroke="currentColor" stroke-width="0.5" opacity="0.5" />
       </>
     )}
     {symbol === 'ink' && (
       <>
-        <line x1="50" y1="35" x2="50" y2="65" stroke="currentColor" stroke-width="0.6" />
-        <line x1="35" y1="50" x2="65" y2="50" stroke="currentColor" stroke-width="0.6" />
-        <circle cx="50" cy="50" r="14" fill="none" stroke="currentColor" stroke-width="0.4" opacity="0.6" />
+        {/* 跑者線稿 stick figure（hero 用） */}
+        <g transform="translate(95, 70)" stroke="currentColor" stroke-width="1" stroke-linecap="round" fill="none">
+          <circle cx="0" cy="0" r="9" />
+          <line x1="0" y1="9" x2="-3" y2="42" />
+          <line x1="-3" y1="42" x2="14" y2="64" />
+          <line x1="-3" y1="42" x2="-18" y2="62" />
+          <line x1="0" y1="18" x2="14" y2="30" />
+          <line x1="0" y1="18" x2="-14" y2="32" />
+        </g>
+        {/* 海平線 */}
+        <line x1="40" y1="160" x2="160" y2="160" stroke="currentColor" stroke-width="0.5" opacity="0.5" />
       </>
     )}
   </svg>
 
-  {/* 中央 caption：小字 + 寬字距，僅作為說明而非搶眼 */}
+  {/* 中央 caption */}
   <figcaption class="caption">
     <span class="caption-text">{alt}</span>
   </figcaption>
@@ -115,8 +128,7 @@ const symbol = variant;
     aspect-ratio: var(--placeholder-aspect);
     overflow: hidden;
     isolation: isolate;
-    /* 不再 round 大圓角，改為 4px 收斂感 */
-    border-radius: 2px;
+    border-radius: 0;        /* 嚴格遵守研究報告 C 章節 4px / 0px 一致性 */
   }
   .bg {
     position: absolute;
@@ -124,21 +136,22 @@ const symbol = variant;
     width: 100%;
     height: 100%;
   }
-  /* 各 variant 用米色系微差，整體視覺一致；避免色塊堆疊 */
-  .variant-ocean .bg { background-color: #e8e2d3; }
-  .variant-sand .bg { background-color: #ede5d2; }
-  .variant-timber .bg { background-color: #dfd5c0; }
-  .variant-ink .bg { background-color: #2a2722; }
+  /* 各 variant 沙白系微差色相，避免色塊堆疊（E 禁忌 2） */
+  .variant-ocean .bg { background-color: #ece6d8; }
+  .variant-sand .bg { background-color: #efe8d6; }
+  .variant-timber .bg { background-color: #e2dac3; }
+  .variant-ink .bg { background-color: #1f1f1b; }
 
   .frame {
     position: absolute;
-    inset: 12px;
-    border: 1px solid var(--color-copper-500);
+    inset: 14px;
+    border: 1px solid var(--color-sea-500);
     pointer-events: none;
+    opacity: 0.55;
   }
   .variant-ink .frame {
-    border-color: var(--color-copper-400);
-    opacity: 0.65;
+    border-color: var(--color-sun-400);
+    opacity: 0.45;
   }
 
   .symbol {
@@ -146,14 +159,14 @@ const symbol = variant;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -56%);
-    width: 64px;
-    height: 64px;
-    color: var(--color-copper-500);
+    width: 56%;
+    height: auto;
+    color: var(--color-sea-500);
     opacity: 0.85;
   }
   .variant-ink .symbol {
-    color: var(--color-copper-400);
-    opacity: 0.75;
+    color: var(--color-sun-400);
+    opacity: 0.85;
   }
 
   .caption {
@@ -171,8 +184,12 @@ const symbol = variant;
     max-width: 32ch;
     letter-spacing: 0.04em;
   }
+  :lang(en) .caption-text {
+    font-family: var(--font-display-en);
+    font-style: italic;
+  }
   .variant-ink .caption-text {
-    color: var(--color-bone-200);
+    color: var(--color-sand-200);
   }
 
   .badge {
@@ -182,11 +199,12 @@ const symbol = variant;
     right: 0;
     text-align: center;
     font-family: var(--font-mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.32em;
-    color: var(--color-copper-600);
+    font-size: 0.6rem;
+    letter-spacing: 0.36em;
+    color: var(--color-sun-500);
+    text-transform: uppercase;
   }
   .variant-ink .badge {
-    color: var(--color-copper-300);
+    color: var(--color-sun-300);
   }
 </style>

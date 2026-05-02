@@ -1,14 +1,14 @@
 ---
 /**
- * HeroSection 元件 v3 — Editorial Hero
+ * HeroSection v4 — D1 第 1 屏「電影開場」
  *
- * 設計語言："沉穩 charcoal + 細線海岸線 + 古典襯線標題"
- *   - 全螢幕 100dvh
- *   - 深 ink 漸層背景，無強烈飽和色
- *   - SVG 雙層海岸線細描繪 + 細微星空紋理（0.5px 線條）
- *   - 中文標題用思源宋體大字距開場、副標 italic Cormorant
- *   - CTA 改為極簡線框按鈕（無填色、hover 反白）
- *   - 底部極小 scroll cue 與品牌縮寫，呼應精品民宿首頁
+ * 設計依據：研究報告 top-tier-bnb-design-2026.md D1.Screen 1
+ *   - 全螢幕 100dvh + 沙白底（不是黑底，避開 cookie-cutter dark hero）
+ *   - 中文巨字標題（H1）配 Bodoni Moda italic 大寫副標
+ *   - 右下角 SVG 線稿 + 跑者剪影 + 動態浪線（無真實照片，依 D2 策略 1+4）
+ *   - 左側：定錨經緯度（GEO） + 季節英文短籤（kinetic typography）
+ *   - 底部 scroll cue：「scroll · 滾動」字 + 細線
+ *   - hero 標題用「兩行錯落」editorial 排版（依 The Drake / Aman 範式）
  */
 import { getLocalizedPath, useTranslations } from '@/i18n/utils';
 import type { Locale } from '@/i18n/types';
@@ -19,66 +19,158 @@ interface Props {
 
 const { locale } = Astro.props;
 const t = useTranslations(locale);
+
+// 海岸線經緯度（呼應研究報告 B7 Hotarutei「地獄谷野猿公苑 遊歩道8分」格式）
+const COORD = '23.32°N · 121.46°E';
+const KM_LABEL = locale === 'en' ? 'KM 91 · TAITUNG COAST RD' : '台 11 線 · 91K · 台東長濱';
+
+// 季節 kinetic typography 標籤（純視覺裝飾、非翻譯字串）
+const seasons = locale === 'en'
+  ? ['Spring · Salt', 'Summer · Tide', 'Autumn · Wind', 'Winter · Moon']
+  : ['春 · 鹽', '夏 · 潮', '秋 · 風', '冬 · 月'];
+
+/*
+ * Hero 標題兩行錯落顯示策略：
+ *   - i18n 字串為「跑步就是回家的路」一句，業主已修正不可動其內容
+ *   - 視覺上需要兩行錯落 editorial 排版（依研究報告 D1 Screen 1）
+ *   - 解法：英文以空白切半，中文以「就是」為支點切半（語意可斷）
+ *   - 完全在 component 內 derive，不新增 i18n key
+ */
+const fullTitle: string = t('home.heroTitle');
+let lineA: string;
+let lineB: string;
+if (locale === 'en') {
+  // 英文：取一半空白前後切（粗略平分）
+  const words = fullTitle.split(' ');
+  const mid = Math.ceil(words.length / 2);
+  lineA = words.slice(0, mid).join(' ');
+  lineB = words.slice(mid).join(' ');
+} else {
+  // 中文：尋找「就是」「在」「有」等斷句點，否則對半切
+  const breakWords = ['就是', '在', '有', '便'];
+  let breakIdx = -1;
+  for (const w of breakWords) {
+    const i = fullTitle.indexOf(w);
+    if (i > 0) { breakIdx = i; break; }
+  }
+  if (breakIdx > 0) {
+    lineA = fullTitle.slice(0, breakIdx);
+    lineB = fullTitle.slice(breakIdx);
+  } else {
+    const half = Math.ceil(fullTitle.length / 2);
+    lineA = fullTitle.slice(0, half);
+    lineB = fullTitle.slice(half);
+  }
+}
+
+// 英文 italic tagline — 完全用既有 brandStatement 字串
+const tagline: string = t('common.brandStatement');
 ---
 
 <section class="hero" aria-labelledby="hero-title">
-  {/* 細線海岸線 SVG：兩層柔波 + 微弱地平線，呼應東海岸 */}
-  <div class="hero-bg" aria-hidden="true">
-    <svg class="coast" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" focusable="false">
-      <defs>
-        <linearGradient id="hero-vignette" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="rgba(14,13,11,0)" />
-          <stop offset="60%" stop-color="rgba(14,13,11,0.15)" />
-          <stop offset="100%" stop-color="rgba(14,13,11,0.55)" />
-        </linearGradient>
-      </defs>
-      {/* 微弱地平線 */}
-      <line x1="0" y1="540" x2="1600" y2="540" stroke="rgba(200,184,150,0.35)" stroke-width="0.6" />
-      {/* 第一層：細線海岸線（前景） */}
-      <path
-        d="M0,640 C260,612 480,690 720,650 C960,610 1180,706 1440,664 L1600,672 L1600,900 L0,900 Z"
-        fill="rgba(14,13,11,0.65)"
-        stroke="rgba(200,184,150,0.55)"
-        stroke-width="0.7"
-      />
-      {/* 第二層：更前的海岸線（深 ink） */}
-      <path
-        d="M0,760 C260,738 520,800 820,770 C1060,748 1260,802 1600,786 L1600,900 L0,900 Z"
-        fill="rgba(8,7,6,0.92)"
-        stroke="rgba(200,184,150,0.4)"
-        stroke-width="0.5"
-      />
-      {/* 上方 vignette 漸層 */}
-      <rect x="0" y="0" width="1600" height="900" fill="url(#hero-vignette)" />
-    </svg>
+  {/* === 上方頂條：經緯度 / 季節 / 編號 === */}
+  <div class="hero-topbar" aria-hidden="true">
+    <span class="topbar-coord">{COORD}</span>
+    <span class="topbar-divider"></span>
+    <span class="topbar-km">{KM_LABEL}</span>
+    <span class="topbar-spacer"></span>
+    <span class="topbar-edition">CHAPTER I · {locale === 'en' ? 'A HOUSE BY THE SEA' : '海邊的房子'}</span>
   </div>
 
-  <div class="container-wide hero-inner">
-    {/* 銅金細線 + 短英文 eyebrow */}
-    <div class="eyebrow-row">
-      <span class="rule-h" aria-hidden="true"></span>
-      <span class="eyebrow">{t('home.heroEyebrow')}</span>
-      <span class="rule-h" aria-hidden="true"></span>
+  {/* === 主視覺中央：左字右畫 === */}
+  <div class="hero-stage">
+    <div class="hero-typography">
+      {/* 中文巨字標題 — 兩行錯落，第二行右縮排 */}
+      <h1 id="hero-title" class="hero-title">
+        <span class="line line-a">{lineA}</span>
+        <span class="line line-b">{lineB}</span>
+      </h1>
+
+      {/* 副標：使用既有 brandStatement 字串，不新增 i18n key */}
+      <p class="hero-eng">
+        <em>{tagline}</em>
+      </p>
     </div>
 
-    <h1 id="hero-title" class="hero-title">{t('home.heroTitle')}</h1>
+    {/* === 右下角 SVG 線稿：跑者沿海岸線剪影（依 D2 策略 4：手繪線稿）=== */}
+    <figure class="hero-illust" aria-hidden="true">
+      <svg viewBox="0 0 480 380" preserveAspectRatio="xMidYMax meet" focusable="false">
+        <defs>
+          <linearGradient id="sky-fade" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="rgba(247, 244, 237, 0)" />
+            <stop offset="100%" stop-color="rgba(247, 244, 237, 0.85)" />
+          </linearGradient>
+          <linearGradient id="sun-circle" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="rgba(201, 125, 93, 0.55)" />
+            <stop offset="100%" stop-color="rgba(201, 125, 93, 0.0)" />
+          </linearGradient>
+        </defs>
 
-    <p class="hero-sub">{t('home.heroSubtitle')}</p>
+        {/* 晨曦圓（左上） */}
+        <circle cx="120" cy="80" r="56" fill="url(#sun-circle)" />
+        <circle cx="120" cy="80" r="56" fill="none" stroke="rgba(201, 125, 93, 0.6)" stroke-width="0.6" />
 
-    <div class="cta-row">
-      <a class="btn-line on-dark is-copper" href={getLocalizedPath('/rooms', locale)}>
-        {t('home.heroPrimaryCta')}
-      </a>
-      <a class="btn-line on-dark" href={getLocalizedPath('/about', locale)}>
-        {t('home.heroSecondaryCta')}
-      </a>
-    </div>
+        {/* 海平線（細線 — 1 條，呼應 Hoshinoya 大量留白） */}
+        <line x1="0" y1="200" x2="480" y2="200" stroke="rgba(44, 74, 82, 0.45)" stroke-width="0.6" />
+        <line x1="0" y1="206" x2="480" y2="206" stroke="rgba(44, 74, 82, 0.18)" stroke-width="0.4" />
+
+        {/* 海浪柔線（kinetic 動畫） */}
+        <path class="wave wave-a"
+              d="M0,240 C80,228 160,250 240,238 C320,226 400,250 480,240"
+              fill="none" stroke="rgba(44, 74, 82, 0.35)" stroke-width="0.6" />
+        <path class="wave wave-b"
+              d="M0,260 C100,250 180,272 260,260 C340,248 420,272 480,262"
+              fill="none" stroke="rgba(44, 74, 82, 0.22)" stroke-width="0.5" />
+
+        {/* 跑者剪影 — 簡化線稿 stick figure（依 D2 策略 3 AI 線稿風格） */}
+        <g transform="translate(330, 190)" class="runner">
+          {/* 頭 */}
+          <circle cx="0" cy="0" r="6" fill="none" stroke="#1a1a1a" stroke-width="1.2" />
+          {/* 身體 */}
+          <line x1="0" y1="6" x2="-2" y2="28" stroke="#1a1a1a" stroke-width="1.2" stroke-linecap="round" />
+          {/* 前腿 */}
+          <line x1="-2" y1="28" x2="10" y2="44" stroke="#1a1a1a" stroke-width="1.2" stroke-linecap="round" />
+          {/* 後腿 */}
+          <line x1="-2" y1="28" x2="-12" y2="42" stroke="#1a1a1a" stroke-width="1.2" stroke-linecap="round" />
+          {/* 前手 */}
+          <line x1="0" y1="12" x2="10" y2="20" stroke="#1a1a1a" stroke-width="1.2" stroke-linecap="round" />
+          {/* 後手 */}
+          <line x1="0" y1="12" x2="-10" y2="22" stroke="#1a1a1a" stroke-width="1.2" stroke-linecap="round" />
+        </g>
+
+        {/* 海岸線（前景） */}
+        <path d="M0,310 C100,300 200,320 300,310 C380,302 440,320 480,312 L480,380 L0,380 Z"
+              fill="rgba(44, 74, 82, 0.12)" />
+
+        {/* 上方淡出遮罩，讓畫面與背景無縫 */}
+        <rect x="0" y="0" width="480" height="380" fill="url(#sky-fade)" />
+      </svg>
+    </figure>
   </div>
 
-  {/* 底部極小 scroll cue + 品牌字標 */}
-  <div class="hero-foot" aria-hidden="true">
-    <span class="brand-mini">RUNNERS HOUSE · EST 2025</span>
-    <span class="scroll-cue"></span>
+  {/* === 左下：季節 kinetic typography（自動輪播） === */}
+  <div class="hero-season" aria-hidden="true">
+    <span class="season-label">CURRENT MOMENT</span>
+    <ul class="season-list">
+      {seasons.map((s) => <li>{s}</li>)}
+    </ul>
+  </div>
+
+  {/* === 中下：CTA 兩鈕 === */}
+  <div class="hero-ctas">
+    <a class="btn-line is-sea" href={getLocalizedPath('/rooms', locale)}>
+      {t('home.heroPrimaryCta')}
+    </a>
+    <a class="text-link" href={getLocalizedPath('/about', locale)}>
+      {t('home.heroSecondaryCta')}
+      <span aria-hidden="true">→</span>
+    </a>
+  </div>
+
+  {/* === 底部 scroll cue === */}
+  <div class="scroll-cue" aria-hidden="true">
+    <span class="cue-text">SCROLL</span>
+    <span class="cue-line"></span>
   </div>
 </section>
 
@@ -86,139 +178,308 @@ const t = useTranslations(locale);
   .hero {
     position: relative;
     min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    /* 沉穩深 ink 底色作為照片缺位時的視覺重量 */
-    background-color: var(--color-ink-950);
-    color: var(--color-bone-100);
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    background-color: var(--color-sand-50);
+    color: var(--color-ink-900);
     overflow: hidden;
     isolation: isolate;
+    padding: 1.5rem;
   }
-  .hero-bg {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
+  @media (min-width: 768px) {
+    .hero { padding: 2rem 2.5rem; }
   }
-  .hero-bg .coast {
-    position: absolute;
-    inset: 0;
+  @media (min-width: 1280px) {
+    .hero { padding: 2rem 4rem; }
+  }
+
+  /* === 頂條：經緯度 + 季節 + 章節 === */
+  .hero-topbar {
+    display: none;
+    align-items: center;
+    gap: 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.32em;
+    color: var(--color-ink-500);
+    text-transform: uppercase;
+    padding-block: 1rem 0;
+    animation: fade-in 1100ms 200ms var(--ease-editorial) both;
+  }
+  @media (min-width: 1024px) {
+    .hero-topbar { display: flex; }
+  }
+  .topbar-coord, .topbar-km, .topbar-edition {
+    white-space: nowrap;
+  }
+  .topbar-divider {
+    width: 1px;
+    height: 12px;
+    background-color: var(--color-sun-400);
+    opacity: 0.6;
+  }
+  .topbar-spacer { flex: 1; }
+  .topbar-edition {
+    color: var(--color-sun-500);
+  }
+
+  /* === 主視覺：左字右畫 === */
+  .hero-stage {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: center;
+    padding-block: 4rem 2rem;
+  }
+  @media (min-width: 1024px) {
+    .hero-stage {
+      grid-template-columns: 1.3fr 1fr;
+      gap: 3rem;
+      padding-block: 6rem 4rem;
+      align-items: center;
+    }
+  }
+
+  /* === 中文巨字標題（兩行錯落 editorial）=== */
+  .hero-title {
+    margin: 0;
+    font-family: var(--font-display);
+    color: var(--color-ink-900);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    line-height: 1.0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2em;
+  }
+  .hero-title .line {
+    display: block;
+    font-size: clamp(3rem, 10vw, 8rem);
+    /* 為 kinetic 進場：每行從 translateY 24 + opacity 0 動畫進場 */
+    opacity: 0;
+    transform: translateY(28px);
+    animation: line-fade-up 1300ms var(--ease-out-expo) forwards;
+  }
+  .hero-title .line-a {
+    animation-delay: 350ms;
+  }
+  .hero-title .line-b {
+    animation-delay: 600ms;
+    /* 第二行右縮排，editorial 雜誌排版 */
+    padding-left: 1.4em;
+    color: var(--color-sea-500);
+  }
+  @media (min-width: 768px) {
+    .hero-title .line-b { padding-left: 2em; }
+  }
+  :lang(en) .hero-title {
+    font-family: var(--font-display-hero);
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.04em;
+    line-height: 0.92;
+  }
+
+  @keyframes line-fade-up {
+    0% { opacity: 0; transform: translateY(28px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fade-in {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+  /* === 英文 Italic 副標 === */
+  .hero-eng {
+    margin: 2rem 0 0;
+    font-family: var(--font-display-en);
+    font-size: clamp(1.05rem, 1.6vw, 1.45rem);
+    font-style: italic;
+    font-weight: 300;
+    color: var(--color-ink-500);
+    letter-spacing: -0.005em;
+    max-width: 40rem;
+    line-height: 1.6;
+    opacity: 0;
+    animation: line-fade-up 1300ms 850ms var(--ease-out-expo) forwards;
+  }
+  .hero-eng em { font-style: italic; }
+
+  /* === 右側 SVG 線稿插畫 === */
+  .hero-illust {
+    margin: 2rem 0 0;
+    width: 100%;
+    max-width: 480px;
+    aspect-ratio: 480 / 380;
+    justify-self: end;
+    opacity: 0;
+    animation: line-fade-up 1500ms 1000ms var(--ease-out-expo) forwards;
+  }
+  .hero-illust svg {
     width: 100%;
     height: 100%;
     display: block;
   }
-  .hero-inner {
-    position: relative;
-    z-index: 1;
-    text-align: center;
-    padding-block: 8rem;
-    max-width: 56rem;
+
+  /* SVG 浪線動畫：橫向位移製造潮水感 */
+  @keyframes wave-shift-a {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(-12px); }
   }
-  .eyebrow-row {
-    display: inline-flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 2.5rem;
+  @keyframes wave-shift-b {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(8px); }
   }
-  .rule-h {
-    display: inline-block;
-    width: 36px;
-    height: 1px;
-    background-color: var(--color-copper-500);
+  @keyframes runner-bob {
+    0%, 100% { transform: translate(330px, 190px); }
+    50% { transform: translate(330px, 188px); }
   }
-  .hero-inner .eyebrow {
-    color: var(--color-copper-300);
-    letter-spacing: 0.36em;
-    font-size: 0.7rem;
+  .hero-illust .wave-a {
+    animation: wave-shift-a 6s var(--ease-natural) infinite;
+    transform-origin: center;
   }
-  .hero-title {
-    font-family: var(--font-display);
-    font-size: clamp(2.85rem, 8.5vw, 6.5rem);
-    color: var(--color-bone-100);
-    margin: 0 0 2rem;
-    line-height: 1.05;
-    /* 精品感：寬字距開場後微收斂；中文襯線 letter-spacing 0.06em 留呼吸 */
-    letter-spacing: 0.04em;
-    font-weight: 400;
-    animation: hero-title-fade 1500ms var(--ease-editorial) both;
+  .hero-illust .wave-b {
+    animation: wave-shift-b 8s var(--ease-natural) infinite;
+    transform-origin: center;
   }
-  :lang(en) .hero-title {
-    font-family: var(--font-display-en);
-    font-style: italic;
-    font-weight: 500;
-    letter-spacing: 0.005em;
+  .hero-illust .runner {
+    animation: runner-bob 1.4s ease-in-out infinite;
+    transform-origin: center;
   }
-  @keyframes hero-title-fade {
-    0% {
-      opacity: 0;
-      transform: translateY(14px);
-      letter-spacing: 0.12em;
+  @media (prefers-reduced-motion: reduce) {
+    .hero-illust .wave-a,
+    .hero-illust .wave-b,
+    .hero-illust .runner {
+      animation: none;
     }
-    100% {
+    .hero-title .line, .hero-eng, .hero-illust, .hero-topbar {
+      animation: none;
       opacity: 1;
-      transform: translateY(0);
-      letter-spacing: 0.04em;
+      transform: none;
     }
-  }
-  .hero-sub {
-    font-family: var(--font-display);
-    font-size: clamp(1rem, 1.4vw, 1.18rem);
-    line-height: 1.95;
-    color: rgb(245 239 230 / 0.78);
-    margin: 0 auto 3rem;
-    max-width: 38rem;
-    font-style: italic;
-    font-weight: 300;
-    letter-spacing: 0.02em;
-    animation: hero-sub-fade 1700ms 200ms var(--ease-editorial) both;
-  }
-  @keyframes hero-sub-fade {
-    0% { opacity: 0; transform: translateY(8px); }
-    100% { opacity: 1; transform: translateY(0); }
-  }
-  .cta-row {
-    display: inline-flex;
-    flex-wrap: wrap;
-    gap: 1.25rem;
-    justify-content: center;
-    animation: hero-sub-fade 1900ms 400ms var(--ease-editorial) both;
   }
 
-  .hero-foot {
+  /* === 季節 kinetic typography（左下角，自動輪播）=== */
+  .hero-season {
+    display: none;
     position: absolute;
-    bottom: 2.5rem;
-    left: 0;
-    right: 0;
+    bottom: 8rem;
+    left: 1.5rem;
+    flex-direction: column;
+    gap: 0.4rem;
     z-index: 1;
+  }
+  @media (min-width: 1024px) {
+    .hero-season {
+      display: flex;
+      left: 2.5rem;
+      bottom: 9rem;
+    }
+  }
+  @media (min-width: 1280px) {
+    .hero-season { left: 4rem; }
+  }
+  .season-label {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.36em;
+    color: var(--color-ink-500);
+    text-transform: uppercase;
+  }
+  .season-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    height: 1.6em;
+    overflow: hidden;
+    position: relative;
+  }
+  .season-list li {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    color: var(--color-ink-900);
+    line-height: 1.6;
+    letter-spacing: 0.02em;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    animation: season-loop 12s linear infinite;
+  }
+  :lang(en) .season-list li {
+    font-family: var(--font-display-en);
+    font-style: italic;
+  }
+  /* 4 個 season 各延遲 3s，循環顯示 */
+  .season-list li:nth-child(1) { animation-delay: 0s; }
+  .season-list li:nth-child(2) { animation-delay: 3s; }
+  .season-list li:nth-child(3) { animation-delay: 6s; }
+  .season-list li:nth-child(4) { animation-delay: 9s; }
+  @keyframes season-loop {
+    0% { top: 100%; opacity: 0; }
+    8% { top: 0; opacity: 1; }
+    25% { top: 0; opacity: 1; }
+    33% { top: -100%; opacity: 0; }
+    100% { top: -100%; opacity: 0; }
+  }
+
+  /* === CTA 兩鈕 === */
+  .hero-ctas {
     display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem 2rem;
+    align-items: center;
+    padding-block: 1rem 2rem;
+    opacity: 0;
+    animation: line-fade-up 1300ms 1200ms var(--ease-out-expo) forwards;
+  }
+  @media (min-width: 1024px) {
+    .hero-ctas {
+      padding-block: 0 2rem;
+      max-width: 800px;
+    }
+  }
+
+  /* === 底部 scroll cue === */
+  .scroll-cue {
+    position: absolute;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    display: none;
     flex-direction: column;
     align-items: center;
-    gap: 1.25rem;
-    pointer-events: none;
+    gap: 0.5rem;
   }
-  .brand-mini {
+  @media (min-width: 1024px) {
+    .scroll-cue {
+      display: flex;
+      bottom: 2rem;
+      right: 2.5rem;
+    }
+  }
+  @media (min-width: 1280px) {
+    .scroll-cue { right: 4rem; }
+  }
+  .cue-text {
     font-family: var(--font-mono);
     font-size: 0.62rem;
     letter-spacing: 0.4em;
-    color: var(--color-copper-400);
-    text-transform: uppercase;
+    color: var(--color-ink-500);
+    transform: rotate(180deg);
+    writing-mode: vertical-rl;
   }
-  .scroll-cue {
+  .cue-line {
     width: 1px;
-    height: 38px;
-    background: linear-gradient(180deg, var(--color-copper-400), transparent);
-    animation: scroll-cue 2400ms var(--ease-editorial) infinite;
+    height: 48px;
+    background: linear-gradient(180deg, var(--color-sun-400), transparent);
+    animation: cue-pulse 2400ms var(--ease-editorial) infinite;
     transform-origin: top;
   }
-  @keyframes scroll-cue {
-    0%, 100% { transform: scaleY(1); opacity: 0.6; }
-    50% { transform: scaleY(0.45); opacity: 1; }
+  @keyframes cue-pulse {
+    0%, 100% { transform: scaleY(1); opacity: 0.5; }
+    50% { transform: scaleY(0.4); opacity: 1; }
   }
-
   @media (prefers-reduced-motion: reduce) {
-    .hero-title, .hero-sub, .cta-row, .scroll-cue {
-      animation: none;
-    }
+    .cue-line, .season-list li, .hero-ctas { animation: none; opacity: 1; }
   }
 </style>

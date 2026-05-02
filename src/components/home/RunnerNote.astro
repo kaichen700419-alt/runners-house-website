@@ -1,0 +1,176 @@
+---
+/**
+ * RunnerNote — D1 Screen 2「主理人手寫信」
+ *
+ * 設計依據：研究報告 D1.Screen 2
+ *   - 純沙白底 40vh 區塊
+ *   - 左半：SVG 線稿主理人剪影（手腕戴錶、跑姿）
+ *   - 右半：手寫風格 italic 段落 + 簽名
+ *   - 此 component 全部使用 inline 文字（非 i18n key）— 因為這是
+ *     視覺敘事用的「主理人語錄」，業主可隨時透過後台 about.hostBody
+ *     編輯，這裡僅作為視覺裝飾呈現品牌核心句
+ */
+import { useTranslations } from '@/i18n/utils';
+import type { Locale } from '@/i18n/types';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+
+// 用既有 about.hostBody 作為手寫信內容（已在 i18n 中存在，業主可改）
+const note = t('about.hostBody');
+---
+
+<section class="runner-note" aria-labelledby="runner-note-heading">
+  <div class="container-wide grid">
+    {/* === 左：跑者剪影 SVG 線稿 === */}
+    <figure class="visual reveal" aria-hidden="true">
+      <svg viewBox="0 0 320 360" preserveAspectRatio="xMidYMid meet" focusable="false">
+        <defs>
+          <linearGradient id="note-bg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="rgba(247, 244, 237, 0)" />
+            <stop offset="100%" stop-color="rgba(234, 229, 218, 0.9)" />
+          </linearGradient>
+        </defs>
+        {/* 紙質底紋（極細 grid）*/}
+        <rect x="0" y="0" width="320" height="360" fill="rgba(244, 241, 234, 0.5)" />
+
+        {/* 海平線 */}
+        <line x1="0" y1="240" x2="320" y2="240" stroke="rgba(44, 74, 82, 0.25)" stroke-width="0.5" />
+
+        {/* 跑者全身線稿（細線 1.4px）*/}
+        <g transform="translate(120, 80)" stroke="#1a1a1a" stroke-width="1.4" stroke-linecap="round" fill="none">
+          {/* 頭 */}
+          <circle cx="0" cy="0" r="14" />
+          {/* 軀幹 */}
+          <line x1="0" y1="14" x2="-4" y2="78" />
+          {/* 後背包 outline */}
+          <path d="M-12 22 L-4 22 L-4 60 L-14 60 Z" stroke-width="1" />
+          {/* 前手（向後擺）*/}
+          <line x1="0" y1="32" x2="-22" y2="58" />
+          {/* 後手（向前擺）*/}
+          <line x1="0" y1="32" x2="20" y2="50" />
+          {/* 手錶（小方框）*/}
+          <rect x="17" y="46" width="6" height="6" stroke-width="1" />
+          {/* 前腿（在地）*/}
+          <line x1="-4" y1="78" x2="20" y2="118" />
+          <line x1="20" y1="118" x2="36" y2="138" />
+          {/* 後腿（向後抬起）*/}
+          <line x1="-4" y1="78" x2="-26" y2="108" />
+          <line x1="-26" y1="108" x2="-42" y2="100" />
+        </g>
+
+        {/* 海岸線（前景虛線 — 表示「跑過的路徑」） */}
+        <path d="M30,300 C90,290 150,310 210,300 C260,292 290,308 320,302"
+              fill="none" stroke="rgba(201, 125, 93, 0.45)" stroke-width="1" stroke-dasharray="4 6" />
+
+        {/* 漸層遮罩 */}
+        <rect x="0" y="0" width="320" height="360" fill="url(#note-bg)" />
+      </svg>
+    </figure>
+
+    {/* === 右：手寫信內容 === */}
+    <div class="content reveal" data-delay="2">
+      <span class="eyebrow">A LETTER FROM THE HOST</span>
+      <h2 id="runner-note-heading" class="quote">
+        <span class="quote-mark" aria-hidden="true">“</span>
+        <span class="quote-body">{note}</span>
+      </h2>
+      <p class="signature">
+        <span class="sig-line" aria-hidden="true"></span>
+        <span class="sig-name">— {locale === 'en' ? 'The Host, Runners House' : '跑者之家 主理人'}</span>
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .runner-note {
+    padding-block: 8rem;
+    background-color: var(--color-sand-100);
+    border-top: 1px solid var(--color-divider);
+    border-bottom: 1px solid var(--color-divider);
+  }
+  @media (min-width: 1024px) {
+    .runner-note { padding-block: 11rem; }
+  }
+  .grid {
+    display: grid;
+    gap: 3rem;
+    grid-template-columns: 1fr;
+    align-items: center;
+  }
+  @media (min-width: 900px) {
+    .grid {
+      grid-template-columns: 0.7fr 1fr;
+      gap: 5rem;
+    }
+  }
+  .visual {
+    max-width: 320px;
+    width: 100%;
+    aspect-ratio: 320 / 360;
+    margin-inline: auto;
+  }
+  .visual svg { width: 100%; height: 100%; display: block; }
+
+  .content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.4em;
+    color: var(--color-sun-500);
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .quote {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 2.8vw, 2.1rem);
+    color: var(--color-ink-900);
+    line-height: 1.55;
+    letter-spacing: 0.005em;
+    font-weight: 400;
+    font-style: italic;
+    max-width: 32rem;
+    position: relative;
+  }
+  :lang(en) .quote {
+    font-family: var(--font-display-en);
+    letter-spacing: -0.005em;
+  }
+  .quote-mark {
+    display: inline-block;
+    color: var(--color-sun-400);
+    font-size: 1.6em;
+    line-height: 0;
+    vertical-align: -0.4em;
+    margin-right: 0.1em;
+    font-style: italic;
+  }
+  .quote-body { display: inline; }
+
+  .signature {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--color-ink-500);
+  }
+  .sig-line {
+    width: 36px;
+    height: 1px;
+    background-color: var(--color-sea-500);
+  }
+  :lang(en) .signature { font-family: var(--font-display-en); }
+</style>

@@ -1,15 +1,31 @@
 ---
 /**
- * 首頁（zh-TW 預設語系）
+ * 首頁（zh-TW 預設語系） v4 — 海風礦物 Mineral Coast
  *
- * 區塊：HeroSection → FeaturePillars → RoomPreview → StoryTeaser → LocationMap → ClosingCta
+ * 依研究報告 top-tier-bnb-design-2026.md D1 12 屏藍圖實作：
+ *   Screen 1  HeroSection         — 電影開場（左字右畫線稿 + 季節 kinetic）
+ *   Screen 2  RunnerNote          — 主理人手寫信
+ *   Screen 3  FeaturePillars      — Run / Stay / Charge 三聯
+ *   Screen 4  StoryTeaser         — 米倉時間軸 + 引言（過去三幕劇）
+ *   Screen 5  RoomPreview         — 4 間客房 magazine spread
+ *   Screen 6  SeasonStrip         — 春夏秋冬四聯詩意
+ *   Screen 7  (客評輪播)         — 略過：業主未提供真實客評；不放假資料避免信任損失
+ *   Screen 8  (月跑會行事曆)     — 略過：業主未提供具體場次資訊；待真實資料後補
+ *   Screen 9  NumeralStat         — 「5/3/4/1」大數字證明規模感
+ *   Screen 10 LocationMap         — 經緯度 + 在地交通
+ *   Screen 11 (Footer)            — 由 BaseLayout 自動帶入
+ *   Screen 12 ClosingCta          — Ready to slow down? 三聯收尾
+ *
  * 注入 LodgingBusiness JSON-LD 至 <head>。
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import HeroSection from '@/components/home/HeroSection.astro';
+import RunnerNote from '@/components/home/RunnerNote.astro';
 import FeaturePillars from '@/components/home/FeaturePillars.astro';
-import RoomPreview from '@/components/home/RoomPreview.astro';
 import StoryTeaser from '@/components/home/StoryTeaser.astro';
+import RoomPreview from '@/components/home/RoomPreview.astro';
+import SeasonStrip from '@/components/home/SeasonStrip.astro';
+import NumeralStat from '@/components/home/NumeralStat.astro';
 import LocationMap from '@/components/home/LocationMap.astro';
 import ClosingCta from '@/components/home/ClosingCta.astro';
 import { useTranslations } from '@/i18n/utils';
@@ -34,9 +50,12 @@ const lodging = lodgingBusinessSchema({
   schema={lodging}
 >
   <HeroSection locale={locale} />
+  <RunnerNote locale={locale} />
   <FeaturePillars locale={locale} />
-  <RoomPreview locale={locale} />
   <StoryTeaser locale={locale} />
+  <RoomPreview locale={locale} />
+  <SeasonStrip locale={locale} />
+  <NumeralStat locale={locale} />
   <LocationMap locale={locale} />
   <ClosingCta locale={locale} />
 </BaseLayout>

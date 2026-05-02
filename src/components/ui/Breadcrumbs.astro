@@ -1,25 +1,22 @@
 ---
 /**
- * Breadcrumbs 元件
+ * Breadcrumbs v4 — Mineral Coast
  *
  * 顯示視覺化麵包屑；Schema.org BreadcrumbList JSON-LD 由 BaseLayout
  * 透過 props.breadcrumbs 自動產生，避免兩處重複。
  *
- * 第一項一律為「首頁」，最後一項為當前頁（無連結，aria-current）。
+ * v4：海洋灰藍分隔符 + 晨曦橘 hover line + mono caps 字距
  */
 import { useTranslations, getLocalizedPath } from '@/i18n/utils';
 import type { Locale } from '@/i18n/types';
 
 export interface BreadcrumbLink {
-  /** 顯示文字 */
   label: string;
-  /** 站內路徑（不含語系前綴）；最後一項可省略表示當前頁 */
   href?: string;
 }
 
 interface Props {
   locale: Locale;
-  /** 不含「首頁」的路徑陣列；元件會自動補上首頁為第一項 */
   items: ReadonlyArray<BreadcrumbLink>;
 }
 
@@ -60,7 +57,7 @@ const separator = t('ui.breadcrumbSeparator');
   .breadcrumbs {
     font-family: var(--font-mono);
     font-size: 0.7rem;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.22em;
     color: var(--color-ink-500);
     text-transform: uppercase;
     padding-block: 1.5rem;
@@ -68,7 +65,7 @@ const separator = t('ui.breadcrumbSeparator');
   ol {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.4rem;
+    gap: 0.5rem;
     list-style: none;
     padding: 0;
     margin: 0;
@@ -76,23 +73,24 @@ const separator = t('ui.breadcrumbSeparator');
   li {
     display: inline-flex;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.7rem;
   }
   a {
     color: var(--color-ink-500);
     text-decoration: none;
     border-bottom: 1px solid transparent;
+    padding-bottom: 0.1rem;
     transition: color 280ms var(--ease-editorial), border-color 280ms var(--ease-editorial);
   }
   a:hover {
-    color: var(--color-copper-600);
-    border-bottom-color: var(--color-copper-500);
+    color: var(--color-sun-500);
+    border-bottom-color: var(--color-sun-400);
   }
   .current {
-    color: var(--color-ink-900);
+    color: var(--color-sea-500);
   }
   .sep {
-    color: var(--color-copper-500);
+    color: var(--color-sun-400);
     user-select: none;
     font-family: var(--font-display);
   }

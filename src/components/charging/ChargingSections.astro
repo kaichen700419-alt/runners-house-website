@@ -23,10 +23,14 @@ const lineUrl = CONTACT.lineUrl;
 ---
 
 <article class="charging" aria-labelledby="charging-page-heading">
-  <header class="page-header container-wide">
-    <span class="eyebrow">{t('charging.eyebrow')}</span>
+  <header class="page-header container-wide reveal">
+    <div class="chapter-mark">
+      <span class="num">IV</span>
+      <span class="label">{locale === 'en' ? 'CHAPTER · TESLA SUPERCHARGE' : 'CHAPTER · 特斯拉超充'}</span>
+    </div>
     <h1 id="charging-page-heading" class="page-title">{t('charging.pageTitle')}</h1>
     <p class="page-lead">{t('charging.pageLead')}</p>
+    <span class="brand-statement">{t('charging.eyebrow')}</span>
   </header>
 
   <section class="paid-notice" aria-labelledby="charging-paid-heading">
@@ -123,52 +127,83 @@ const lineUrl = CONTACT.lineUrl;
 </article>
 
 <style>
-  /* === Charging — Editorial v3 === */
+  /* === Charging — Mineral Coast v4 === */
   .charging {
-    background-color: var(--color-bone-50);
+    background-color: var(--color-sand-50);
     padding-bottom: 0;
   }
   .page-header {
-    padding-block: 7rem 4rem;
-    text-align: center;
+    padding-block: 9rem 6rem;
+    text-align: left;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
+    align-items: flex-start;
+    gap: 2rem;
+    max-width: 56rem;
   }
-  .eyebrow {
+  @media (min-width: 1024px) {
+    .page-header { padding-block: 12rem 8rem; }
+  }
+  .page-header .chapter-mark {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .page-header .chapter-mark .num {
+    font-family: var(--font-display-en);
+    font-style: italic;
+    font-size: clamp(2.5rem, 4vw, 3.5rem);
+    color: var(--color-sun-400);
+    letter-spacing: -0.02em;
+    line-height: 0.9;
+    font-weight: 400;
+  }
+  .page-header .chapter-mark .label {
     font-family: var(--font-mono);
-    font-size: 0.7rem;
+    font-size: 0.66rem;
+    letter-spacing: 0.4em;
+    color: var(--color-ink-500);
     text-transform: uppercase;
-    letter-spacing: 0.36em;
-    color: var(--color-copper-600);
   }
   .page-title {
     margin: 0;
     font-family: var(--font-display);
-    font-size: clamp(2.5rem, 6vw, 4.25rem);
+    font-size: clamp(2.75rem, 7vw, 5.25rem);
     color: var(--color-ink-900);
-    letter-spacing: 0.02em;
-    line-height: 1.1;
-    font-weight: 400;
+    letter-spacing: -0.005em;
+    line-height: 1.05;
+    font-weight: 500;
   }
   :lang(en) .page-title {
     font-family: var(--font-display-en);
     font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.04em;
   }
   .page-lead {
     margin: 0;
     max-width: 38rem;
-    color: var(--color-ink-600);
+    color: var(--color-ink-500);
     font-family: var(--font-display);
-    font-size: 1.05rem;
+    font-size: 1.15rem;
     font-style: italic;
-    line-height: 2;
+    line-height: 1.85;
     font-weight: 300;
+  }
+  :lang(en) .page-lead { font-family: var(--font-display-en); }
+  .brand-statement {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--color-sun-500);
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    border-top: 1px solid var(--color-sun-400);
+    padding-top: 1rem;
+    width: fit-content;
   }
 
   section { padding-block: 5rem; }
-  section + section { border-top: 1px solid rgb(160 134 96 / 0.18); }
+  section + section { border-top: 1px solid rgb(213 207 194 / 0.18); }
 
   .paid-notice { padding-block: 4rem; }
   .notice-box {
@@ -177,7 +212,7 @@ const lineUrl = CONTACT.lineUrl;
     gap: 2rem;
     padding: 3rem 2.5rem;
     background-color: var(--color-bone-100);
-    border: 1px solid rgb(160 134 96 / 0.3);
+    border: 1px solid rgb(213 207 194 / 0.3);
     border-left: 2px solid var(--color-copper-500);
     align-items: start;
     max-width: 1024px;
@@ -221,7 +256,7 @@ const lineUrl = CONTACT.lineUrl;
   }
   .notice-meta div {
     padding-top: 1.25rem;
-    border-top: 1px solid rgb(160 134 96 / 0.25);
+    border-top: 1px solid rgb(213 207 194 / 0.25);
   }
   .notice-meta dt {
     font-family: var(--font-mono);
@@ -247,17 +282,17 @@ const lineUrl = CONTACT.lineUrl;
     display: grid;
     gap: 0;
     grid-template-columns: 1fr;
-    border-top: 1px solid rgb(160 134 96 / 0.25);
+    border-top: 1px solid rgb(213 207 194 / 0.25);
   }
   @media (min-width: 768px) {
     .spec-grid { grid-template-columns: 1fr 1fr; }
     .spec-grid li:nth-child(odd) {
-      border-right: 1px solid rgb(160 134 96 / 0.25);
+      border-right: 1px solid rgb(213 207 194 / 0.25);
     }
   }
   .spec-grid li {
     padding: 2rem;
-    border-bottom: 1px solid rgb(160 134 96 / 0.25);
+    border-bottom: 1px solid rgb(213 207 194 / 0.25);
   }
   .spec-grid h3 {
     margin: 0 0 0.75rem;
@@ -285,7 +320,7 @@ const lineUrl = CONTACT.lineUrl;
   .rules-list li {
     counter-increment: rule;
     padding: 1.25rem 0 1.25rem 3rem;
-    border-bottom: 1px solid rgb(160 134 96 / 0.18);
+    border-bottom: 1px solid rgb(213 207 194 / 0.18);
     color: var(--color-ink-700);
     font-family: var(--font-display);
     font-size: 0.98rem;
@@ -349,14 +384,14 @@ const lineUrl = CONTACT.lineUrl;
   .info p { margin: 0; }
   .address {
     padding: 1.25rem 0 0;
-    border-top: 1px solid rgb(160 134 96 / 0.3);
+    border-top: 1px solid rgb(213 207 194 / 0.3);
     color: var(--color-ink-900);
     font-family: var(--font-display);
     font-size: 1.02rem;
     letter-spacing: 0.02em;
   }
   .map {
-    border: 1px solid rgb(160 134 96 / 0.3);
+    border: 1px solid rgb(213 207 194 / 0.3);
     overflow: hidden;
   }
   .map iframe {
@@ -374,7 +409,7 @@ const lineUrl = CONTACT.lineUrl;
     color: var(--color-bone-100);
   }
   .non-guest :global(.section-heading .subtitle) {
-    color: rgb(245 239 230 / 0.78);
+    color: rgb(244 241 234 / 0.78);
   }
   .non-guest-inner {
     display: grid;
@@ -393,7 +428,7 @@ const lineUrl = CONTACT.lineUrl;
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
-    color: rgb(245 239 230 / 0.82);
+    color: rgb(244 241 234 / 0.82);
     font-size: 1rem;
     line-height: 2;
   }

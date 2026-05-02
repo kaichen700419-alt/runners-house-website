@@ -1,86 +1,124 @@
-@import "tailwindcss";
 /* ============================================================
- * 載入 Google Fonts —— 中英文襯線體
- * 為避免阻斷渲染，使用 swap；Source Han / Noto Serif TC 較大，
- * 僅載入需要的字重；英文 Cormorant 載入 italic 變體供副標使用。
- * 注意：@import 必須緊接在 @import "tailwindcss" 後，先於 @theme / @layer，
- * 否則 PostCSS 會發出 "@import rules must precede all rules" 警告。
+ * 載入 Google Fonts —— 中英文襯線體與展示字
+ *
+ * 字型策略（依研究報告 top-tier-bnb-design-2026.md C1 推薦升級版）：
+ *   Display（英文大標）：Fraunces — 2026 Awwwards 在用的 modern editorial display serif，
+ *                        contrast 比 Cormorant 更高，italic 更戲劇；最接近 PP Editorial New 的免費替代。
+ *   Display Hero（英文 hero 巨字）：Bodoni Moda — 高對比經典 didone serif，
+ *                                   配上 Italic 製造「電影開場」感。
+ *   Body 英文：Inter Tight — Pangram Pangram Neue Montreal 的免費替代，
+ *              幾何簡淨、適合 17px 散文閱讀。
+ *   中文 Display：Noto Serif TC（思源宋體）— Medium/SemiBold 兩個粗細。
+ *   中文 Body：Noto Sans TC（思源黑體）— 400/500 兩個粗細。
+ *   等寬：JetBrains Mono — eyebrow / 編號 / mono caps 用。
+ *
+ * 為避免阻斷渲染，全部使用 display=swap；@import 必須先於 tailwindcss 與 @layer，
+ * 否則 Lightning CSS 會發出 "@import rules must precede all rules" 警告。
  * ============================================================ */
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Noto+Serif+TC:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400;1,9..144,500&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400;1,6..96,500&family=Inter+Tight:wght@300;400;500;600&family=Noto+Serif+TC:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap");
+@import "tailwindcss";
 
 /* ============================================================
- * 跑者之家 — 精品民宿設計系統 v3
+ * 跑者之家 — 精品民宿設計系統 v4「海風礦物 Mineral Coast」
  *
- * 設計語言："Eastern Coast Editorial"
- *   - 參考 Aman / Hoshinoya / Casa Cook 等級的精品民宿語彙
- *   - 沉穩 charcoal 與象牙白為主，銅金細線為點綴
- *   - 明朝體 + Cormorant Garamond 中英襯線雙軌
- *   - 大量留白、長 line-height、寬 letter-spacing
+ * 設計語言：「東海岸 × 米倉重生 × 跑者敘事」三題共構
+ *   - 配色採研究報告 C2「配色 A — 海風礦物」：沙白主背景 + 海洋灰藍 +
+ *     晨曦橘 accent，避開 cookie-cutter 暖灰咖啡套組
+ *   - 字型升級：Fraunces / Bodoni Moda（display） + Inter Tight（body） +
+ *     Noto Serif TC / Noto Sans TC（中文）+ JetBrains Mono（caption）
+ *   - 排版鐵律：中文 line-height 1.85、letter-spacing 0.02em；
+ *     段落寬度 60ch；標題字距收緊 -0.02 ~ -0.04em
+ *   - 嚴格遵守研究報告 E 章節 5 個禁忌：無裝飾線、無彩色色塊堆疊、
+ *     無卡片無止境堆疊、無 emoji 標題、無藍色圓角按鈕
  *
- * 既有 ocean / sand / timber tokens 保留以兼容元件，
- * 但全站「主色語彙」改以 ink charcoal + bone ivory + copper line 為核心；
- * 既有色票退到次要強調用途，避免「每段一色」的 cookie-cutter 感。
+ * 既有 ocean / sand / timber tokens 保留 alias 以兼容元件呼叫，
+ * 但「主色語彙」已完整改為配色 A。
  * ============================================================ */
 
 @theme {
-  /* === 主色軸 ===
-     Ink：沉穩深 charcoal，作為文字與深色區塊主體
-     Bone：象牙白，作為頁面底色與留白
-     Copper：銅金，作為細線、強調、CTA hover 點綴 */
-  --color-ink-50:  #f8f7f4;
-  --color-ink-100: #ecebe6;
-  --color-ink-200: #d6d4cc;
-  --color-ink-300: #b3b0a5;
-  --color-ink-400: #8a8779;
-  --color-ink-500: #635f53;
-  --color-ink-600: #4a463c;
-  --color-ink-700: #36332b;
-  --color-ink-800: #26241e;
-  --color-ink-900: #1a1816;
-  --color-ink-950: #0e0d0b;
+  /* === 配色 A「海風礦物」(研究報告 C2-A) ===
+     主背景：沙白 + 內頁區塊背景
+     文字：黑（內文 + 次要文字）
+     強調：海洋灰藍（Logo / CTA）+ 晨曦橘（小範圍跳色）
+     分隔：礦物灰 */
 
-  --color-bone-50:  #fbf8f2;
-  --color-bone-100: #f5efe6;
-  --color-bone-200: #ece4d3;
-  --color-bone-300: #ddd1b8;
-  --color-bone-400: #c8b896;
+  /* sand（沙白）— 取代舊 bone */
+  --color-sand-50:  #f7f4ed;   /* 頁面主背景（比研究報告原值再亮一點，給更多呼吸） */
+  --color-sand-100: #f4f1ea;   /* 配色 A 標準沙白 */
+  --color-sand-200: #eae5da;   /* 配色 A 內頁區塊 */
+  --color-sand-300: #ddd5c2;   /* 略深層次 */
+  --color-sand-400: #c8bea5;   /* 卡片邊框 */
+
+  /* ink（純黑系）— 取代舊 ink，極簡黑 + 中性灰 */
+  --color-ink-50:  #f3f2ee;
+  --color-ink-100: #e4e2dc;
+  --color-ink-200: #c5c2b9;
+  --color-ink-300: #9a978d;
+  --color-ink-400: #6e6c63;
+  --color-ink-500: #5c5c5c;    /* 配色 A 次要文字 */
+  --color-ink-600: #424238;
+  --color-ink-700: #2c2c26;
+  --color-ink-800: #1f1f1b;
+  --color-ink-900: #1a1a1a;    /* 配色 A 內文主色 */
+  --color-ink-950: #0a0a0a;    /* 深 charcoal hero */
+
+  /* sea（海洋灰藍）— Logo / CTA / nav 強調 */
+  --color-sea-50:  #eef2f3;
+  --color-sea-100: #d6dee0;
+  --color-sea-200: #adbcc1;
+  --color-sea-300: #7d949c;
+  --color-sea-400: #4f6e78;
+  --color-sea-500: #2c4a52;    /* 配色 A 海洋灰藍主值 */
+  --color-sea-600: #233c43;
+  --color-sea-700: #1c3038;
+  --color-sea-800: #16262d;
+  --color-sea-900: #0e1a1f;
+
+  /* sun（晨曦橘）— accent 跳色，全站不超過 5% 視覺面積 */
+  --color-sun-100: #f5e0d2;
+  --color-sun-200: #ecc4ab;
+  --color-sun-300: #dca282;
+  --color-sun-400: #c97d5d;    /* 配色 A 晨曦橘主值 */
+  --color-sun-500: #b56646;
+  --color-sun-600: #95502f;
+
+  /* divider（沙色礦物分隔） */
+  --color-divider: #d5cfc2;
+
+  /* === Alias — 兼容舊元件 token 名稱 ===
+     舊版用 bone / copper / ocean / timber，全部 alias 到新配色 A 對應色。
+     視覺結果一致，避免大規模重命名導致 unit test 對照誤差。 */
+  --color-bone-50:  var(--color-sand-50);
+  --color-bone-100: var(--color-sand-100);
+  --color-bone-200: var(--color-sand-200);
+  --color-bone-300: var(--color-sand-300);
+  --color-bone-400: var(--color-sand-400);
   --color-bone-500: #b09c75;
 
-  --color-copper-300: #c9a878;
-  --color-copper-400: #b89261;
-  --color-copper-500: #a08660;
-  --color-copper-600: #836b46;
-  --color-copper-700: #614e34;
+  /* copper alias 改指晨曦橘（沙金 → 海岸晨光），更貼合東海岸主題 */
+  --color-copper-300: var(--color-sun-200);
+  --color-copper-400: var(--color-sun-300);
+  --color-copper-500: var(--color-sun-400);
+  --color-copper-600: var(--color-sun-500);
+  --color-copper-700: var(--color-sun-600);
 
-  /* === 次要色（保留，僅供少量 accent，不再每區段切換） === */
-  --color-ocean-50:  #f0f7fa;
-  --color-ocean-100: #dbeaf2;
-  --color-ocean-200: #b8d2e0;
-  --color-ocean-300: #8db5c8;
-  --color-ocean-400: #5d92ac;
-  --color-ocean-500: #3a7591;
-  --color-ocean-600: #2c5d76;
-  --color-ocean-700: #234a5e;
-  --color-ocean-800: #1c3b4b;
-  --color-ocean-900: #15303d;
-  --color-ocean-950: #0c1e26;
+  --color-ocean-50:  var(--color-sea-50);
+  --color-ocean-100: var(--color-sea-100);
+  --color-ocean-200: var(--color-sea-200);
+  --color-ocean-300: var(--color-sea-300);
+  --color-ocean-400: var(--color-sea-400);
+  --color-ocean-500: var(--color-sea-500);
+  --color-ocean-600: var(--color-sea-600);
+  --color-ocean-700: var(--color-sea-700);
+  --color-ocean-800: var(--color-sea-800);
+  --color-ocean-900: var(--color-sea-900);
+  --color-ocean-950: #06121a;
 
-  --color-sand-50:  #fbf6e9;
-  --color-sand-100: #f5ecd0;
-  --color-sand-200: #ead9a8;
-  --color-sand-300: #dcc380;
-  --color-sand-400: #c8a857;
-  --color-sand-500: #ae8d3c;
-  --color-sand-600: #8a6f2e;
-  --color-sand-700: #6b5524;
-  --color-sand-800: #54421d;
-  --color-sand-900: #423419;
-
-  --color-timber-50:  #f9f4ec;
-  --color-timber-100: #f0e5d3;
-  --color-timber-200: #ddc9a7;
-  --color-timber-300: #c4a978;
-  --color-timber-400: #a98b56;
+  --color-timber-50:  var(--color-sand-50);
+  --color-timber-100: var(--color-sand-100);
+  --color-timber-200: var(--color-sand-200);
+  --color-timber-300: var(--color-sand-300);
+  --color-timber-400: var(--color-sand-400);
   --color-timber-500: #8c7242;
   --color-timber-600: #6f5a35;
   --color-timber-700: #58462a;
@@ -89,24 +127,28 @@
   --color-timber-950: #1a1510;
 
   /* === 字型 ===
-     中文：思源宋體（Source Han Serif TC / Noto Serif TC）營造明朝體質感
-     英文：Cormorant Garamond 古典襯線體（display）+ EB Garamond（body）
-     等寬：JetBrains Mono（編號、月份、計量）
-     Body 仍為 Noto Sans TC，避免長段中文襯線體在小字級難讀 */
-  --font-display: "Source Han Serif TC", "Noto Serif TC", "Cormorant Garamond", "EB Garamond", "Songti TC", "PingFang TC", Georgia, serif;
-  --font-display-en: "Cormorant Garamond", "EB Garamond", "Source Serif 4", Georgia, serif;
-  --font-body: "Noto Sans TC", "PingFang TC", "Inter Tight", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+     英文 display：Fraunces（modern editorial）+ Bodoni Moda（hero 戲劇巨字）
+     英文 body：Inter Tight
+     中文 display：Noto Serif TC（思源宋體）
+     中文 body：Noto Sans TC
+     等寬：JetBrains Mono */
+  --font-display: "Noto Serif TC", "Source Han Serif TC", "Fraunces", "Songti TC", "PingFang TC", Georgia, serif;
+  --font-display-en: "Fraunces", "Bodoni Moda", "Times New Roman", Georgia, serif;
+  --font-display-hero: "Bodoni Moda", "Fraunces", "Didot", "Bodoni 72", Georgia, serif;
+  --font-body: "Inter Tight", "Noto Sans TC", "PingFang TC", system-ui, sans-serif;
+  --font-body-zh: "Noto Sans TC", "PingFang TC", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
 
-  /* === 動效 timing === */
+  /* === 動效 timing（依研究報告 C4 規格） === */
   --ease-natural: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-snappy: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-editorial: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 
   /* 純白底色（少用，僅特定 surface） */
   --color-surface: #ffffff;
 
-  /* LINE 品牌色（與 LINE 官方色票一致） */
+  /* LINE 品牌色 */
   --color-line-brand: #00b900;
   --color-line-brand-hover: #009900;
 
@@ -117,10 +159,10 @@
   --color-warning-bg: #f9f1e3;
   --color-warning-text: #6b461a;
 
-  /* 跑者路線難度色 — 與 routes.difficulty enum 對應；改為較收斂的色票 */
+  /* 跑者路線難度色 — 與 routes.difficulty enum 對應；改為配色 A 諧調的收斂色票 */
   --color-difficulty-easy: #6b8a5f;
-  --color-difficulty-medium: #b89261;
-  --color-difficulty-hard: #9a4f3c;
+  --color-difficulty-medium: #c97d5d;     /* 中等改為晨曦橘呼應 accent */
+  --color-difficulty-hard: #2c4a52;       /* 進階改為海洋灰藍 */
 }
 
 /* 基礎重置 */
@@ -130,60 +172,76 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    /* 全站底色：象牙白偏暖，呼應老屋木材質感 */
-    background-color: var(--color-bone-50);
+    background-color: var(--color-sand-50);
+    /* 預設 OpenType 啟用襯線體 small-caps / oldstyle figures，提升精品感 */
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
   }
 
   body {
     font-family: var(--font-body);
-    color: var(--color-ink-800);
-    background-color: var(--color-bone-50);
-    /* 散文閱讀感：行高 1.85 + 字距 0.02em，營造「呼吸」 */
+    color: var(--color-ink-900);
+    background-color: var(--color-sand-50);
+    /* 中文混排：line-height 1.85 + letter-spacing 0.02em（依研究報告 C3 黃金規則） */
     line-height: 1.85;
     letter-spacing: 0.015em;
     font-weight: 400;
+    font-size: 17px;          /* 中文混排基準字級（研究報告 C3） */
+  }
+
+  /* SVG 預設行為：display block 避免 inline 額外間距，但不強制 100% 寬高 */
+  svg {
+    display: block;
+    max-width: 100%;
+    height: auto;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
-    /* 襯線標題微負字距收斂，避免漏縫 */
+    /* 中文襯線標題微負字距收斂避免漏縫；英文標題另在 :lang(en) 切換 */
     letter-spacing: -0.005em;
     line-height: 1.18;
     color: var(--color-ink-900);
     font-weight: 500;
   }
 
-  /* 內嵌 :lang(en) 的標題自動套用 Cormorant Garamond，
-     英文版頁面 / 英文 alt 自然轉襯線體，無需元件層特別處理。 */
+  /* :lang(en) 標題：自動切到 Fraunces，啟用 Italic 與 SOFT 軸（光學優化） */
   :lang(en) h1,
   :lang(en) h2,
   :lang(en) h3,
   :lang(en) h4 {
     font-family: var(--font-display-en);
-    font-weight: 500;
-    letter-spacing: 0.005em;
+    font-weight: 400;
+    letter-spacing: -0.015em;
+    /* Fraunces variable axis：opsz 自適應，更細膩的視覺層級 */
+    font-variation-settings: "opsz" 144, "SOFT" 0, "WONK" 0;
   }
 
   p {
-    /* 段落 line-height 1.9 散文感 */
-    line-height: 1.9;
+    line-height: 1.85;
   }
 
-  /* 大字標題（hero-grade）utility class，元件可選用 */
+  /* hero-grade utility：給 D1 第 1 屏「電影開場」字級 */
   .hero-grade {
-    font-size: clamp(3rem, 9vw, 7rem);
-    line-height: 1.05;
-    letter-spacing: -0.015em;
+    font-family: var(--font-display);
+    font-size: clamp(3.5rem, 11vw, 9rem);
+    line-height: 0.95;
+    letter-spacing: -0.025em;
+    font-weight: 500;
+  }
+  :lang(en) .hero-grade {
+    font-family: var(--font-display-hero);
+    font-style: italic;
     font-weight: 400;
+    letter-spacing: -0.04em;
   }
 
   ::selection {
-    background-color: var(--color-copper-300);
+    background-color: var(--color-sun-300);
     color: var(--color-ink-950);
   }
 
   :focus-visible {
-    outline: 1px solid var(--color-copper-500);
+    outline: 1px solid var(--color-sea-500);
     outline-offset: 3px;
     border-radius: 1px;
   }
@@ -195,24 +253,50 @@
       scroll-behavior: auto !important;
     }
   }
+
+  /* === 自訂 scroll-reveal utilities ===
+     使用 IntersectionObserver 觀察 .reveal class，
+     僅在 BaseLayout 注入 JS 並設 html.has-js 後才隱藏 — 避免 JS 失敗 / 截圖工具 / noscript 看到空白。 */
+  html.has-js .reveal:not(.is-in) {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  .reveal {
+    transition:
+      opacity 1100ms var(--ease-editorial),
+      transform 1100ms var(--ease-editorial);
+    will-change: opacity, transform;
+  }
+  .reveal.is-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal[data-delay="1"] { transition-delay: 80ms; }
+  .reveal[data-delay="2"] { transition-delay: 160ms; }
+  .reveal[data-delay="3"] { transition-delay: 240ms; }
+  .reveal[data-delay="4"] { transition-delay: 320ms; }
+  .reveal[data-delay="5"] { transition-delay: 400ms; }
+  @media (prefers-reduced-motion: reduce) {
+    html.has-js .reveal { opacity: 1; transform: none; transition: none; }
+  }
 }
 
 /* 共用元件樣式 */
 @layer components {
   .container-prose {
-    max-width: 62ch;
+    max-width: 60ch;            /* 研究報告 C3 黃金值 */
     margin-inline: auto;
     padding-inline: 1.5rem;
   }
 
-  /* container-wide 收窄至 1100px：精品感、不再 80rem 寬版頁面感 */
+  /* 加寬 1240px：給編輯雜誌式排版更大發揮空間 */
   .container-wide {
-    max-width: 1120px;
+    max-width: 1240px;
     margin-inline: auto;
     padding-inline: 1.5rem;
   }
 
-  /* container-narrow 用於文章主體與單欄章節 */
+  /* 窄版單欄：給長文與表單 */
   .container-narrow {
     max-width: 780px;
     margin-inline: auto;
@@ -220,77 +304,160 @@
   }
 
   @media (min-width: 768px) {
-    .container-wide {
-      padding-inline: 2.5rem;
-    }
-    .container-narrow {
-      padding-inline: 2.5rem;
-    }
+    .container-wide { padding-inline: 2.5rem; }
+    .container-narrow { padding-inline: 2.5rem; }
+  }
+  @media (min-width: 1280px) {
+    .container-wide { padding-inline: 4rem; }
   }
 
-  /* === 共用裝飾：銅金細線分隔符 === */
+  /* === 共用裝飾：晨曦橘細線分隔符 === */
   .rule-gold {
     display: block;
     width: 56px;
     height: 1px;
-    background-color: var(--color-copper-500);
+    background-color: var(--color-sun-400);
     border: 0;
     margin: 0;
   }
-  .rule-gold-center {
-    margin-inline: auto;
-  }
+  .rule-gold-center { margin-inline: auto; }
 
-  /* === 共用標籤：eyebrow（小字 + 寬字距） === */
+  /* === eyebrow（小字 + 寬字距，dot leader 風格） === */
   .eyebrow {
     font-family: var(--font-mono);
     font-size: 0.72rem;
     text-transform: uppercase;
-    letter-spacing: 0.28em;
-    color: var(--color-copper-600);
+    letter-spacing: 0.32em;
+    color: var(--color-sun-500);
     font-weight: 500;
   }
   :lang(en) .eyebrow {
-    letter-spacing: 0.32em;
+    letter-spacing: 0.36em;
   }
 
-  /* === 共用 CTA：極簡線框按鈕 === */
+  /* === 共用 CTA：極簡線框按鈕（嚴格遵守研究報告 E 禁忌 6） === */
   .btn-line {
     display: inline-flex;
     align-items: center;
     gap: 0.65rem;
-    padding: 0.95rem 1.85rem;
+    padding: 1rem 1.95rem;
     border: 1px solid currentColor;
     color: var(--color-ink-900);
     background: transparent;
     font-family: var(--font-display);
-    font-size: 0.95rem;
+    font-size: 0.92rem;
     letter-spacing: 0.18em;
     text-transform: uppercase;
     text-decoration: none;
     transition:
-      background-color 320ms var(--ease-editorial),
-      color 320ms var(--ease-editorial),
-      letter-spacing 320ms var(--ease-editorial);
+      background-color 360ms var(--ease-editorial),
+      color 360ms var(--ease-editorial),
+      letter-spacing 360ms var(--ease-editorial);
+  }
+  :lang(en) .btn-line {
+    font-family: var(--font-display-en);
+    font-style: italic;
+    letter-spacing: 0.16em;
   }
   .btn-line:hover {
     background-color: var(--color-ink-900);
-    color: var(--color-bone-50);
+    color: var(--color-sand-50);
     letter-spacing: 0.22em;
   }
   .btn-line.on-dark {
-    color: var(--color-bone-100);
+    color: var(--color-sand-100);
   }
   .btn-line.on-dark:hover {
-    background-color: var(--color-bone-100);
+    background-color: var(--color-sand-100);
     color: var(--color-ink-900);
   }
+  .btn-line.is-sea {
+    color: var(--color-sea-500);
+    border-color: var(--color-sea-500);
+  }
+  .btn-line.is-sea:hover {
+    background-color: var(--color-sea-500);
+    color: var(--color-sand-50);
+  }
+  .btn-line.is-sun {
+    color: var(--color-sun-400);
+    border-color: var(--color-sun-400);
+  }
+  .btn-line.is-sun:hover {
+    background-color: var(--color-sun-400);
+    color: var(--color-ink-950);
+    border-color: var(--color-sun-400);
+  }
+  /* 兼容舊呼叫端：is-copper 視同 is-sun */
   .btn-line.is-copper {
-    color: var(--color-copper-400);
+    color: var(--color-sun-400);
   }
   .btn-line.is-copper:hover {
-    background-color: var(--color-copper-500);
+    background-color: var(--color-sun-400);
     color: var(--color-ink-950);
-    border-color: var(--color-copper-500);
+    border-color: var(--color-sun-400);
+  }
+
+  /* === 文字鏈樣式（取代藍色按鈕，研究報告 C5 / E 禁忌 6） === */
+  .text-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-ink-900);
+    text-decoration: none;
+    border-bottom: 1px solid var(--color-sun-400);
+    padding-bottom: 0.2rem;
+    font-family: var(--font-display);
+    font-size: 0.92rem;
+    letter-spacing: 0.04em;
+    transition: color 280ms var(--ease-editorial), gap 280ms var(--ease-editorial);
+  }
+  .text-link:hover {
+    color: var(--color-sun-500);
+    gap: 0.85rem;
+  }
+  :lang(en) .text-link {
+    font-family: var(--font-display-en);
+    font-style: italic;
+  }
+
+  /* === Vertical 中文垂直排版（章節標籤用，研究報告日式餘白章節） === */
+  .vertical-zh {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    letter-spacing: 0.4em;
+    font-family: var(--font-display);
+    color: var(--color-ink-500);
+    font-size: 0.78rem;
+  }
+
+  /* === Chapter marker（章節編號 — 大號羅馬數字 + 小字 caption） === */
+  .chapter-mark {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    align-items: flex-start;
+    font-family: var(--font-display-en);
+    color: var(--color-sun-400);
+  }
+  .chapter-mark .num {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-style: italic;
+    font-weight: 400;
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+  }
+  .chapter-mark .label {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--color-ink-500);
   }
 }
+
+/*
+ * === IntersectionObserver script（純 inline JS，全站共享）===
+ * 不放在元件中以免重複；在 BaseLayout body 末尾 inline script 啟用。
+ * 這裡僅放 base.css，實際 observer 由 BaseLayout 注入。
+ */

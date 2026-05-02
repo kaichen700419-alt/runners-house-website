@@ -55,11 +55,14 @@ const monthUnit = t('runners.monthUnit');
 ---
 
 <article class="runners" aria-labelledby="runners-page-heading">
-  <header class="page-header container-narrow">
-    <span class="eyebrow">{t('runners.eyebrow')}</span>
+  <header class="page-header container-wide reveal">
+    <div class="chapter-mark">
+      <span class="num">III</span>
+      <span class="label">{locale === 'en' ? 'CHAPTER · A RUNNER’S HOME' : 'CHAPTER · 跑者主場'}</span>
+    </div>
     <h1 id="runners-page-heading" class="page-title">{t('runners.pageTitle')}</h1>
-    <span class="rule-gold rule-gold-center" aria-hidden="true"></span>
     <p class="page-lead">{t('runners.pageLead')}</p>
+    <span class="brand-statement">{t('runners.eyebrow')}</span>
   </header>
 
   <section class="intro" aria-labelledby="runners-intro-heading">
@@ -180,44 +183,82 @@ const monthUnit = t('runners.monthUnit');
 
 <style>
   .runners {
-    background-color: var(--color-bone-50);
-    padding-bottom: 7rem;
+    background-color: var(--color-sand-50);
+    padding-bottom: 8rem;
   }
   .page-header {
-    padding-block: 7rem 4rem;
-    text-align: center;
+    padding-block: 9rem 6rem;
+    text-align: left;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
+    align-items: flex-start;
+    gap: 2rem;
+    max-width: 56rem;
+  }
+  @media (min-width: 1024px) {
+    .page-header { padding-block: 12rem 8rem; }
+  }
+  .page-header .chapter-mark {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .page-header .chapter-mark .num {
+    font-family: var(--font-display-en);
+    font-style: italic;
+    font-size: clamp(2.5rem, 4vw, 3.5rem);
+    color: var(--color-sun-400);
+    letter-spacing: -0.02em;
+    line-height: 0.9;
+    font-weight: 400;
+  }
+  .page-header .chapter-mark .label {
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.4em;
+    color: var(--color-ink-500);
+    text-transform: uppercase;
   }
   .page-title {
     margin: 0;
     font-family: var(--font-display);
-    font-size: clamp(2.5rem, 6vw, 4.25rem);
+    font-size: clamp(2.75rem, 7vw, 5.25rem);
     color: var(--color-ink-900);
-    letter-spacing: 0.02em;
-    font-weight: 400;
-    line-height: 1.1;
+    letter-spacing: -0.005em;
+    font-weight: 500;
+    line-height: 1.05;
   }
   :lang(en) .page-title {
     font-family: var(--font-display-en);
     font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.04em;
   }
   .page-lead {
     margin: 0;
     max-width: 36rem;
-    color: var(--color-ink-600);
+    color: var(--color-ink-500);
     font-family: var(--font-display);
-    font-size: 1.05rem;
-    line-height: 2;
+    font-size: 1.15rem;
+    line-height: 1.85;
     font-style: italic;
     font-weight: 300;
+  }
+  :lang(en) .page-lead { font-family: var(--font-display-en); }
+  .brand-statement {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--color-sun-500);
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    border-top: 1px solid var(--color-sun-400);
+    padding-top: 1rem;
+    width: fit-content;
   }
 
   section { padding-block: 6rem; }
   section + section {
-    border-top: 1px solid rgb(160 134 96 / 0.15);
+    border-top: 1px solid rgb(213 207 194 / 0.15);
   }
 
   /* === intro === */
@@ -258,11 +299,11 @@ const monthUnit = t('runners.monthUnit');
     grid-template-columns: 1fr;
     gap: 1.5rem;
     padding: 3rem 0;
-    border-top: 1px solid rgb(160 134 96 / 0.2);
+    border-top: 1px solid rgb(213 207 194 / 0.2);
     align-items: start;
   }
   .event-row:last-child {
-    border-bottom: 1px solid rgb(160 134 96 / 0.2);
+    border-bottom: 1px solid rgb(213 207 194 / 0.2);
   }
   @media (min-width: 768px) {
     .event-row {
@@ -419,7 +460,7 @@ const monthUnit = t('runners.monthUnit');
   .service-card {
     padding: 2.5rem 2rem;
     background-color: var(--color-bone-50);
-    border: 1px solid rgb(160 134 96 / 0.18);
+    border: 1px solid rgb(213 207 194 / 0.18);
     display: flex;
     flex-direction: column;
     gap: 1rem;
