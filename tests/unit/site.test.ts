@@ -13,6 +13,10 @@ import {
   CONTACT,
   GEO,
   HOURS,
+  LANGUAGES,
+  NUMBER_OF_ROOMS,
+  PAYMENT,
+  POLICY,
   SITE,
   SITE_URL,
 } from '@/lib/site';
@@ -137,5 +141,100 @@ describe('AMENITIES', () => {
       expect(a.zh.length).toBeGreaterThan(0);
       expect(a.en.length).toBeGreaterThan(0);
     }
+  });
+});
+
+describe('ADDRESS.countryCode', () => {
+  it('countryCode 為 ISO 3166-1 alpha-2 大寫兩字（schema.org 要求）', () => {
+    expect(ADDRESS.countryCode).toMatch(/^[A-Z]{2}$/);
+    expect(ADDRESS.countryCode).toBe('TW');
+  });
+});
+
+describe('NUMBER_OF_ROOMS', () => {
+  it('為正整數，且與 src/content/rooms 房型 collection 數量一致（5 間）', () => {
+    expect(Number.isInteger(NUMBER_OF_ROOMS)).toBe(true);
+    expect(NUMBER_OF_ROOMS).toBeGreaterThan(0);
+    expect(NUMBER_OF_ROOMS).toBe(5);
+  });
+});
+
+describe('POLICY', () => {
+  it('petsAllowed / smokingAllowed / servesBreakfast 為布林值', () => {
+    expect(typeof POLICY.petsAllowed).toBe('boolean');
+    expect(typeof POLICY.smokingAllowed).toBe('boolean');
+    expect(typeof POLICY.servesBreakfast).toBe('boolean');
+  });
+
+  it('業主確認的政策：禁寵、禁菸、不供餐', () => {
+    expect(POLICY.petsAllowed).toBe(false);
+    expect(POLICY.smokingAllowed).toBe(false);
+    expect(POLICY.servesBreakfast).toBe(false);
+  });
+
+  it('depositRatio 介於 0~1 之間', () => {
+    expect(POLICY.depositRatio).toBeGreaterThan(0);
+    expect(POLICY.depositRatio).toBeLessThanOrEqual(1);
+  });
+});
+
+describe('PAYMENT', () => {
+  it('acceptedZh / acceptedEn 為非空字串', () => {
+    expect(PAYMENT.acceptedZh.length).toBeGreaterThan(0);
+    expect(PAYMENT.acceptedEn.length).toBeGreaterThan(0);
+  });
+
+  it('currency 為 ISO 4217 三字大寫代碼', () => {
+    expect(PAYMENT.currency).toMatch(/^[A-Z]{3}$/);
+    expect(PAYMENT.currency).toBe('TWD');
+  });
+});
+
+describe('LANGUAGES', () => {
+  it('含 zh-TW 與 en 兩個語系（與 i18n LOCALES 一致）', () => {
+    expect(LANGUAGES).toContain('zh-TW');
+    expect(LANGUAGES).toContain('en');
+    expect(LANGUAGES).toHaveLength(2);
+  });
+});
+
+describe('SITE 完整欄位（SEO 用）', () => {
+  it('含 alternateNameZh / alternateNameEn 用於雙語 schema.alternateName', () => {
+    expect(SITE.alternateNameZh.length).toBeGreaterThan(0);
+    expect(SITE.alternateNameEn.length).toBeGreaterThan(0);
+  });
+
+  it('logo 為以 / 開頭的相對路徑（在 schema 中會經 URL ctor 轉絕對網址）', () => {
+    expect(SITE.logo.startsWith('/')).toBe(true);
+  });
+
+  it('priceRange 為合法字串（schema.org 接受 "$$" 等等級或數字區間）', () => {
+    expect(SITE.priceRange.length).toBeGreaterThan(0);
+  });
+});
+
+describe('AMENITIES 業主真實設施', () => {
+  it('含「投幣式洗衣機」「投幣式烘衣機」「戶外免費停車」「Tesla Wall Connector」', () => {
+    const zhSet = new Set(AMENITIES.map((a) => a.zh));
+    expect(zhSet.has('投幣式洗衣機')).toBe(true);
+    expect(zhSet.has('投幣式烘衣機')).toBe(true);
+    expect(zhSet.has('戶外免費停車')).toBe(true);
+    expect(zhSet.has('Tesla Wall Connector 自費超充')).toBe(true);
+  });
+});
+
+describe('GEO 業主確認真實座標', () => {
+  it('經緯度落在跑者之家所在的長濱鄉合理範圍（緯度 23.2~23.4、經度 121.4~121.5）', () => {
+    expect(GEO.latitude).toBeGreaterThan(23.2);
+    expect(GEO.latitude).toBeLessThan(23.4);
+    expect(GEO.longitude).toBeGreaterThan(121.4);
+    expect(GEO.longitude).toBeLessThan(121.5);
+  });
+});
+
+describe('HOURS 完整欄位', () => {
+  it('含 checkinEnd 為 HH:mm 格式且晚於 checkin', () => {
+    expect(HOURS.checkinEnd).toMatch(/^([01]\d|2[0-3]):[0-5]\d$/);
+    expect(HOURS.checkinEnd > HOURS.checkin).toBe(true);
   });
 });

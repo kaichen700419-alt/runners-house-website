@@ -1,20 +1,15 @@
 ---
 /**
- * Home (English) v4 — Mineral Coast
+ * Home (English) v5 — Compact Editorial
  *
- * Mirror of /index.astro with locale='en'.
- * 完整 D1 12 屏藍圖；同步 zh-TW 首頁。
+ * Mirrors /index.astro with locale='en'. 5 sections, content-rich.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import HeroSection from '@/components/home/HeroSection.astro';
-import RunnerNote from '@/components/home/RunnerNote.astro';
 import FeaturePillars from '@/components/home/FeaturePillars.astro';
-import StoryTeaser from '@/components/home/StoryTeaser.astro';
 import RoomPreview from '@/components/home/RoomPreview.astro';
-import SeasonStrip from '@/components/home/SeasonStrip.astro';
-import NumeralStat from '@/components/home/NumeralStat.astro';
+import StoryTeaser from '@/components/home/StoryTeaser.astro';
 import LocationMap from '@/components/home/LocationMap.astro';
-import ClosingCta from '@/components/home/ClosingCta.astro';
 import { useTranslations } from '@/i18n/utils';
 import { lodgingBusinessSchema } from '@/lib/schema';
 import { SITE } from '@/lib/site';
@@ -37,12 +32,8 @@ const lodging = lodgingBusinessSchema({
   schema={lodging}
 >
   <HeroSection locale={locale} />
-  <RunnerNote locale={locale} />
   <FeaturePillars locale={locale} />
-  <StoryTeaser locale={locale} />
   <RoomPreview locale={locale} />
-  <SeasonStrip locale={locale} />
-  <NumeralStat locale={locale} />
+  <StoryTeaser locale={locale} />
   <LocationMap locale={locale} />
-  <ClosingCta locale={locale} />
 </BaseLayout>

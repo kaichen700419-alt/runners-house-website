@@ -1,0 +1,192 @@
+---
+/**
+ * FaqJsonLd
+ *
+ * 將 i18n FAQ 字串轉為 schema.org FAQPage JSON-LD，並渲染對應的可見 HTML（<details>）。
+ * 兩者在同一元件渲染，確保「結構化資料」與「可見內容」必對齊（避免 schema 與 HTML 不一致警告）。
+ *
+ * 使用情境：
+ *  - 聯絡頁（contact）— 取代部份 FAQ 散落於文案中的問題
+ *  - 任何後續想新增 FAQ 區塊的內頁
+ *
+ * 設計原則：
+ *  - 題目來源固定為 i18n key 陣列（不接收任意字串），避免不同頁面 FAQ 內容散漏
+ *  - JSON-LD 與 HTML 內容字面值完全一致（同一字典 key）
+ *  - <details> 預設摺疊，第一題自動展開，提升首屏可讀性與 LCP 不受 FAQ 影響
+ */
+import { useTranslations } from '@/i18n/utils';
+import { faqPageSchema, type FaqItem } from '@/lib/schema';
+import JsonLd from '@/components/seo/JsonLd.astro';
+import type { Locale } from '@/i18n/types';
+
+interface Props {
+  /** 當前語系（用於 i18n + JSON-LD inLanguage 標註） */
+  locale: Locale;
+  /**
+   * FAQ key 陣列；每個 key 對應 zh-TW.json/en.json `faq` namespace 下的
+   * `qNQuestion` / `qNAnswer` 兩支 key（N 為 1~10）。
+   *
+   * 預設為 `faqDefaultKeys`（10 題標準 FAQ），呼叫端可覆寫做頁面客製化精選。
+   */
+  keys?: ReadonlyArray<string>;
+  /** 是否輸出區塊 heading + lead 文字（false 時僅輸出 list 不含標題） */
+  withHeading?: boolean;
+}
+
+/**
+ * 標準 FAQ 題目鍵清單（10 題）。
+ * 對應 i18n.faq.q1 ~ q10，題目順序為業主真實諮詢頻率排序：
+ *   1. Check-in/Check-out 時間
+ *   2. 訂金
+ *   3. 早餐
+ *   4. 洗衣設備
+ *   5. 房內廚房
+ *   6. Tesla 超充
+ *   7. 寵物
+ *   8. 一次性備品
+ *   9. 交通方式
+ *  10. 訂房聯絡
+ */
+export const faqDefaultKeys: ReadonlyArray<string> = [
+  'q1',
+  'q2',
+  'q3',
+  'q4',
+  'q5',
+  'q6',
+  'q7',
+  'q8',
+  'q9',
+  'q10',
+];
+
+const { locale, keys = faqDefaultKeys, withHeading = true } = Astro.props;
+const t = useTranslations(locale);
+
+// 從 i18n 取出題目/答案字串；空白者直接 throw 由 faqPageSchema 守門
+const items: FaqItem[] = keys.map((key) => ({
+  question: t(`faq.${key}Question`),
+  answer: t(`faq.${key}Answer`),
+}));
+
+const schema = faqPageSchema(items, locale);
+---
+
+<JsonLd schema={schema} />
+
+<section class="faq" aria-labelledby="faq-heading">
+  <div class="container-wide">
+    {withHeading && (
+      <header class="faq-header">
+        <h2 id="faq-heading" class="faq-title">{t('faq.sectionHeading')}</h2>
+        <p class="faq-lead">{t('faq.sectionLead')}</p>
+      </header>
+    )}
+    <ul class="faq-list">
+      {items.map((item, i) => (
+        <li class="faq-item">
+          <details open={i === 0}>
+            <summary>{item.question}</summary>
+            <div class="answer">
+              <p>{item.answer}</p>
+            </div>
+          </details>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .faq {
+    background-color: var(--color-bone-50);
+    padding-block: 5rem;
+  }
+  .faq-header {
+    max-width: 56rem;
+    margin: 0 auto 2.5rem;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+  .faq-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.85rem, 4vw, 2.65rem);
+    color: var(--color-ink-900);
+    letter-spacing: -0.005em;
+    line-height: 1.15;
+    font-weight: 500;
+  }
+  :lang(en) .faq-title {
+    font-family: var(--font-display-en);
+    font-style: italic;
+    font-weight: 400;
+  }
+  .faq-lead {
+    margin: 0;
+    color: var(--color-ink-500);
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.02rem;
+    line-height: 1.85;
+    font-weight: 300;
+  }
+  :lang(en) .faq-lead { font-family: var(--font-display-en); }
+
+  .faq-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid rgb(213 207 194 / 0.35);
+  }
+  .faq-item {
+    border-bottom: 1px solid rgb(213 207 194 / 0.35);
+  }
+  details {
+    padding-block: 1.4rem;
+  }
+  summary {
+    cursor: pointer;
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    color: var(--color-ink-900);
+    line-height: 1.55;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    gap: 1.25rem;
+    align-items: flex-start;
+  }
+  /* 移除 Safari/Chrome 預設 disclosure triangle */
+  summary::-webkit-details-marker { display: none; }
+  summary::after {
+    content: '+';
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: var(--color-copper-500);
+    transition: transform 240ms var(--ease-editorial);
+    flex-shrink: 0;
+  }
+  details[open] summary::after {
+    content: '−';
+  }
+  :lang(en) summary {
+    font-family: var(--font-display-en);
+    font-style: italic;
+    font-weight: 400;
+  }
+  .answer {
+    padding-top: 0.85rem;
+    color: var(--color-ink-600);
+    font-family: var(--font-body);
+    font-size: 0.96rem;
+    line-height: 1.95;
+  }
+  .answer p { margin: 0; }
+</style>

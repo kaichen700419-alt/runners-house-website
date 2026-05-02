@@ -1,33 +1,27 @@
 ---
 /**
- * 首頁（zh-TW 預設語系） v4 — 海風礦物 Mineral Coast
+ * 首頁（zh-TW 預設語系）v5 — 內容飽滿的精品民宿首頁
  *
- * 依研究報告 top-tier-bnb-design-2026.md D1 12 屏藍圖實作：
- *   Screen 1  HeroSection         — 電影開場（左字右畫線稿 + 季節 kinetic）
- *   Screen 2  RunnerNote          — 主理人手寫信
- *   Screen 3  FeaturePillars      — Run / Stay / Charge 三聯
- *   Screen 4  StoryTeaser         — 米倉時間軸 + 引言（過去三幕劇）
- *   Screen 5  RoomPreview         — 4 間客房 magazine spread
- *   Screen 6  SeasonStrip         — 春夏秋冬四聯詩意
- *   Screen 7  (客評輪播)         — 略過：業主未提供真實客評；不放假資料避免信任損失
- *   Screen 8  (月跑會行事曆)     — 略過：業主未提供具體場次資訊；待真實資料後補
- *   Screen 9  NumeralStat         — 「5/3/4/1」大數字證明規模感
- *   Screen 10 LocationMap         — 經緯度 + 在地交通
- *   Screen 11 (Footer)            — 由 BaseLayout 自動帶入
- *   Screen 12 ClosingCta          — Ready to slow down? 三聯收尾
+ * 業主強烈反饋：v4 的 12 屏 27000px 超長首頁太誇張、空白幼稚。
+ * v5 重做策略：5 屏緊湊版（約 4500-5000px 桌面高），每屏內容飽滿。
  *
- * 注入 LodgingBusiness JSON-LD 至 <head>。
+ *   Screen 1  HeroSection     — 左字右大圖框 + 完整文案 + 規格條
+ *   Screen 2  FeaturePillars  — Run / Stay / Charge 三聯（含小圖框）
+ *   Screen 3  RoomPreview     — 4 房型 magazine spread（含圖框）
+ *   Screen 4  StoryTeaser     — 米倉故事 + 時間軸 + 大圖框
+ *   Screen 5  LocationMap     — 位置與三聯 CTA + 地圖
+ *
+ * 移除（v4 過於冗長）：RunnerNote、SeasonStrip、NumeralStat、ClosingCta
+ * 業主提及 LINE / 電話 / 看房型三聯 CTA 已在 Hero 與 LocationMap 區提供。
+ *
+ * 注入 LodgingBusiness JSON-LD 至 <head>（保留，SEO 工程師同步在做）。
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import HeroSection from '@/components/home/HeroSection.astro';
-import RunnerNote from '@/components/home/RunnerNote.astro';
 import FeaturePillars from '@/components/home/FeaturePillars.astro';
-import StoryTeaser from '@/components/home/StoryTeaser.astro';
 import RoomPreview from '@/components/home/RoomPreview.astro';
-import SeasonStrip from '@/components/home/SeasonStrip.astro';
-import NumeralStat from '@/components/home/NumeralStat.astro';
+import StoryTeaser from '@/components/home/StoryTeaser.astro';
 import LocationMap from '@/components/home/LocationMap.astro';
-import ClosingCta from '@/components/home/ClosingCta.astro';
 import { useTranslations } from '@/i18n/utils';
 import { lodgingBusinessSchema } from '@/lib/schema';
 import { SITE } from '@/lib/site';
@@ -50,12 +44,8 @@ const lodging = lodgingBusinessSchema({
   schema={lodging}
 >
   <HeroSection locale={locale} />
-  <RunnerNote locale={locale} />
   <FeaturePillars locale={locale} />
-  <StoryTeaser locale={locale} />
   <RoomPreview locale={locale} />
-  <SeasonStrip locale={locale} />
-  <NumeralStat locale={locale} />
+  <StoryTeaser locale={locale} />
   <LocationMap locale={locale} />
-  <ClosingCta locale={locale} />
 </BaseLayout>

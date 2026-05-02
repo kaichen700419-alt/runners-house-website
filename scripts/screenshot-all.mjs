@@ -3,12 +3,13 @@
  * 全站截圖工具：對所有頁面以桌面 + 行動兩個 viewport 截圖。
  * 用途：實際視覺驗證網站設計品質，找出留白、對比、排版、互動問題。
  * 執行：node scripts/screenshot-all.mjs（需 preview server 已啟動於 :4321）
+ *       若 4321 被佔用，可用 SCREENSHOT_BASE=http://localhost:4322 覆寫。
  */
 import { chromium } from 'playwright';
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 
-const BASE = 'http://localhost:4321';
+const BASE = process.env.SCREENSHOT_BASE ?? 'http://localhost:4321';
 const PAGES = [
   '/', '/about', '/rooms', '/rooms/standard-double', '/rooms/standard-quad',
   '/rooms/backpack-4', '/rooms/backpack-6', '/rooms/sea-suite',
