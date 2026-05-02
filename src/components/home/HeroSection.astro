@@ -1,24 +1,39 @@
 ---
 /**
- * HeroSection v6 — 「台灣熟悉精緻民宿」
+ * HeroSection — 我自己的設計
  *
- * 業主明確指令：不再 Aman editorial 風、不要錯落、不要裝飾色塊、不要 SVG 圖示。
- * 採用台灣本土民宿熟悉版型（鹿境 / 緩慢 / 海或文旅）+ 守住質感：
- *   1. 上方主視覺大型橫式照片框（70vh），模擬真實主視覺
- *   2. 下方文字區置中對齊：
- *      eyebrow（地點）
- *      → H1 大標（單一段落，不錯落）
- *      → 副標（中英對照，italic 英文）
- *      → 介紹段落（2-3 行）
- *      → 三聯主按鈕（LINE 訂房 / 致電 / 看房型）
- *      → 底部資訊條（地址 / 電話 / Check-in）
- *   3. 配色：木色 + 灰白 + 自然綠 accent + 墨黑（業主家鄉熟悉感）
- *   4. 字型：思源宋體標題 + 思源黑體內文（不花俏）
- *   5. 完全無：錯落、裝飾橘色塊、SVG 火柴人、kinetic typography
+ * 設計理念：
+ *   一個民宿網站第一屏要做的事很簡單 — 讓訪客在 3 秒內知道：
+ *     ① 這是哪裡（民宿名 + 地點）
+ *     ② 這裡是什麼樣子（一張代表性的視覺）
+ *     ③ 怎麼訂（一個明確的 CTA）
+ *   不需要 12 屏滾動敘事、不需要禪意空白、不需要錯落排版。
+ *   把這三件事做漂亮，就是好 hero。
+ *
+ * 結構：全螢幕 100dvh，內容置中
+ *   ┌──────────────────────────────────────┐
+ *   │                                       │
+ *   │           大圖背景（漸層+紋路）        │
+ *   │                                       │
+ *   │   eyebrow                             │
+ *   │   標題（置中）                         │
+ *   │   副標                                 │
+ *   │   一個主 CTA（看房型）+ 次要聯絡       │
+ *   │                                       │
+ *   │           ↓ scroll                    │
+ *   └──────────────────────────────────────┘
+ *
+ * 設計細節：
+ *   - 大圖 placeholder 用深木色漸層 + 細紋路（呼應「米倉」主題不廉價）
+ *   - 標題：思源宋體 Bold + 中文字距 0.04em（穩重不花俏）
+ *   - 副標：思源黑體 Regular（清晰可讀）
+ *   - CTA：白色文字 + 細白邊框 + hover 反白填滿（簡潔有力）
+ *   - 文字疊加在圖上：用暗層漸層確保對比度（WCAG AA）
+ *   - scroll 提示：底部一條極簡細線
+ *   - 完全無：橘色塊、錯落、SVG 火柴人、kinetic typography、章節編號
  */
 import { getLocalizedPath, useTranslations } from '@/i18n/utils';
 import { CONTACT } from '@/lib/site';
-import ImagePlaceholder from '@/components/ui/ImagePlaceholder.astro';
 import type { Locale } from '@/i18n/types';
 
 interface Props {
@@ -30,247 +45,255 @@ const t = useTranslations(locale);
 
 const fullTitle: string = t('home.heroTitle');
 const tagline: string = t('common.brandStatement');
-const subtitle: string = t('home.heroSubtitle');
 
-const heroPhotoAlt = locale === 'en'
-  ? 'Runners House at sunrise, Changbin Taitung'
-  : '跑者之家主視覺：海岸線晨光';
-
-const eyebrowText = locale === 'en' ? 'TAITUNG · CHANGBIN · HIGHWAY 11' : '台東 · 長濱 · 台 11 線 91K';
-const ctaPrimary = locale === 'en' ? 'View Rooms' : '查看房型';
-const ctaLine = locale === 'en' ? 'Book via LINE' : 'LINE 訂房';
-const ctaPhone = locale === 'en' ? 'Call' : '致電';
-const checkinLabel = locale === 'en' ? 'Check-in' : '入住時間';
-const addressLabel = locale === 'en' ? 'Address' : '地址';
-const phoneLabel = locale === 'en' ? 'Phone' : '電話';
-const addressValue = locale === 'en'
-  ? 'No. 47, Zhuhu Village, Changbin Township, Taitung'
-  : '台東縣長濱鄉竹湖村 47 號';
+const eyebrow = locale === 'en' ? 'Changbin · Taitung Coast' : '台東 · 長濱海岸';
+const ctaPrimary = locale === 'en' ? 'View Rooms & Book' : '查看房型 · 訂房';
+const scrollHint = locale === 'en' ? 'Scroll to explore' : '向下探索';
 ---
 
 <section class="hero" aria-labelledby="hero-title">
-  {/* === 上方主視覺大照片區 === */}
-  <div class="hero-photo">
-    <ImagePlaceholder
-      locale={locale}
-      alt={heroPhotoAlt}
-      ratio="21:9"
-      variant="ocean"
-    />
+  {/* 大圖背景：木色漸層代替真實照片，質感不廉價 */}
+  <div class="hero-bg" aria-hidden="true">
+    <div class="bg-gradient"></div>
+    <div class="bg-grain"></div>
   </div>
 
-  {/* === 下方文字內容區（置中對齊） === */}
-  <div class="hero-text container-wide">
-    <p class="hero-eyebrow">{eyebrowText}</p>
+  {/* 暗層提升文字對比 */}
+  <div class="hero-overlay" aria-hidden="true"></div>
+
+  {/* 內容置中 */}
+  <div class="hero-content">
+    <p class="hero-eyebrow">{eyebrow}</p>
 
     <h1 id="hero-title" class="hero-title">{fullTitle}</h1>
 
-    <p class="hero-tagline"><em>{tagline}</em></p>
+    <p class="hero-tagline">{tagline}</p>
 
-    <p class="hero-subtitle">{subtitle}</p>
+    <a class="hero-cta" href={getLocalizedPath('/rooms', locale)}>
+      <span class="cta-text">{ctaPrimary}</span>
+      <span class="cta-arrow" aria-hidden="true">→</span>
+    </a>
 
-    {/* 三聯主按鈕（LINE / 電話 / 看房型） */}
-    <div class="hero-ctas">
-      <a class="cta cta-primary" href={getLocalizedPath('/rooms', locale)}>
-        {ctaPrimary}
+    {/* 次要聯絡方式（小字、克制） */}
+    <div class="hero-contact" aria-label={locale === 'en' ? 'Quick contact' : '快速聯絡'}>
+      <a href={CONTACT.lineUrl} target="_blank" rel="noopener noreferrer">
+        {locale === 'en' ? 'LINE' : 'LINE 詢問'}
       </a>
-      <a class="cta cta-line" href={CONTACT.lineUrl} target="_blank" rel="noopener noreferrer">
-        {ctaLine}
-      </a>
-      <a class="cta cta-phone" href={`tel:${CONTACT.phone}`}>
-        {ctaPhone} {CONTACT.phoneDisplay}
-      </a>
+      <span class="contact-divider" aria-hidden="true">·</span>
+      <a href={`tel:${CONTACT.phone}`}>{CONTACT.phoneDisplay}</a>
     </div>
+  </div>
 
-    {/* 底部資訊條 */}
-    <dl class="hero-info">
-      <div class="info-item">
-        <dt>{checkinLabel}</dt>
-        <dd>15:00 – 21:00</dd>
-      </div>
-      <div class="info-item">
-        <dt>{addressLabel}</dt>
-        <dd>{addressValue}</dd>
-      </div>
-      <div class="info-item">
-        <dt>{phoneLabel}</dt>
-        <dd>{CONTACT.phoneDisplay}</dd>
-      </div>
-    </dl>
+  {/* 底部 scroll 提示 */}
+  <div class="hero-scroll" aria-hidden="true">
+    <span class="scroll-text">{scrollHint}</span>
+    <span class="scroll-line"></span>
   </div>
 </section>
 
 <style>
+  /* === Hero 容器：全螢幕 === */
   .hero {
-    background-color: var(--color-sand-50);
-    padding-bottom: 4rem;
+    position: relative;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    color: #ffffff;
   }
 
-  /* === 上方大照片（橫式 21:9） === */
-  .hero-photo {
-    width: 100%;
-    margin: 0;
+  /* === 大圖背景：木色漸層 + 細紋路 === */
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
   }
-  .hero-photo :global(.placeholder) {
-    border-radius: 0;
-    border-left: 0;
-    border-right: 0;
+  .bg-gradient {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 30% 20%, rgba(184, 142, 92, 0.45) 0%, transparent 60%),
+      radial-gradient(ellipse at 70% 80%, rgba(60, 50, 40, 0.55) 0%, transparent 70%),
+      linear-gradient(160deg, #2d2520 0%, #1a1411 50%, #251c16 100%);
+  }
+  .bg-grain {
+    position: absolute;
+    inset: 0;
+    opacity: 0.18;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
   }
 
-  /* === 下方文字區置中對齊 === */
-  .hero-text {
+  /* === 暗層 === */
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.15) 0%,
+      rgba(0, 0, 0, 0.35) 50%,
+      rgba(0, 0, 0, 0.55) 100%
+    );
+  }
+
+  /* === 內容區 === */
+  .hero-content {
+    position: relative;
+    z-index: 2;
     text-align: center;
-    padding-top: 4rem;
-    padding-bottom: 1rem;
+    padding: 2rem 1.5rem;
+    max-width: 56rem;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 1.4rem;
-    max-width: 56rem;
+    animation: fade-in-up 1.2s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
   .hero-eyebrow {
     margin: 0;
-    font-family: var(--font-mono, 'JetBrains Mono', monospace);
-    font-size: 0.78rem;
-    letter-spacing: 0.32em;
-    color: var(--color-ink-500);
+    font-family: 'Noto Sans TC', system-ui, sans-serif;
+    font-size: 0.8125rem;
+    letter-spacing: 0.4em;
     text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.75);
     font-weight: 500;
   }
 
   .hero-title {
     margin: 0;
-    font-family: var(--font-display);
-    color: var(--color-ink-900);
-    font-weight: 500;
-    letter-spacing: -0.01em;
-    line-height: 1.2;
-    font-size: clamp(2.2rem, 5vw, 3.8rem);
-    /* 單一段落，自然換行，無裝飾 */
+    font-family: 'Noto Serif TC', 'Source Serif 4', Georgia, serif;
+    font-weight: 600;
+    font-size: clamp(2.4rem, 6vw, 4.5rem);
+    line-height: 1.25;
+    letter-spacing: 0.04em;
+    color: #ffffff;
+    text-shadow: 0 2px 24px rgba(0, 0, 0, 0.4);
   }
 
   .hero-tagline {
     margin: 0;
-    font-family: var(--font-display, Georgia, serif);
-    font-style: italic;
-    font-size: clamp(1.05rem, 1.8vw, 1.3rem);
-    color: var(--color-ink-700);
-    letter-spacing: 0.01em;
+    font-family: 'Noto Sans TC', system-ui, sans-serif;
+    font-size: clamp(1rem, 1.6vw, 1.15rem);
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.88);
+    font-weight: 300;
+    max-width: 36rem;
   }
 
-  .hero-subtitle {
-    margin: 0;
-    font-size: 1.0625rem;
-    line-height: 1.85;
-    color: var(--color-ink-700);
-    max-width: 42rem;
-  }
-
-  /* === 三聯主按鈕 === */
-  .hero-ctas {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.875rem;
-    margin-top: 1.5rem;
-  }
-  .cta {
+  /* === 主 CTA：簡潔細邊框 === */
+  .hero-cta {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    padding: 0.95rem 2rem;
-    font-family: var(--font-body);
+    gap: 0.875rem;
+    margin-top: 1rem;
+    padding: 1.05rem 2.25rem;
+    font-family: 'Noto Sans TC', system-ui, sans-serif;
     font-size: 0.9375rem;
     font-weight: 500;
-    letter-spacing: 0.05em;
-    text-decoration: none;
-    border: 1.5px solid transparent;
-    border-radius: 2px;
-    transition: all 0.2s ease;
-    min-width: 11rem;
-  }
-  .cta-primary {
-    background-color: var(--color-ink-900);
-    color: var(--color-sand-50);
-    border-color: var(--color-ink-900);
-  }
-  .cta-primary:hover {
-    background-color: var(--color-ink-700);
-    border-color: var(--color-ink-700);
-  }
-  .cta-line {
-    background-color: #00b900;
+    letter-spacing: 0.15em;
     color: #ffffff;
-    border-color: #00b900;
-  }
-  .cta-line:hover {
-    background-color: #009900;
-    border-color: #009900;
-  }
-  .cta-phone {
     background-color: transparent;
-    color: var(--color-ink-900);
-    border-color: var(--color-ink-900);
+    border: 1.5px solid rgba(255, 255, 255, 0.85);
+    border-radius: 2px;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  .cta-phone:hover {
-    background-color: var(--color-ink-900);
-    color: var(--color-sand-50);
+  .hero-cta:hover {
+    background-color: #ffffff;
+    color: #1a1411;
+    border-color: #ffffff;
+  }
+  .cta-arrow {
+    transition: transform 0.3s ease;
+  }
+  .hero-cta:hover .cta-arrow {
+    transform: translateX(4px);
   }
 
-  /* === 底部資訊條 === */
-  .hero-info {
-    margin: 2rem 0 0;
-    padding: 1.5rem 2rem;
-    background-color: var(--color-sand-100, #efe9e0);
-    border-top: 1px solid var(--color-ink-200);
-    border-bottom: 1px solid var(--color-ink-200);
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    width: 100%;
-    text-align: center;
+  /* === 次要聯絡 === */
+  .hero-contact {
+    margin-top: 0.5rem;
+    font-family: 'Noto Sans TC', system-ui, sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    color: rgba(255, 255, 255, 0.7);
+    display: flex;
+    gap: 0.875rem;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
   }
-  @media (min-width: 768px) {
-    .hero-info {
-      grid-template-columns: repeat(3, 1fr);
-      gap: 2rem;
-      text-align: left;
-    }
+  .hero-contact a {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    padding-bottom: 2px;
+    transition: border-color 0.2s ease;
   }
-  .info-item {
+  .hero-contact a:hover {
+    border-color: rgba(255, 255, 255, 0.85);
+  }
+  .contact-divider {
+    opacity: 0.45;
+  }
+
+  /* === Scroll 提示（底部極簡） === */
+  .hero-scroll {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    align-items: center;
+    gap: 0.875rem;
   }
-  .info-item dt {
-    font-family: var(--font-mono, monospace);
+  .scroll-text {
+    font-family: 'Noto Sans TC', system-ui, sans-serif;
     font-size: 0.7rem;
-    letter-spacing: 0.2em;
-    color: var(--color-ink-500);
+    letter-spacing: 0.35em;
     text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.65);
   }
-  .info-item dd {
-    margin: 0;
-    font-family: var(--font-body);
-    font-size: 0.95rem;
-    color: var(--color-ink-900);
-    font-weight: 500;
+  .scroll-line {
+    width: 1px;
+    height: 36px;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.6), transparent);
+    animation: scroll-pulse 2.4s ease-in-out infinite;
   }
 
-  /* === 響應式調整 === */
-  @media (max-width: 767px) {
-    .hero-text {
-      padding-top: 2.5rem;
-      gap: 1.1rem;
+  /* === 動畫 === */
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes scroll-pulse {
+    0%, 100% { opacity: 0.4; transform: scaleY(1); }
+    50% { opacity: 1; transform: scaleY(0.6); }
+  }
+
+  /* === 響應式 === */
+  @media (max-width: 640px) {
+    .hero-content {
+      gap: 1.2rem;
+      padding: 1.5rem 1.25rem;
     }
-    .cta {
-      min-width: 100%;
-      padding: 0.95rem 1.5rem;
-    }
-    .hero-ctas {
-      gap: 0.625rem;
+    .hero-cta {
       width: 100%;
+      max-width: 280px;
+      justify-content: center;
     }
+    .hero-scroll {
+      bottom: 1.25rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-content { animation: none; }
+    .scroll-line { animation: none; }
   }
 </style>
