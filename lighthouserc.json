@@ -17,9 +17,15 @@
         "http://localhost/nearby/index.html",
         "http://localhost/contact/index.html",
         "http://localhost/en/index.html",
+        "http://localhost/en/about/index.html",
+        "http://localhost/en/rooms/index.html",
+        "http://localhost/en/rooms/standard-double/index.html",
+        "http://localhost/en/runners/index.html",
+        "http://localhost/en/charging/index.html",
+        "http://localhost/en/nearby/index.html",
         "http://localhost/en/contact/index.html"
       ],
-      "numberOfRuns": 1,
+      "numberOfRuns": 3,
       "settings": {
         "preset": "desktop",
         "chromeFlags": "--no-sandbox --headless=new"

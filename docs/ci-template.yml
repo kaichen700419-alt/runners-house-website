@@ -122,11 +122,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
-        run: npm run build
+      - name: Download build artifact
+        # 複用 typecheck-build job 的 dist artifact，避免重複 build 浪費 CI 時間
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
 
       - name: Run Lighthouse CI
         # lighthouserc.json 設定的目標：Performance ≥ 90、Accessibility = 100、Best Practices ≥ 90、SEO = 100
+        # numberOfRuns: 3 取中位數降低 flaky；staticDistDir 直接用 dist 不需 preview server
         run: npm run test:perf
         env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}

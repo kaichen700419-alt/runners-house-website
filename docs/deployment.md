@@ -68,7 +68,19 @@ wrangler pages deploy dist --project-name runners-house-website
 - `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`
 
 > CSP 允許 `frame-src https://www.google.com`（Google Maps 嵌入）與 `connect-src https://api.web3forms.com`（聯絡表單）。
-> 若日後加入 GA4，需把 `script-src` 加上 `https://www.googletagmanager.com`、`connect-src` 加上 `https://*.google-analytics.com`。
+
+#### 啟用 GA4 時的完整 CSP 範例
+
+若日後啟用 GA4，將 `public/_headers` 中的 CSP 替換為：
+
+```
+Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.googletagmanager.com https://www.google-analytics.com; frame-src https://www.google.com; connect-src 'self' https://api.web3forms.com https://*.google-analytics.com https://*.analytics.google.com; form-action https://api.web3forms.com 'self'
+```
+
+差異重點：
+- `script-src` 加 `https://www.googletagmanager.com`（GA4 載入器）
+- `img-src` 加 `https://www.googletagmanager.com https://www.google-analytics.com`（GA4 像素 / debug 圖片）
+- `connect-src` 加 `https://*.google-analytics.com https://*.analytics.google.com`（GA4 事件回傳）
 
 ### `public/_redirects` 舊 Wix 路徑導向
 

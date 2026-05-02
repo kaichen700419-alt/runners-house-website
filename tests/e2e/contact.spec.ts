@@ -67,6 +67,8 @@ test.describe('聯絡頁 /contact', () => {
     const dayAfter = new Date(Date.now() + 86400_000 * 2).toISOString().slice(0, 10);
     await page.locator('input[name="check_in"]').fill(tomorrow);
     await page.locator('input[name="check_out"]').fill(dayAfter);
+    // 補 guests 欄位避免 guest count 驗證錯誤干擾測試的隔離性
+    await page.locator('input[name="guests"]').fill('2');
     await page.locator('select[name="subject_topic"]').selectOption('booking');
     await page.locator('textarea[name="message"]').fill('這是一段超過十個字的測試訊息內容，用於通過 minLength 驗證');
     await page.locator('#contact-form button[type="submit"]').click();

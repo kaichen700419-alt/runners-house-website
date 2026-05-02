@@ -11,9 +11,10 @@ compatibility_date = "2026-05-01"
 pages_build_output_dir = "dist"
 
 # Pages 專用 build 指令；Cloudflare Pages 後台連結 GitHub 後可直接使用
+# 注意：pages_build_output_dir（上方頂層欄位）已是新版寫法，[build].publish 為舊版，
+# 兩者並存時新版優先。此處保留 [build].command 用於本地 wrangler CLI 部署。
 [build]
 command = "npm run build"
-publish = "dist"
 
 # 環境變數（業主於 Cloudflare Pages 後台 Project → Settings → Environment variables 設定）
 #   PUBLIC_WEB3FORMS_KEY  必填  聯絡頁表單 access_key
