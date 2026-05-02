@@ -429,10 +429,11 @@ const clientI18n = {
     try {
       return JSON.parse(node.textContent ?? '{}');
     } catch {
+      // i18n payload 損壞 fallback：必須給有意義字串避免使用者看到空白訊息誤判狀態
       return {
         errorDict: {},
-        successText: '',
-        errorText: '',
+        successText: 'Sent. We will reply soon.',
+        errorText: 'Submission failed. Please try again or contact us directly.',
         retryText: 'Retry',
       };
     }
@@ -590,9 +591,12 @@ const clientI18n = {
         if (!res.ok) {
           throw new Error(`HTTP ${res.status}`);
         }
-        const json = await res.json().catch(() => ({}) as { success?: boolean; message?: string });
-        if (json && json.success === false) {
-          throw new Error(json.message ?? 'Submission failed');
+        const json = await res
+          .json()
+          .catch(() => null) as { success?: boolean; message?: string } | null;
+        // 嚴格檢查 success === true，避免 JSON 解析失敗或缺欄位被誤判為成功
+        if (!json || json.success !== true) {
+          throw new Error(json?.message ?? 'Submission failed');
         }
         showResult(form, i18n, 'success', i18n.successText);
         form.reset();
