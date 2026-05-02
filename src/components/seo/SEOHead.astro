@@ -51,9 +51,15 @@ const zhUrl = new URL(getAlternateLocaleUrl(pathname, 'zh-TW'), SITE.url).toStri
 const enUrl = new URL(getAlternateLocaleUrl(pathname, 'en'), SITE.url).toString();
 // 空字串 / 全空白要視為「未提供」，否則會產出 og:image="" 這種對 Facebook/Slack 等 unfurler 致命的標籤。
 const resolvedImage = image && image.trim() ? image : SITE.defaultOgImage;
-const ogImageUrl = resolvedImage.startsWith('http')
+// 重要：相對路徑必須補上 import.meta.env.BASE_URL 子路徑前綴
+// （否則 GitHub Pages 部署時 og:image 會掉到 https://...github.io/og/... 而非 .../runners-house-website/og/...）
+const baseUrlRaw = (import.meta.env.BASE_URL ?? '/').replace(/\/$/, '');
+const imageWithBase = resolvedImage.startsWith('http')
   ? resolvedImage
-  : new URL(resolvedImage, SITE.url).toString();
+  : `${baseUrlRaw}${resolvedImage.startsWith('/') ? '' : '/'}${resolvedImage}`;
+const ogImageUrl = imageWithBase.startsWith('http')
+  ? imageWithBase
+  : new URL(imageWithBase, SITE.url).toString();
 const ogLocale = locale === 'en' ? SITE.ogLocaleEn : SITE.ogLocaleZh;
 const ogLocaleAlternate = locale === 'en' ? SITE.ogLocaleZh : SITE.ogLocaleEn;
 const siteName = locale === 'en' ? SITE.nameEn : SITE.nameZh;
