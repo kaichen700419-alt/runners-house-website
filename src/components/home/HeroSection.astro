@@ -1,16 +1,14 @@
 ---
 /**
- * HeroSection 元件
+ * HeroSection 元件 v3 — Editorial Hero
  *
- * 首頁主視覺區塊，zh-TW 與 en 共用。
- * 文案由 i18n 字典提供，連結透過 getLocalizedPath 自動加上語系前綴。
- *
- * 視覺強化（v2，無真實照片狀態下提升氛圍）：
- *   - 多層漸層：ocean-700 → ocean-500 → sand-300 模擬日出海面光線變化
- *   - 背景 SVG 海浪線條 pattern 作為紋理
- *   - 標題 subtle text-shadow + 字距 letter-spacing 開場動畫
- *   - 三聯 CTA 按鈕 hover translateY + scale，subtle elevation
- *   - 尊重 prefers-reduced-motion，關閉所有動畫
+ * 設計語言："沉穩 charcoal + 細線海岸線 + 古典襯線標題"
+ *   - 全螢幕 100dvh
+ *   - 深 ink 漸層背景，無強烈飽和色
+ *   - SVG 雙層海岸線細描繪 + 細微星空紋理（0.5px 線條）
+ *   - 中文標題用思源宋體大字距開場、副標 italic Cormorant
+ *   - CTA 改為極簡線框按鈕（無填色、hover 反白）
+ *   - 底部極小 scroll cue 與品牌縮寫，呼應精品民宿首頁
  */
 import { getLocalizedPath, useTranslations } from '@/i18n/utils';
 import type { Locale } from '@/i18n/types';
@@ -24,190 +22,203 @@ const t = useTranslations(locale);
 ---
 
 <section class="hero" aria-labelledby="hero-title">
-  {/* 多層漸層 + 海浪紋理：純 SVG 內嵌，無外部請求，dark/print/no-image 都安全 */}
+  {/* 細線海岸線 SVG：兩層柔波 + 微弱地平線，呼應東海岸 */}
   <div class="hero-bg" aria-hidden="true">
-    <svg class="waves" viewBox="0 0 1440 320" preserveAspectRatio="none" focusable="false">
+    <svg class="coast" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" focusable="false">
       <defs>
-        <linearGradient id="hero-wave-grad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="rgba(255,255,255,0.18)" />
-          <stop offset="100%" stop-color="rgba(255,255,255,0)" />
+        <linearGradient id="hero-vignette" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgba(14,13,11,0)" />
+          <stop offset="60%" stop-color="rgba(14,13,11,0.15)" />
+          <stop offset="100%" stop-color="rgba(14,13,11,0.55)" />
         </linearGradient>
       </defs>
+      {/* 微弱地平線 */}
+      <line x1="0" y1="540" x2="1600" y2="540" stroke="rgba(200,184,150,0.35)" stroke-width="0.6" />
+      {/* 第一層：細線海岸線（前景） */}
       <path
-        d="M0,160 C240,200 480,80 720,140 C960,200 1200,260 1440,180 L1440,320 L0,320 Z"
-        fill="url(#hero-wave-grad)"
+        d="M0,640 C260,612 480,690 720,650 C960,610 1180,706 1440,664 L1600,672 L1600,900 L0,900 Z"
+        fill="rgba(14,13,11,0.65)"
+        stroke="rgba(200,184,150,0.55)"
+        stroke-width="0.7"
       />
+      {/* 第二層：更前的海岸線（深 ink） */}
       <path
-        d="M0,220 C240,260 480,180 720,210 C960,240 1200,290 1440,240 L1440,320 L0,320 Z"
-        fill="rgba(255,255,255,0.10)"
+        d="M0,760 C260,738 520,800 820,770 C1060,748 1260,802 1600,786 L1600,900 L0,900 Z"
+        fill="rgba(8,7,6,0.92)"
+        stroke="rgba(200,184,150,0.4)"
+        stroke-width="0.5"
       />
-      <path
-        d="M0,260 C240,290 480,240 720,260 C960,280 1200,300 1440,280 L1440,320 L0,320 Z"
-        fill="rgba(255,255,255,0.07)"
-      />
+      {/* 上方 vignette 漸層 */}
+      <rect x="0" y="0" width="1600" height="900" fill="url(#hero-vignette)" />
     </svg>
   </div>
 
   <div class="container-wide hero-inner">
-    <p class="eyebrow">{t('home.heroEyebrow')}</p>
+    {/* 銅金細線 + 短英文 eyebrow */}
+    <div class="eyebrow-row">
+      <span class="rule-h" aria-hidden="true"></span>
+      <span class="eyebrow">{t('home.heroEyebrow')}</span>
+      <span class="rule-h" aria-hidden="true"></span>
+    </div>
+
     <h1 id="hero-title" class="hero-title">{t('home.heroTitle')}</h1>
+
     <p class="hero-sub">{t('home.heroSubtitle')}</p>
+
     <div class="cta-row">
-      <a class="cta-primary" href={getLocalizedPath('/rooms', locale)}>
+      <a class="btn-line on-dark is-copper" href={getLocalizedPath('/rooms', locale)}>
         {t('home.heroPrimaryCta')}
       </a>
-      <a class="cta-secondary" href={getLocalizedPath('/about', locale)}>
+      <a class="btn-line on-dark" href={getLocalizedPath('/about', locale)}>
         {t('home.heroSecondaryCta')}
       </a>
     </div>
-    <p class="phase-note">{t('common.brandStatement')}</p>
+  </div>
+
+  {/* 底部極小 scroll cue + 品牌字標 */}
+  <div class="hero-foot" aria-hidden="true">
+    <span class="brand-mini">RUNNERS HOUSE · EST 2025</span>
+    <span class="scroll-cue"></span>
   </div>
 </section>
 
 <style>
   .hero {
     position: relative;
-    /* 多層漸層：上方深海藍 → 中段海面藍 → 下方暖沙黃，模擬日出海面光線
-       使用三個 color stop 而非 2 個，視覺上有「天 / 海 / 沙」的層次。 */
-    background:
-      radial-gradient(ellipse at 80% 0%, rgb(255 255 255 / 0.20) 0%, transparent 55%),
-      linear-gradient(
-        180deg,
-        var(--color-ocean-700) 0%,
-        var(--color-ocean-500) 55%,
-        var(--color-sand-300) 100%
-      );
-    color: white;
-    padding-block: 6rem 7rem;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* 沉穩深 ink 底色作為照片缺位時的視覺重量 */
+    background-color: var(--color-ink-950);
+    color: var(--color-bone-100);
     overflow: hidden;
     isolation: isolate;
   }
-  /* SVG 海浪覆蓋於漸層之上，提供細緻紋理但不搶走文字 */
   .hero-bg {
     position: absolute;
     inset: 0;
     z-index: 0;
     pointer-events: none;
   }
-  .hero-bg .waves {
+  .hero-bg .coast {
     position: absolute;
-    bottom: 0;
-    left: 0;
+    inset: 0;
     width: 100%;
-    height: 55%;
+    height: 100%;
     display: block;
   }
   .hero-inner {
     position: relative;
     z-index: 1;
-    max-width: 56rem;
     text-align: center;
+    padding-block: 8rem;
+    max-width: 56rem;
   }
-  .eyebrow {
-    font-family: var(--font-mono);
-    font-size: 0.82rem;
-    text-transform: uppercase;
-    letter-spacing: 0.22em;
-    color: rgb(255 255 255 / 0.85);
-    margin: 0 0 1.25rem;
+  .eyebrow-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+  }
+  .rule-h {
+    display: inline-block;
+    width: 36px;
+    height: 1px;
+    background-color: var(--color-copper-500);
+  }
+  .hero-inner .eyebrow {
+    color: var(--color-copper-300);
+    letter-spacing: 0.36em;
+    font-size: 0.7rem;
   }
   .hero-title {
-    font-size: clamp(2.5rem, 6vw, 4.75rem);
-    color: white;
-    margin: 0 0 1.5rem;
-    /* subtle text-shadow + 字距開場動畫：letter-spacing 由 0.06em 收斂到 0
-       營造「字逐漸聚焦」的呼吸感，無真實照片時補上動感 */
-    text-shadow: 0 2px 14px rgb(15 23 42 / 0.35);
-    letter-spacing: 0;
-    animation: hero-title-tighten 1400ms var(--ease-snappy) both;
+    font-family: var(--font-display);
+    font-size: clamp(2.85rem, 8.5vw, 6.5rem);
+    color: var(--color-bone-100);
+    margin: 0 0 2rem;
+    line-height: 1.05;
+    /* 精品感：寬字距開場後微收斂；中文襯線 letter-spacing 0.06em 留呼吸 */
+    letter-spacing: 0.04em;
+    font-weight: 400;
+    animation: hero-title-fade 1500ms var(--ease-editorial) both;
   }
-  @keyframes hero-title-tighten {
+  :lang(en) .hero-title {
+    font-family: var(--font-display-en);
+    font-style: italic;
+    font-weight: 500;
+    letter-spacing: 0.005em;
+  }
+  @keyframes hero-title-fade {
     0% {
-      letter-spacing: 0.08em;
       opacity: 0;
-      transform: translateY(8px);
+      transform: translateY(14px);
+      letter-spacing: 0.12em;
     }
     100% {
-      letter-spacing: 0;
       opacity: 1;
       transform: translateY(0);
+      letter-spacing: 0.04em;
     }
   }
   .hero-sub {
-    font-size: 1.08rem;
-    line-height: 1.8;
-    color: rgb(255 255 255 / 0.92);
-    margin: 0 auto 2.5rem;
-    max-width: 42rem;
-    text-shadow: 0 1px 8px rgb(15 23 42 / 0.25);
+    font-family: var(--font-display);
+    font-size: clamp(1rem, 1.4vw, 1.18rem);
+    line-height: 1.95;
+    color: rgb(245 239 230 / 0.78);
+    margin: 0 auto 3rem;
+    max-width: 38rem;
+    font-style: italic;
+    font-weight: 300;
+    letter-spacing: 0.02em;
+    animation: hero-sub-fade 1700ms 200ms var(--ease-editorial) both;
+  }
+  @keyframes hero-sub-fade {
+    0% { opacity: 0; transform: translateY(8px); }
+    100% { opacity: 1; transform: translateY(0); }
   }
   .cta-row {
     display: inline-flex;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: 1.25rem;
     justify-content: center;
-  }
-  .cta-primary, .cta-secondary {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.95rem 1.7rem;
-    border-radius: 999px;
-    font-weight: 600;
-    text-decoration: none;
-    transition:
-      transform 220ms var(--ease-snappy),
-      background-color 220ms var(--ease-snappy),
-      box-shadow 220ms var(--ease-snappy),
-      border-color 220ms var(--ease-snappy);
-  }
-  .cta-primary {
-    background-color: white;
-    color: var(--color-ocean-800);
-    box-shadow: 0 8px 22px -10px rgb(0 0 0 / 0.45);
-  }
-  .cta-primary:hover {
-    transform: translateY(-3px) scale(1.02);
-    background-color: var(--color-sand-100);
-    box-shadow: 0 16px 32px -14px rgb(0 0 0 / 0.55);
-  }
-  .cta-primary:focus-visible {
-    outline: 2px solid white;
-    outline-offset: 3px;
-  }
-  .cta-secondary {
-    background-color: rgb(255 255 255 / 0.10);
-    color: white;
-    border: 1px solid rgb(255 255 255 / 0.55);
-    backdrop-filter: blur(4px);
-  }
-  .cta-secondary:hover {
-    transform: translateY(-3px) scale(1.02);
-    background-color: rgb(255 255 255 / 0.20);
-    border-color: white;
-  }
-  .cta-secondary:focus-visible {
-    outline: 2px solid white;
-    outline-offset: 3px;
-  }
-  .phase-note {
-    margin-top: 3rem;
-    font-family: var(--font-display);
-    font-size: 0.95rem;
-    color: rgb(255 255 255 / 0.85);
-    font-style: italic;
-    text-shadow: 0 1px 6px rgb(15 23 42 / 0.25);
+    animation: hero-sub-fade 1900ms 400ms var(--ease-editorial) both;
   }
 
-  /* a11y：尊重使用者的「減少動畫」偏好設定 */
+  .hero-foot {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    pointer-events: none;
+  }
+  .brand-mini {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.4em;
+    color: var(--color-copper-400);
+    text-transform: uppercase;
+  }
+  .scroll-cue {
+    width: 1px;
+    height: 38px;
+    background: linear-gradient(180deg, var(--color-copper-400), transparent);
+    animation: scroll-cue 2400ms var(--ease-editorial) infinite;
+    transform-origin: top;
+  }
+  @keyframes scroll-cue {
+    0%, 100% { transform: scaleY(1); opacity: 0.6; }
+    50% { transform: scaleY(0.45); opacity: 1; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .hero-title {
+    .hero-title, .hero-sub, .cta-row, .scroll-cue {
       animation: none;
-    }
-    .cta-primary, .cta-secondary {
-      transition: background-color 200ms ease, border-color 200ms ease;
-    }
-    .cta-primary:hover, .cta-secondary:hover {
-      transform: none;
     }
   }
 </style>

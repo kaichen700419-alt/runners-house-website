@@ -1,13 +1,13 @@
 ---
 /**
- * StoryTeaser 元件
+ * StoryTeaser 元件 v3 — Editorial Story
  *
  * 首頁的品牌故事預告區，引導至 /about 完整故事。
- * 視覺強化（v2）：
- *   - 50/50 split + 深色 timber-700~900 背景，與 Hero 區（淺色）形成節奏對比
- *   - 大型「1972」浮水印年份字（半透明 sand 色）作為背景視覺錨點
- *   - 引號裝飾 SVG 提升質感
- *   - CTA hover 上抬 + 陰影加深
+ * 視覺改為精品民宿風：
+ *   - 深 charcoal 全寬區塊 + 銅金細線
+ *   - 大號浮水印年份「1972」作為背景骨幹
+ *   - magazine 雜誌式 split：左大圖 + 右文字塊
+ *   - pull-quote 樣式 + italic Cormorant 副題
  */
 import { getLocalizedPath, useTranslations } from '@/i18n/utils';
 import ImagePlaceholder from '@/components/ui/ImagePlaceholder.astro';
@@ -22,7 +22,6 @@ const t = useTranslations(locale);
 ---
 
 <section class="story" aria-labelledby="story-teaser-heading">
-  {/* 1972 浮水印：絕對定位、半透明、不可選取，僅作視覺錨點不影響可讀性 */}
   <span class="watermark" aria-hidden="true">1972</span>
 
   <div class="container-wide grid">
@@ -30,31 +29,22 @@ const t = useTranslations(locale);
       <ImagePlaceholder
         locale={locale}
         alt={t('home.storyTeaserHeading')}
-        ratio="4:3"
-        variant="timber"
+        ratio="3:4"
+        variant="ink"
       />
-      <span class="caption" aria-hidden="true">{t('home.storyTeaserCaption')}</span>
     </div>
     <div class="content">
-      <span class="eyebrow">
-        <span class="eyebrow-bar"></span>
-        {t('home.storyTeaserSince')}
-      </span>
+      <span class="eyebrow">{t('home.storyTeaserSince')}</span>
+      <span class="rule-gold" aria-hidden="true"></span>
       <h2 id="story-teaser-heading" class="title">
-        {/* 引號裝飾 SVG：純視覺，aria-hidden 避免螢幕閱讀器讀出引號 */}
-        <svg class="quote" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path
-            d="M7.5 5C4.5 5 2 7.5 2 10.5V19h7.5V11.5H5.5C5.7 9 7.4 7.5 9.5 7.5V5h-2zM18.5 5C15.5 5 13 7.5 13 10.5V19h7.5V11.5H16.5C16.7 9 18.4 7.5 20.5 7.5V5h-2z"
-            fill="currentColor"
-            opacity="0.7"
-          />
-        </svg>
         {t('home.storyTeaserHeading')}
       </h2>
-      <p class="body">{t('home.storyTeaserBody')}</p>
-      <a class="cta" href={getLocalizedPath('/about', locale)}>
+      <blockquote class="pull-quote">
+        <span class="quote-mark" aria-hidden="true">“</span>
+        <p>{t('home.storyTeaserBody')}</p>
+      </blockquote>
+      <a class="btn-line on-dark" href={getLocalizedPath('/about', locale)}>
         {t('home.storyTeaserCta')}
-        <span aria-hidden="true">→</span>
       </a>
     </div>
   </div>
@@ -63,137 +53,92 @@ const t = useTranslations(locale);
 <style>
   .story {
     position: relative;
-    padding-block: 6rem;
-    /* 深色 timber 漸層取代原本平淡的 timber-100，與 Hero 與 RoomPreview 的淺色塊形成對比 */
-    background:
-      linear-gradient(135deg, var(--color-timber-900) 0%, var(--color-timber-700) 100%);
-    color: var(--color-timber-50);
+    padding-block: 8rem;
+    background-color: var(--color-ink-950);
+    color: var(--color-bone-100);
     overflow: hidden;
     isolation: isolate;
   }
-  /* 浮水印年份：超大 display 字體 + sand 色 + 極低不透明度，僅當作視覺錨點 */
   .watermark {
     position: absolute;
-    right: -3rem;
-    bottom: -3.5rem;
+    right: -2rem;
+    bottom: -4rem;
     font-family: var(--font-display);
-    font-size: clamp(10rem, 24vw, 20rem);
-    font-weight: 700;
+    font-size: clamp(12rem, 28vw, 24rem);
+    font-weight: 300;
     line-height: 0.85;
-    color: var(--color-sand-300);
-    opacity: 0.08;
+    color: var(--color-copper-500);
+    opacity: 0.06;
     user-select: none;
     pointer-events: none;
-    letter-spacing: -0.04em;
+    letter-spacing: -0.03em;
     z-index: 0;
   }
   .grid {
     position: relative;
     z-index: 1;
     display: grid;
-    gap: 2.5rem;
+    gap: 3rem;
     grid-template-columns: 1fr;
     align-items: center;
   }
-  /* 50/50 split：兩側等比，視覺權重均衡，不再是「圖小文大」的失衡感 */
-  @media (min-width: 768px) {
+  @media (min-width: 900px) {
     .grid {
-      grid-template-columns: 1fr 1fr;
-      gap: 3.5rem;
+      grid-template-columns: 0.85fr 1fr;
+      gap: 5.5rem;
     }
   }
   .visual {
-    position: relative;
-    border-radius: 1.25rem;
     overflow: hidden;
-    box-shadow: 0 30px 60px -30px rgb(0 0 0 / 0.55);
-  }
-  /* 圖片下方的 caption 標籤，浮在圖右下，補強年份感 */
-  .caption {
-    position: absolute;
-    bottom: 1rem;
-    right: 1rem;
-    padding: 0.4rem 0.8rem;
-    background-color: rgb(0 0 0 / 0.55);
-    color: var(--color-sand-200);
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.06em;
-    border-radius: 999px;
-    backdrop-filter: blur(4px);
   }
   .content {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 1.5rem;
   }
   .eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.7rem;
     font-family: var(--font-mono);
-    font-size: 0.78rem;
+    font-size: 0.7rem;
     text-transform: uppercase;
-    letter-spacing: 0.18em;
-    color: var(--color-sand-300);
-  }
-  .eyebrow-bar {
-    display: inline-block;
-    width: 2.5rem;
-    height: 3px;
-    border-radius: 2px;
-    background: linear-gradient(90deg, var(--color-sand-400), var(--color-sand-300));
+    letter-spacing: 0.36em;
+    color: var(--color-copper-300);
   }
   .title {
     margin: 0;
     font-family: var(--font-display);
-    font-size: clamp(2rem, 3.6vw, 2.75rem);
-    color: var(--color-timber-50);
+    font-size: clamp(2rem, 3.6vw, 2.85rem);
+    color: var(--color-bone-100);
     line-height: 1.2;
-    display: flex;
-    align-items: flex-start;
-    gap: 0.5rem;
-    flex-wrap: wrap;
+    letter-spacing: 0.02em;
+    font-weight: 400;
   }
-  .quote {
-    width: 1.6rem;
-    height: 1.6rem;
-    flex-shrink: 0;
-    color: var(--color-sand-300);
-    margin-top: 0.4rem;
+  :lang(en) .title {
+    font-family: var(--font-display-en);
+    font-style: italic;
   }
-  .body {
+  .pull-quote {
     margin: 0;
-    color: var(--color-timber-100);
-    font-size: 1.05rem;
-    line-height: 1.85;
-    max-width: 36rem;
+    padding-left: 1.75rem;
+    border-left: 1px solid var(--color-copper-500);
+    position: relative;
   }
-  .cta {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
-    padding: 0.7rem 1.25rem;
-    border-radius: 999px;
-    background-color: var(--color-sand-300);
-    color: var(--color-timber-950);
-    width: fit-content;
-    font-weight: 600;
-    text-decoration: none;
-    transition:
-      transform 220ms var(--ease-snappy),
-      box-shadow 220ms var(--ease-snappy),
-      background-color 220ms var(--ease-snappy);
-    box-shadow: 0 6px 18px -8px rgb(0 0 0 / 0.45);
+  .pull-quote .quote-mark {
+    position: absolute;
+    left: 0.4rem;
+    top: -0.6rem;
+    font-family: var(--font-display);
+    font-size: 2.4rem;
+    color: var(--color-copper-400);
+    line-height: 1;
   }
-  .cta:hover {
-    transform: translateY(-2px);
-    background-color: var(--color-sand-200);
-    box-shadow: 0 12px 26px -10px rgb(0 0 0 / 0.55);
-  }
-  .cta:focus-visible {
-    outline: 2px solid var(--color-sand-200);
-    outline-offset: 3px;
+  .pull-quote p {
+    margin: 0;
+    color: rgb(245 239 230 / 0.82);
+    font-family: var(--font-display);
+    font-size: 1.08rem;
+    line-height: 2;
+    font-style: italic;
+    font-weight: 300;
+    max-width: 38rem;
   }
 </style>

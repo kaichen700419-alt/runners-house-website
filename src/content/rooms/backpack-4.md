@@ -9,36 +9,24 @@ beds_en: Two bunk beds (single 90×200cm × 4)
 view_zh: 庭院綠意
 view_en: Courtyard greenery
 amenities_zh:
-  - 共享衛浴（一樓另設兩間獨立淋浴間）
-  - 全室冷氣
+  - 共享衛浴
+  - 冷氣
   - 個人床頭閱讀燈與插座
-  - 個人床下可上鎖行李櫃
-  - 免費 Wi-Fi（光纖 200/100M）
-  - 公用茶水區與微波爐
-  - 跑者裝備陽台晾曬區
+  - 免費 Wi-Fi
 amenities_en:
-  - Shared bathroom (plus two private shower rooms on the ground floor)
-  - Full-room AC
+  - Shared bathroom
+  - Air conditioning
   - Per-bed reading light and outlets
-  - Lockable under-bed locker per bed
-  - Free Wi-Fi (fiber 200/100M)
-  - Shared tea station and microwave
-  - Outdoor drying area for runner gear
+  - Free Wi-Fi
 description_zh: >-
-  為跑團、單車隊、車友揪團設計的平價選擇。每張床都有獨立閱讀燈、插座與可上鎖行李櫃，重視隱私的同時保留宿舍房的社群感。距離一樓沖洗區與裝備曬乾架最近，比賽日早上動線最短。
+  揪團或單人深度旅行的平價選擇，兩組上下舖共 4 床。詳細設施與當日房況請於訂房時透過 LINE 確認。
 description_en: >-
-  A budget-friendly option for running clubs, cycling teams, and car-club outings.
-  Each bed has its own reading light, outlets, and a lockable under-bed locker —
-  privacy without losing the dorm's community feel. Closest to the ground-floor
-  rinse station and drying rack: shortest path on race-day mornings.
+  A budget-friendly option for small groups or solo travellers, with two bunk beds (four beds total). Please confirm exact amenities and current availability via LINE when booking.
 gallery:
   - 4 人背包房上下舖主視覺
-  - 個人床頭閱讀燈與插座細節
-  - 共享公共空間
-  - 庭院晾曬區
-price_note_zh: >-
-  平日床位參考價 NT$1,200 起／人／晚（依季節浮動，正確報價請洽 LINE）
-price_note_en: >-
-  From NT$1,200 / bed / night on weekdays (varies by season; please confirm via LINE)
+  - 房內空間
+  - 庭院窗景
+price_note_zh: 詳細房價請洽 LINE 詢問
+price_note_en: Please inquire via LINE for current rates
 order: 3
 ---

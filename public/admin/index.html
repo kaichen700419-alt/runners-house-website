@@ -7,18 +7,275 @@
     <title>跑者之家｜內容後台</title>
     <link rel="icon" type="image/svg+xml" href="/runners-house-website/favicon.svg" />
     <style>
+      :root {
+        --bg: #faf7f2;
+        --ink: #1f1e1c;
+        --ink-soft: #6e6b64;
+        --line: #d8d7d4;
+        --accent: #a08660;
+        --accent-hover: #8a724f;
+        --error: #c0392b;
+        --success: #27ae60;
+        --shadow: 0 20px 60px -20px rgba(0, 0, 0, 0.15);
+      }
+      * { box-sizing: border-box; }
       body {
         margin: 0;
-        font-family: 'Noto Sans TC', system-ui, sans-serif;
+        font-family: 'Noto Sans TC', 'Inter', system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--ink);
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 1.5rem;
       }
+      .login-card {
+        width: 100%;
+        max-width: 420px;
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        box-shadow: var(--shadow);
+        padding: 3rem 2.5rem;
+      }
+      .brand {
+        text-align: center;
+        margin-bottom: 2.5rem;
+      }
+      .brand-mark {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 56px;
+        height: 56px;
+        border: 1.5px solid var(--accent);
+        color: var(--accent);
+        font-family: 'Noto Serif TC', 'Cormorant Garamond', Georgia, serif;
+        font-size: 1.5rem;
+        letter-spacing: 0.05em;
+        border-radius: 50%;
+        margin-bottom: 1rem;
+      }
+      .brand-title {
+        font-family: 'Noto Serif TC', 'Cormorant Garamond', Georgia, serif;
+        font-size: 1.5rem;
+        font-weight: 500;
+        margin: 0 0 0.25rem;
+        letter-spacing: 0.05em;
+      }
+      .brand-subtitle {
+        margin: 0;
+        font-size: 0.8125rem;
+        color: var(--ink-soft);
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+      }
+      .field {
+        margin-bottom: 1.25rem;
+      }
+      .field label {
+        display: block;
+        font-size: 0.75rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+        margin-bottom: 0.5rem;
+      }
+      .field input {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 1px solid var(--line);
+        border-radius: 2px;
+        background: #fff;
+        font-size: 0.9375rem;
+        font-family: inherit;
+        color: var(--ink);
+        transition: border-color 0.15s ease;
+      }
+      .field input:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
+      .submit {
+        width: 100%;
+        padding: 0.9375rem;
+        background: var(--ink);
+        color: #fff;
+        border: none;
+        border-radius: 2px;
+        font-size: 0.875rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        font-family: inherit;
+        cursor: pointer;
+        margin-top: 0.5rem;
+        transition: background 0.15s ease;
+      }
+      .submit:hover { background: var(--accent); }
+      .submit:disabled { opacity: 0.5; cursor: not-allowed; }
+      .error {
+        margin-top: 1rem;
+        padding: 0.75rem 1rem;
+        background: #fdf2f0;
+        border-left: 3px solid var(--error);
+        color: var(--error);
+        font-size: 0.875rem;
+        display: none;
+      }
+      .error.show { display: block; }
+      .footer-note {
+        margin-top: 2rem;
+        text-align: center;
+        font-size: 0.75rem;
+        color: var(--ink-soft);
+        letter-spacing: 0.1em;
+      }
+      .footer-note a {
+        color: var(--accent);
+        text-decoration: none;
+        border-bottom: 1px solid currentColor;
+      }
+      /* CMS 容器：登入後才顯示 */
+      #cms-container { display: none; }
+      body.cms-active {
+        display: block;
+        padding: 0;
+        background: #fff;
+      }
+      body.cms-active .login-card { display: none; }
+      body.cms-active #cms-container { display: block; min-height: 100vh; }
     </style>
   </head>
   <body>
-    <!--
-      Sveltia CMS — Decap CMS 的現代分支，支援 GitHub Personal Access Token
-      直接登入（不需 OAuth proxy），完全 client-side 不需伺服器。
-      文件：https://github.com/sveltia/sveltia-cms
-    -->
-    <script type="module" src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
+    <main class="login-card" aria-labelledby="login-title">
+      <header class="brand">
+        <div class="brand-mark" aria-hidden="true">RH</div>
+        <h1 class="brand-title" id="login-title">跑者之家 後台</h1>
+        <p class="brand-subtitle">Content Studio</p>
+      </header>
+      <form id="login-form" autocomplete="off" novalidate>
+        <div class="field">
+          <label for="username">帳號</label>
+          <input type="text" id="username" name="username" required autocomplete="username" />
+        </div>
+        <div class="field">
+          <label for="password">密碼</label>
+          <input type="password" id="password" name="password" required autocomplete="current-password" />
+        </div>
+        <button type="submit" class="submit" id="submit-btn">登入後台</button>
+        <div class="error" id="error-msg" role="alert" aria-live="polite"></div>
+      </form>
+      <p class="footer-note">遺失帳號密碼？請聯絡您的網站維運人員。</p>
+    </main>
+
+    <div id="cms-container"></div>
+
+    <script type="module">
+      // 帳號密碼配置（業主可請維運人員修改 hash）
+      // 預設帳號 admin / 密碼 runnershouse2026
+      // hash 為密碼 SHA-256；修改密碼請計算新 hash 後替換
+      const VALID_USERS = {
+        admin: 'fc37ee4daa5019ee3784b540055b5302e26a181291dd482e14d1172180de7b2d',
+      };
+
+      // 計算 SHA-256（瀏覽器原生）
+      async function sha256(text) {
+        const buf = new TextEncoder().encode(text);
+        const hash = await crypto.subtle.digest('SHA-256', buf);
+        return Array.from(new Uint8Array(hash))
+          .map((b) => b.toString(16).padStart(2, '0'))
+          .join('');
+      }
+
+      // 載入 Sveltia CMS（使用者登入成功後）
+      function activateCMS(token) {
+        // 將 token 寫入 localStorage 模擬 Sveltia 的 token 機制
+        // 然後動態載入 Sveltia CMS bundle
+        localStorage.setItem('sveltia-cms.user', JSON.stringify({
+          backendName: 'github',
+          token,
+          login: 'kaichen700419-alt',
+        }));
+        document.body.classList.add('cms-active');
+        const script = document.createElement('script');
+        script.type = 'module';
+        script.src = 'https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js';
+        document.body.appendChild(script);
+      }
+
+      // 取得後台用 GitHub 寫入 token（業主第一次設定後存於 localStorage）
+      // 由維運人員在初始化時透過 prompt 一次性設定，業主之後永遠不需接觸
+      function getStoredGitHubToken() {
+        return localStorage.getItem('rh-cms-token');
+      }
+
+      function setStoredGitHubToken(token) {
+        localStorage.setItem('rh-cms-token', token);
+      }
+
+      const form = document.getElementById('login-form');
+      const errorEl = document.getElementById('error-msg');
+      const submitBtn = document.getElementById('submit-btn');
+
+      function showError(msg) {
+        errorEl.textContent = msg;
+        errorEl.classList.add('show');
+      }
+      function clearError() {
+        errorEl.classList.remove('show');
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        clearError();
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        if (!username || !password) {
+          showError('請輸入帳號與密碼');
+          return;
+        }
+        submitBtn.disabled = true;
+        submitBtn.textContent = '驗證中…';
+        try {
+          const expected = VALID_USERS[username];
+          if (!expected) {
+            showError('帳號或密碼錯誤');
+            return;
+          }
+          const passHash = await sha256(password);
+          if (passHash !== expected) {
+            showError('帳號或密碼錯誤');
+            return;
+          }
+          // 驗證通過 — 取得後台寫入 token
+          let token = getStoredGitHubToken();
+          if (!token) {
+            // 第一次登入：請維運人員透過 prompt 貼入一次性 token
+            // 業主完成第一次設定後永久無感
+            token = window.prompt(
+              '初次設定（僅需一次）：請貼入維運人員提供的後台金鑰。\n\n業主：請聯絡開發者代為完成此步驟，之後您再也不會看到這個提示。',
+            );
+            if (!token) {
+              showError('未取得後台金鑰，無法進入');
+              return;
+            }
+            setStoredGitHubToken(token.trim());
+          }
+          activateCMS(token);
+        } catch (err) {
+          console.error(err);
+          showError('登入過程發生錯誤，請重試');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = '登入後台';
+        }
+      });
+
+      // 已登入過 → 自動進入 CMS
+      if (sessionStorage.getItem('rh-admin-logged-in') === '1') {
+        const token = getStoredGitHubToken();
+        if (token) activateCMS(token);
+      }
+    </script>
   </body>
 </html>

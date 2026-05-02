@@ -1,12 +1,16 @@
 ---
 /**
- * LocationMap 元件
+ * LocationMap 元件 v3 — Editorial Map
  *
  * 首頁位置區，含地址、Google Maps 嵌入、自駕與大眾運輸說明。
+ * 視覺改為精品民宿排版：
+ *   - 白象牙底 + 大量留白
+ *   - 地址用大襯線體 + 銅金細線
+ *   - 條列項目改為 magazine 樣式
+ *   - 地圖框改為 1px 銅金細邊 + 灰階柔化
  */
 import { useTranslations } from '@/i18n/utils';
 import { GEO } from '@/lib/site';
-import SectionHeading from '@/components/ui/SectionHeading.astro';
 import type { Locale } from '@/i18n/types';
 
 interface Props {
@@ -20,42 +24,36 @@ const mapEmbedSrc = `https://www.google.com/maps?q=${mapQuery}&hl=${locale === '
 const mapsLink = `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
 ---
 
-<section class="location" id="location">
+<section class="location" id="location" aria-labelledby="location-heading">
   <div class="container-wide">
-    <SectionHeading
-      title={t('home.locationHeading')}
-      subtitle={t('home.locationLead')}
-      variant="ocean"
-    />
+    <div class="header">
+      <span class="rule-gold" aria-hidden="true"></span>
+      <h2 id="location-heading" class="title">{t('home.locationHeading')}</h2>
+      <p class="lead">{t('home.locationLead')}</p>
+    </div>
     <div class="grid">
       <div class="info">
         <p class="address">{t('common.addressFull')}</p>
         <ul class="bullets">
           <li>
-            <span class="bullet" aria-hidden="true">↓</span>
+            <span class="bullet-mark" aria-hidden="true">↓</span>
             <span>{t('home.locationDriveSouth')}</span>
           </li>
           <li>
-            <span class="bullet" aria-hidden="true">↑</span>
+            <span class="bullet-mark" aria-hidden="true">↑</span>
             <span>{t('home.locationDriveNorth')}</span>
           </li>
           <li>
-            <span class="bullet" aria-hidden="true">P</span>
+            <span class="bullet-mark" aria-hidden="true">P</span>
             <span>{t('home.locationParking')}</span>
           </li>
           <li>
-            <span class="bullet" aria-hidden="true">B</span>
+            <span class="bullet-mark" aria-hidden="true">B</span>
             <span>{t('home.locationTransit')}</span>
           </li>
         </ul>
-        <a
-          class="map-cta"
-          href={mapsLink}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a class="btn-line" href={mapsLink} target="_blank" rel="noopener noreferrer">
           {t('home.locationMapCta')}
-          <span aria-hidden="true">↗</span>
         </a>
       </div>
       <div class="map">
@@ -67,7 +65,7 @@ const mapsLink = `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
           referrerpolicy="no-referrer-when-downgrade"
           sandbox="allow-scripts allow-same-origin allow-popups"
           width="100%"
-          height="380"
+          height="460"
         ></iframe>
       </div>
     </div>
@@ -76,32 +74,64 @@ const mapsLink = `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
 
 <style>
   .location {
-    padding-block: 5rem;
-    background-color: var(--color-ocean-50);
+    padding-block: 8rem;
+    background-color: var(--color-bone-50);
+  }
+  .header {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-bottom: 4rem;
+    max-width: 38rem;
+  }
+  .title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 3.6vw, 2.85rem);
+    color: var(--color-ink-900);
+    letter-spacing: 0.02em;
+    font-weight: 400;
+    line-height: 1.2;
+  }
+  :lang(en) .title {
+    font-family: var(--font-display-en);
+    font-style: italic;
+  }
+  .lead {
+    margin: 0;
+    color: var(--color-ink-600);
+    font-family: var(--font-display);
+    font-size: 1.02rem;
+    font-style: italic;
+    font-weight: 300;
+    line-height: 1.95;
   }
   .grid {
     display: grid;
-    gap: 2rem;
+    gap: 3rem;
     grid-template-columns: 1fr;
   }
   @media (min-width: 1024px) {
     .grid {
-      grid-template-columns: 1fr 1.4fr;
-      gap: 3rem;
-      align-items: center;
+      grid-template-columns: 0.75fr 1.4fr;
+      gap: 4.5rem;
+      align-items: start;
     }
   }
   .info {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 2rem;
   }
   .address {
     margin: 0;
     font-family: var(--font-display);
-    font-size: 1.15rem;
-    color: var(--color-ink-950);
-    line-height: 1.5;
+    font-size: 1.18rem;
+    color: var(--color-ink-900);
+    line-height: 1.7;
+    letter-spacing: 0.02em;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgb(160 134 96 / 0.3);
   }
   .bullets {
     list-style: none;
@@ -109,47 +139,37 @@ const mapsLink = `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.65rem;
+    gap: 1.25rem;
   }
   .bullets li {
     display: grid;
-    grid-template-columns: 1.75rem 1fr;
-    gap: 0.5rem;
+    grid-template-columns: 2rem 1fr;
+    gap: 0.85rem;
     align-items: start;
     color: var(--color-ink-700);
     font-size: 0.95rem;
-    line-height: 1.65;
+    line-height: 1.85;
   }
-  .bullet {
-    font-size: 1.1rem;
-    line-height: 1.4;
-  }
-  .map-cta {
+  .bullet-mark {
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid var(--color-copper-500);
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    padding: 0.7rem 1.2rem;
-    border-radius: 999px;
-    background-color: var(--color-ocean-700);
-    color: white;
-    text-decoration: none;
-    font-weight: 600;
-    width: fit-content;
-    transition: background-color 160ms var(--ease-snappy), transform 160ms var(--ease-snappy);
-  }
-  .map-cta:hover {
-    background-color: var(--color-ocean-800);
-    transform: translateY(-1px);
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    color: var(--color-copper-600);
   }
   .map {
-    border-radius: 1rem;
+    border: 1px solid rgb(160 134 96 / 0.3);
     overflow: hidden;
-    border: 1px solid var(--color-ocean-200);
-    background-color: white;
   }
   .map iframe {
     display: block;
     border: 0;
     width: 100%;
+    /* 灰階柔化讓地圖視覺退為背景，呼應 Aman 的克制審美 */
+    filter: grayscale(0.55) brightness(0.96) contrast(0.95);
   }
 </style>

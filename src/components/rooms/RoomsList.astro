@@ -1,18 +1,15 @@
 ---
 /**
- * RoomsList
+ * RoomsList — Editorial v3
  *
- * 房型列表頁主體：以對稱 3-up Bento Grid 呈現。
- * 排版邏輯（桌面 ≥1024px）：
- *   - 第 1 列：標準雙人 / 標準四人 / 4 人背包房（各佔 1 col）
- *   - 第 2 列：6 人背包房（1 col）+ 海景套房（col-span-2 作為 hero room 強調）
- * 行動 / 平板：1~2 col 普通堆疊；hero col-span 僅在 ≥1024px 才生效，
- * 避免在小螢幕產生不對稱排版。
+ * 房型列表頁主體：horizontal rows 全寬列。
+ * 每一房型一整列：左圖 60% + 右文 40%，文字大量留白、垂直置中。
+ * 房型編號（01 / 02 / 03）作為大裝飾元素。
  *
- * 與舊版差異：
- *   - 移除 SectionHeading，避免「麵包屑 / eyebrow / H1」三層重複「房型介紹」
- *   - hero 卡片改以 slug === 'sea-suite' 判定（穩定、不依賴陣列 index 漂移）
- *   - 加入 eyebrow 行 + 房型數量微標示，提供視覺節奏錨點
+ * 與 v2 差異：
+ *   - 拋棄 Bento Grid（過於 crowded）
+ *   - 改為 magazine 式雜誌排版，每房型獨佔一列
+ *   - 偶數列圖文倒置（zigzag），閱讀節奏更精緻
  */
 import { getCollection } from 'astro:content';
 import { getLocalizedPath, useTranslations } from '@/i18n/utils';
@@ -30,276 +27,278 @@ const all = await getCollection('rooms');
 if (!all.length) {
   throw new Error('[content] rooms collection 為空');
 }
-// 穩定排序：order 相同時改以 slug 字典序當 tiebreaker，避免 build / runtime 順序漂移。
 const rooms = all
   .slice()
   .sort((a, b) => a.data.order - b.data.order || a.data.slug.localeCompare(b.data.slug));
 
-// hero 卡片以 slug 鎖定，不再依賴陣列 idx；未來新增 / 重新排序房型也不會誤把背包房變 hero。
 const HERO_SLUG = 'sea-suite';
-// 卡片色塊 variant 以 slug 對應，順序變動不影響色彩；缺省 fallback 'ocean'。
 const variantBySlug: Record<string, 'ocean' | 'timber' | 'sand' | 'ink'> = {
-  'standard-double': 'ocean',
-  'standard-quad': 'timber',
-  'backpack-4': 'sand',
-  'backpack-6': 'ink',
-  'sea-suite': 'ocean',
+  'standard-double': 'timber',
+  'standard-quad': 'sand',
+  'backpack-4': 'ocean',
+  'backpack-6': 'timber',
+  'sea-suite': 'ink',
 };
 ---
 
 <section class="rooms-list" aria-labelledby="rooms-list-page-heading">
-  <header class="page-header container-wide">
+  <header class="page-header container-narrow">
+    <span class="eyebrow">{t('rooms.bentoEyebrow')}</span>
     <h1 id="rooms-list-page-heading" class="page-title">{t('rooms.pageTitle')}</h1>
+    <span class="rule-gold rule-gold-center" aria-hidden="true"></span>
     <p class="page-lead">{t('rooms.pageLead')}</p>
     <p class="meals-note">{t('common.noMealsNotice')}</p>
   </header>
 
-  <div class="container-wide">
-    <p class="bento-eyebrow" aria-hidden="true">
-      <span class="bar"></span>
-      <span class="text">{t('rooms.bentoEyebrow')}</span>
-    </p>
-    <ul class="bento">
-      {
-        rooms.map((room) => {
-          const name = locale === 'en' ? room.data.name_en : room.data.name_zh;
-          const view = locale === 'en' ? room.data.view_en : room.data.view_zh;
-          const beds = locale === 'en' ? room.data.beds_en : room.data.beds_zh;
-          const desc = locale === 'en' ? room.data.description_en : room.data.description_zh;
-          const priceNote = locale === 'en' ? room.data.price_note_en : room.data.price_note_zh;
-          const variant = variantBySlug[room.data.slug] ?? 'ocean';
-          const href = getLocalizedPath(`/rooms/${room.data.slug}`, locale);
-          const isFeatured = room.data.slug === HERO_SLUG;
-          return (
-            <li class:list={['card', isFeatured ? 'featured' : '']}>
-              <a class="card-link" href={href} aria-label={name}>
-                <div class="image">
+  <ul class="rows">
+    {
+      rooms.map((room, idx) => {
+        const name = locale === 'en' ? room.data.name_en : room.data.name_zh;
+        const view = locale === 'en' ? room.data.view_en : room.data.view_zh;
+        const beds = locale === 'en' ? room.data.beds_en : room.data.beds_zh;
+        const desc = locale === 'en' ? room.data.description_en : room.data.description_zh;
+        const priceNote = locale === 'en' ? room.data.price_note_en : room.data.price_note_zh;
+        const variant = variantBySlug[room.data.slug] ?? 'timber';
+        const href = getLocalizedPath(`/rooms/${room.data.slug}`, locale);
+        const isFeatured = room.data.slug === HERO_SLUG;
+        const num = String(idx + 1).padStart(2, '0');
+        const reverse = idx % 2 === 1;
+        return (
+          <li class:list={['row', isFeatured ? 'featured' : '', reverse ? 'reverse' : '']}>
+            <div class="container-wide row-grid">
+              <div class="image-col">
+                <a class="image-link" href={href} aria-label={name}>
                   <ImagePlaceholder
                     locale={locale}
                     alt={name}
                     ratio={isFeatured ? '16:9' : '4:3'}
                     variant={variant}
                   />
-                  {isFeatured ? (
-                    <span class="badge">{t('rooms.featuredBadge')}</span>
-                  ) : null}
-                </div>
-                <div class="body">
-                  <h2 class="name">{name}</h2>
-                  <dl class="meta">
-                    <div>
-                      <dt>{t('rooms.sizeLabel')}</dt>
-                      <dd>{room.data.size}{t('rooms.sizeUnit')}</dd>
-                    </div>
-                    <div>
-                      <dt>{t('rooms.capacityLabel')}</dt>
-                      <dd>{room.data.capacity}{t('rooms.capacityUnit')}</dd>
-                    </div>
-                    <div>
-                      <dt>{t('rooms.viewLabel')}</dt>
-                      <dd>{view}</dd>
-                    </div>
-                    <div>
-                      <dt>{t('rooms.bedLabel')}</dt>
-                      <dd>{beds}</dd>
-                    </div>
-                  </dl>
-                  {isFeatured ? <p class="desc">{desc}</p> : null}
-                  <p class="price">{priceNote}</p>
-                  <span class="cta">
-                    {t('rooms.seePriceCta')}
-                    <span aria-hidden="true">→</span>
-                  </span>
-                </div>
-              </a>
-            </li>
-          );
-        })
-      }
-    </ul>
-    <p class="price-foot">{t('rooms.priceNote')}</p>
-  </div>
+                </a>
+              </div>
+              <div class="text-col">
+                <span class="row-num" aria-hidden="true">{num}</span>
+                {isFeatured ? <span class="featured-badge">{t('rooms.featuredBadge')}</span> : null}
+                <h2 class="name"><a href={href}>{name}</a></h2>
+                <span class="rule-gold" aria-hidden="true"></span>
+                <p class="desc">{desc}</p>
+                <dl class="meta">
+                  <div>
+                    <dt>{t('rooms.sizeLabel')}</dt>
+                    <dd>{room.data.size}{t('rooms.sizeUnit')}</dd>
+                  </div>
+                  <div>
+                    <dt>{t('rooms.capacityLabel')}</dt>
+                    <dd>{room.data.capacity}{t('rooms.capacityUnit')}</dd>
+                  </div>
+                  <div>
+                    <dt>{t('rooms.viewLabel')}</dt>
+                    <dd>{view}</dd>
+                  </div>
+                  <div>
+                    <dt>{t('rooms.bedLabel')}</dt>
+                    <dd>{beds}</dd>
+                  </div>
+                </dl>
+                <p class="price">{priceNote}</p>
+                <a class="btn-line" href={href}>
+                  {t('rooms.seePriceCta')}
+                </a>
+              </div>
+            </div>
+          </li>
+        );
+      })
+    }
+  </ul>
+
+  <p class="price-foot container-narrow">{t('rooms.priceNote')}</p>
 </section>
 
 <style>
   .rooms-list {
-    background-color: var(--color-timber-50);
-    padding-bottom: 5rem;
+    background-color: var(--color-bone-50);
+    padding-bottom: 7rem;
   }
   .page-header {
-    padding-block: 4rem 2rem;
+    padding-block: 7rem 5rem;
     text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
+    gap: 1.5rem;
   }
   .page-title {
     margin: 0;
     font-family: var(--font-display);
-    font-size: clamp(2.25rem, 5vw, 3.25rem);
-    color: var(--color-ink-950);
+    font-size: clamp(2.5rem, 6vw, 4.25rem);
+    color: var(--color-ink-900);
+    letter-spacing: 0.02em;
+    line-height: 1.1;
+    font-weight: 400;
+  }
+  :lang(en) .page-title {
+    font-family: var(--font-display-en);
+    font-style: italic;
   }
   .page-lead {
     margin: 0;
-    max-width: 38rem;
-    color: var(--color-ink-700);
+    max-width: 36rem;
+    color: var(--color-ink-600);
+    font-family: var(--font-display);
     font-size: 1.05rem;
-    line-height: 1.85;
+    line-height: 2;
+    font-style: italic;
+    font-weight: 300;
   }
   .meals-note {
-    margin: 0;
-    padding: 0.6rem 1rem;
-    border-radius: 0.5rem;
-    background-color: var(--color-sand-100);
-    color: var(--color-sand-900);
-    font-size: 0.88rem;
+    margin: 1rem 0 0;
+    padding: 0.85rem 1.25rem;
+    border: 1px solid rgb(160 134 96 / 0.35);
+    color: var(--color-ink-700);
+    font-size: 0.85rem;
     font-style: italic;
+    font-family: var(--font-display);
+    max-width: 36rem;
   }
-  /* eyebrow：以細色帶 + 等寬字當作 grid 的視覺節奏錨點，取代原本重複標題的 SectionHeading */
-  .bento-eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.7rem;
-    margin: 0 0 1.5rem;
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-    letter-spacing: 0.18em;
-    color: var(--color-timber-700);
-    text-transform: uppercase;
-  }
-  .bento-eyebrow .bar {
-    display: inline-block;
-    width: 2.5rem;
-    height: 3px;
-    border-radius: 2px;
-    background: linear-gradient(90deg, var(--color-timber-600), var(--color-sand-400));
-  }
-  .bento {
+
+  /* === rows === */
+  .rows {
     list-style: none;
     margin: 0;
     padding: 0;
+  }
+  .row {
+    padding-block: 5rem;
+    border-top: 1px solid rgb(160 134 96 / 0.18);
+  }
+  .row:last-child {
+    border-bottom: 1px solid rgb(160 134 96 / 0.18);
+  }
+  .row.featured {
+    background-color: var(--color-bone-100);
+  }
+  .row-grid {
     display: grid;
-    gap: 1.25rem;
+    gap: 3rem;
     grid-template-columns: 1fr;
+    align-items: center;
   }
-  @media (min-width: 768px) {
-    .bento {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1.5rem;
+  @media (min-width: 900px) {
+    .row-grid {
+      grid-template-columns: 1.4fr 1fr;
+      gap: 5rem;
+    }
+    .row.reverse .row-grid {
+      grid-template-columns: 1fr 1.4fr;
+    }
+    .row.reverse .image-col { order: 2; }
+    .row.reverse .text-col { order: 1; }
+    .row.featured .row-grid {
+      grid-template-columns: 1.6fr 1fr;
     }
   }
-  @media (min-width: 1024px) {
-    .bento {
-      grid-template-columns: repeat(3, 1fr);
-    }
-    /* hero 房型獨佔 2 col：order=5 排序最後，自然落在第 2 列右側兩格，
-       與第 2 列第 1 格（6 人背包房）合計 3 col 完整覆蓋一列，視覺對稱無破洞。 */
-    .bento .featured {
-      grid-column: span 2;
-    }
-  }
-  .card {
-    background-color: var(--color-surface);
-    border-radius: 1.25rem;
+  .image-col {
     overflow: hidden;
-    border: 1px solid var(--color-timber-200);
-    transition: transform 240ms var(--ease-snappy), box-shadow 240ms var(--ease-snappy);
   }
-  .card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 22px 48px -22px rgb(15 23 42 / 0.22);
-  }
-  .featured {
-    background-color: var(--color-ocean-50);
-    border-color: var(--color-ocean-200);
-  }
-  .card-link {
+  .image-link {
     display: block;
-    color: inherit;
-    text-decoration: none;
+    transition: transform 800ms var(--ease-editorial);
   }
-  .image {
-    position: relative;
-    overflow: hidden;
-  }
-  .badge {
-    position: absolute;
-    top: 0.85rem;
-    left: 0.85rem;
-    padding: 0.3rem 0.75rem;
-    border-radius: 999px;
-    background-color: rgb(255 255 255 / 0.92);
-    color: var(--color-ocean-800);
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    box-shadow: 0 4px 12px -6px rgb(15 23 42 / 0.18);
-  }
-  .body {
-    padding: 1.5rem 1.5rem 1.75rem;
+  .image-link:hover { transform: scale(1.015); }
+  .text-col {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.25rem;
+    position: relative;
+    padding-block: 1rem;
+  }
+  .row-num {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    color: var(--color-copper-500);
+    line-height: 1;
+    font-weight: 300;
+    letter-spacing: 0.02em;
+  }
+  .featured-badge {
+    position: absolute;
+    top: 1rem;
+    right: 0;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--color-copper-600);
+    border: 1px solid var(--color-copper-500);
+    padding: 0.4rem 0.85rem;
   }
   .name {
-    margin: 0;
+    margin: 0.5rem 0 0;
     font-family: var(--font-display);
-    font-size: clamp(1.25rem, 2vw, 1.65rem);
-    color: var(--color-ink-950);
+    font-size: clamp(1.85rem, 3vw, 2.5rem);
+    color: var(--color-ink-900);
+    line-height: 1.18;
+    letter-spacing: 0.02em;
+    font-weight: 400;
   }
-  .featured .name {
-    font-size: clamp(1.65rem, 2.6vw, 2rem);
+  :lang(en) .name {
+    font-family: var(--font-display-en);
+    font-style: italic;
+  }
+  .name a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 280ms var(--ease-editorial);
+  }
+  .name a:hover { color: var(--color-copper-600); }
+  .desc {
+    margin: 0;
+    color: var(--color-ink-700);
+    font-size: 0.98rem;
+    line-height: 2;
+    max-width: 38rem;
   }
   .meta {
     margin: 0;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0.5rem 1.25rem;
+    gap: 1.25rem 2rem;
     font-size: 0.85rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgb(160 134 96 / 0.2);
   }
-  .meta div {
-    display: flex;
-    flex-direction: column;
-  }
+  .meta div { display: flex; flex-direction: column; gap: 0.3rem; }
   .meta dt {
-    color: var(--color-ink-500);
-    font-size: 0.7rem;
+    color: var(--color-copper-600);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.28em;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
   }
   .meta dd {
     margin: 0;
     color: var(--color-ink-800);
-    font-weight: 500;
-  }
-  .desc {
-    margin: 0;
-    color: var(--color-ink-700);
+    font-family: var(--font-display);
+    font-weight: 400;
     font-size: 0.95rem;
-    line-height: 1.75;
+    letter-spacing: 0.02em;
   }
   .price {
     margin: 0;
-    padding: 0.5rem 0.85rem;
-    border-radius: 0.5rem;
-    background-color: var(--color-timber-100);
-    color: var(--color-timber-900);
-    font-size: 0.9rem;
-    font-weight: 500;
-  }
-  .cta {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    color: var(--color-ocean-700);
-    font-weight: 600;
-  }
-  .price-foot {
-    margin: 2rem 0 0;
-    color: var(--color-ink-500);
-    font-size: 0.85rem;
+    color: var(--color-ink-600);
+    font-family: var(--font-display);
     font-style: italic;
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+
+  .price-foot {
+    margin: 4rem auto 0;
+    color: var(--color-ink-500);
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 0.85rem;
+    text-align: center;
   }
 </style>

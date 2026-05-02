@@ -1,13 +1,15 @@
 ---
 /**
- * RoomPreview 元件
+ * RoomPreview 元件 v3 — Editorial Carousel-grid
  *
- * 首頁房型預覽區，顯示前 4 個房型卡片（按 order 排序）。
- * 從 rooms collection 讀取資料，連結到 /rooms/[slug] 詳情頁。
+ * 首頁房型預覽區。
+ * 視覺改為 magazine 兩欄橫向排版：
+ *   - 左：標題 + lead + see-all CTA（垂直置中）
+ *   - 右：房型卡片網格（2x2 或滾動）
+ *   - 每張卡片以 minimal 圖 + 襯線 name + 大號編號裝飾
  */
 import { getCollection } from 'astro:content';
 import { getLocalizedPath, useTranslations } from '@/i18n/utils';
-import SectionHeading from '@/components/ui/SectionHeading.astro';
 import ImagePlaceholder from '@/components/ui/ImagePlaceholder.astro';
 import type { Locale } from '@/i18n/types';
 
@@ -22,8 +24,6 @@ const allRooms = await getCollection('rooms');
 if (!allRooms.length) {
   throw new Error('[content] rooms collection 為空');
 }
-// 首頁預覽刻意只取前 4 房型；海景套房（order: 5）保留至房型列表頁完整呈現，避免首頁卡片數失衡。
-// 採穩定排序（order 相同時以 slug 字典序當 tiebreaker），避免 build 順序漂移導致 hydration 不一致。
 const previewRooms = allRooms
   .slice()
   .sort((a, b) => a.data.order - b.data.order || a.data.slug.localeCompare(b.data.slug))
@@ -32,22 +32,24 @@ const previewRooms = allRooms
 const placeholderVariants = ['ocean', 'timber', 'sand', 'ink'] as const;
 ---
 
-<section class="room-preview">
-  <div class="container-wide">
-    <SectionHeading
-      title={t('home.roomPreviewHeading')}
-      subtitle={t('home.roomPreviewLead')}
-      align="left"
-      variant="wabi"
-    />
-    <ul class="grid">
+<section class="room-preview" aria-labelledby="room-preview-heading">
+  <div class="container-wide grid">
+    <div class="header">
+      <span class="rule-gold" aria-hidden="true"></span>
+      <h2 id="room-preview-heading" class="title">{t('home.roomPreviewHeading')}</h2>
+      <p class="lead">{t('home.roomPreviewLead')}</p>
+      <a class="btn-line" href={getLocalizedPath('/rooms', locale)}>
+        {t('home.roomPreviewSeeAll')}
+      </a>
+    </div>
+    <ul class="cards">
       {
         previewRooms.map((room, idx) => {
           const name = locale === 'en' ? room.data.name_en : room.data.name_zh;
           const view = locale === 'en' ? room.data.view_en : room.data.view_zh;
-          const beds = locale === 'en' ? room.data.beds_en : room.data.beds_zh;
           const variant = placeholderVariants[idx % placeholderVariants.length] ?? 'ocean';
           const href = getLocalizedPath(`/rooms/${room.data.slug}`, locale);
+          const num = String(idx + 1).padStart(2, '0');
           return (
             <li class="card">
               <a href={href} class="card-link" aria-label={name}>
@@ -60,25 +62,15 @@ const placeholderVariants = ['ocean', 'timber', 'sand', 'ink'] as const;
                   />
                 </div>
                 <div class="card-body">
+                  <span class="card-num" aria-hidden="true">{num}</span>
                   <h3 class="name">{name}</h3>
-                  <dl class="meta">
-                    <div>
-                      <dt>{t('rooms.sizeLabel')}</dt>
-                      <dd>{room.data.size}{t('rooms.sizeUnit')}</dd>
-                    </div>
-                    <div>
-                      <dt>{t('rooms.capacityLabel')}</dt>
-                      <dd>{room.data.capacity}{t('rooms.capacityUnit')}</dd>
-                    </div>
-                    <div>
-                      <dt>{t('rooms.viewLabel')}</dt>
-                      <dd>{view}</dd>
-                    </div>
-                    <div>
-                      <dt>{t('rooms.bedLabel')}</dt>
-                      <dd>{beds}</dd>
-                    </div>
-                  </dl>
+                  <p class="meta">
+                    <span>{room.data.size}{t('rooms.sizeUnit')}</span>
+                    <span class="dot" aria-hidden="true">·</span>
+                    <span>{room.data.capacity}{t('rooms.capacityUnit')}</span>
+                    <span class="dot" aria-hidden="true">·</span>
+                    <span>{view}</span>
+                  </p>
                 </div>
               </a>
             </li>
@@ -86,104 +78,119 @@ const placeholderVariants = ['ocean', 'timber', 'sand', 'ink'] as const;
         })
       }
     </ul>
-    <div class="see-all-row">
-      <a class="see-all" href={getLocalizedPath('/rooms', locale)}>
-        {t('home.roomPreviewSeeAll')}
-        <span aria-hidden="true">→</span>
-      </a>
-    </div>
   </div>
 </section>
 
 <style>
   .room-preview {
-    padding-block: 5rem;
-    background-color: white;
+    padding-block: 8rem;
+    background-color: var(--color-bone-100);
   }
   .grid {
-    list-style: none;
-    margin: 0 0 2rem;
-    padding: 0;
     display: grid;
+    gap: 3.5rem;
     grid-template-columns: 1fr;
-    gap: 1.25rem;
-  }
-  @media (min-width: 768px) {
-    .grid {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1.5rem;
-    }
   }
   @media (min-width: 1024px) {
     .grid {
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: 0.8fr 1.4fr;
+      gap: 4.5rem;
+      align-items: start;
     }
   }
-  .card {
-    border-radius: 1rem;
-    overflow: hidden;
-    background-color: var(--color-timber-50);
-    border: 1px solid var(--color-timber-200);
-    transition: transform 220ms var(--ease-snappy);
+  .header {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    position: sticky;
+    top: 6rem;
+    align-self: start;
   }
-  .card:hover {
-    transform: translateY(-4px);
+  .title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 3.6vw, 2.85rem);
+    color: var(--color-ink-900);
+    line-height: 1.18;
+    letter-spacing: 0.02em;
+    font-weight: 400;
   }
+  :lang(en) .title {
+    font-family: var(--font-display-en);
+    font-style: italic;
+  }
+  .lead {
+    margin: 0;
+    color: var(--color-ink-600);
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-style: italic;
+    font-weight: 300;
+    line-height: 1.95;
+    max-width: 30rem;
+  }
+  .cards {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  @media (min-width: 640px) {
+    .cards { grid-template-columns: repeat(2, 1fr); gap: 2.5rem 2rem; }
+  }
+  .card { display: flex; flex-direction: column; }
   .card-link {
     display: flex;
     flex-direction: column;
     text-decoration: none;
     color: inherit;
+    gap: 1.25rem;
   }
   .image-wrap {
     overflow: hidden;
+    transition: transform 800ms var(--ease-editorial);
   }
+  .card-link:hover .image-wrap { transform: scale(1.015); }
   .card-body {
-    padding: 1.1rem 1.25rem 1.4rem;
     display: flex;
     flex-direction: column;
-    gap: 0.85rem;
+    gap: 0.5rem;
+  }
+  .card-num {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.36em;
+    color: var(--color-copper-600);
   }
   .name {
     margin: 0;
     font-family: var(--font-display);
-    font-size: 1.15rem;
-    color: var(--color-ink-950);
+    font-size: 1.25rem;
+    color: var(--color-ink-900);
+    letter-spacing: 0.02em;
+    font-weight: 400;
+    transition: color 280ms var(--ease-editorial);
+  }
+  .card-link:hover .name { color: var(--color-copper-600); }
+  :lang(en) .name {
+    font-family: var(--font-display-en);
+    font-style: italic;
   }
   .meta {
     margin: 0;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem 1rem;
-    font-size: 0.82rem;
-  }
-  .meta div {
+    color: var(--color-ink-600);
+    font-family: var(--font-display);
+    font-size: 0.88rem;
+    letter-spacing: 0.04em;
     display: flex;
-    flex-direction: column;
-  }
-  .meta dt {
-    color: var(--color-ink-500);
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  .meta dd {
-    margin: 0;
-    color: var(--color-ink-800);
-    font-weight: 500;
-  }
-  .see-all-row {
-    text-align: right;
-  }
-  .see-all {
-    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
     align-items: center;
-    gap: 0.4rem;
-    color: var(--color-ocean-700);
-    font-weight: 600;
-    text-decoration: none;
   }
-  .see-all:hover {
-    color: var(--color-ocean-900);
+  .dot {
+    color: var(--color-copper-500);
+    opacity: 0.7;
   }
 </style>

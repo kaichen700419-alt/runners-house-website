@@ -1,91 +1,126 @@
 @import "tailwindcss";
 
 /* ============================================================
- * 跑者之家設計系統 — 雙軌主題
- * 首頁主題：海洋運動（Ocean Athletic）— 活力、海風、跑者能量
- * 內頁主題：日系侘寂（Wabi-Sabi）— 米倉老屋、溫潤、療癒
+ * 跑者之家 — 精品民宿設計系統 v3
+ *
+ * 設計語言："Eastern Coast Editorial"
+ *   - 參考 Aman / Hoshinoya / Casa Cook 等級的精品民宿語彙
+ *   - 沉穩 charcoal 與象牙白為主，銅金細線為點綴
+ *   - 明朝體 + Cormorant Garamond 中英襯線雙軌
+ *   - 大量留白、長 line-height、寬 letter-spacing
+ *
+ * 既有 ocean / sand / timber tokens 保留以兼容元件，
+ * 但全站「主色語彙」改以 ink charcoal + bone ivory + copper line 為核心；
+ * 既有色票退到次要強調用途，避免「每段一色」的 cookie-cutter 感。
  * ============================================================ */
 
 @theme {
-  /* 海洋運動 — 主色彩（首頁、CTA、強調） */
-  --color-ocean-50:  #f0f9ff;
-  --color-ocean-100: #e0f2fe;
-  --color-ocean-200: #bae6fd;
-  --color-ocean-300: #7dd3fc;
-  --color-ocean-400: #38bdf8;
-  --color-ocean-500: #0ea5e9;
-  --color-ocean-600: #0284c7;
-  --color-ocean-700: #0369a1;
-  --color-ocean-800: #075985;
-  --color-ocean-900: #0c4a6e;
-  --color-ocean-950: #082f49;
+  /* === 主色軸 ===
+     Ink：沉穩深 charcoal，作為文字與深色區塊主體
+     Bone：象牙白，作為頁面底色與留白
+     Copper：銅金，作為細線、強調、CTA hover 點綴 */
+  --color-ink-50:  #f8f7f4;
+  --color-ink-100: #ecebe6;
+  --color-ink-200: #d6d4cc;
+  --color-ink-300: #b3b0a5;
+  --color-ink-400: #8a8779;
+  --color-ink-500: #635f53;
+  --color-ink-600: #4a463c;
+  --color-ink-700: #36332b;
+  --color-ink-800: #26241e;
+  --color-ink-900: #1a1816;
+  --color-ink-950: #0e0d0b;
 
-  /* 沙灘暖色 — 強調色（夕陽、跑道、暖意） */
-  --color-sand-50:  #fefce8;
-  --color-sand-100: #fef9c3;
-  --color-sand-200: #fef08a;
-  --color-sand-300: #fde047;
-  --color-sand-400: #facc15;
-  --color-sand-500: #eab308;
-  --color-sand-600: #ca8a04;
-  --color-sand-700: #a16207;
-  --color-sand-800: #854d0e;
-  --color-sand-900: #713f12;
+  --color-bone-50:  #fbf8f2;
+  --color-bone-100: #f5efe6;
+  --color-bone-200: #ece4d3;
+  --color-bone-300: #ddd1b8;
+  --color-bone-400: #c8b896;
+  --color-bone-500: #b09c75;
 
-  /* 米倉木色 — 內頁背景與材質感（侘寂） */
-  --color-timber-50:  #faf7f2;
-  --color-timber-100: #f3ece0;
-  --color-timber-200: #e6d8bf;
-  --color-timber-300: #d4bd97;
-  --color-timber-400: #c1a070;
-  --color-timber-500: #ae8854;
-  --color-timber-600: #95704a;
-  --color-timber-700: #785a3f;
-  --color-timber-800: #604938;
-  --color-timber-900: #4f3d31;
-  --color-timber-950: #2b1f18;
+  --color-copper-300: #c9a878;
+  --color-copper-400: #b89261;
+  --color-copper-500: #a08660;
+  --color-copper-600: #836b46;
+  --color-copper-700: #614e34;
 
-  /* 中性灰階 — 文字、邊線 */
-  --color-ink-50:  #f8f8f7;
-  --color-ink-100: #ededeb;
-  --color-ink-200: #d8d7d4;
-  --color-ink-300: #b8b6b1;
-  --color-ink-400: #8d8a83;
-  --color-ink-500: #6e6b64;
-  --color-ink-600: #585550;
-  --color-ink-700: #484641;
-  --color-ink-800: #3d3b37;
-  --color-ink-900: #1f1e1c;
-  --color-ink-950: #131211;
+  /* === 次要色（保留，僅供少量 accent，不再每區段切換） === */
+  --color-ocean-50:  #f0f7fa;
+  --color-ocean-100: #dbeaf2;
+  --color-ocean-200: #b8d2e0;
+  --color-ocean-300: #8db5c8;
+  --color-ocean-400: #5d92ac;
+  --color-ocean-500: #3a7591;
+  --color-ocean-600: #2c5d76;
+  --color-ocean-700: #234a5e;
+  --color-ocean-800: #1c3b4b;
+  --color-ocean-900: #15303d;
+  --color-ocean-950: #0c1e26;
 
-  /* 字型 — 中英混排 */
-  --font-display: "Noto Serif TC", "Source Serif 4", Georgia, serif;
-  --font-body: "Noto Sans TC", "Inter", system-ui, sans-serif;
+  --color-sand-50:  #fbf6e9;
+  --color-sand-100: #f5ecd0;
+  --color-sand-200: #ead9a8;
+  --color-sand-300: #dcc380;
+  --color-sand-400: #c8a857;
+  --color-sand-500: #ae8d3c;
+  --color-sand-600: #8a6f2e;
+  --color-sand-700: #6b5524;
+  --color-sand-800: #54421d;
+  --color-sand-900: #423419;
+
+  --color-timber-50:  #f9f4ec;
+  --color-timber-100: #f0e5d3;
+  --color-timber-200: #ddc9a7;
+  --color-timber-300: #c4a978;
+  --color-timber-400: #a98b56;
+  --color-timber-500: #8c7242;
+  --color-timber-600: #6f5a35;
+  --color-timber-700: #58462a;
+  --color-timber-800: #443621;
+  --color-timber-900: #2f261a;
+  --color-timber-950: #1a1510;
+
+  /* === 字型 ===
+     中文：思源宋體（Source Han Serif TC / Noto Serif TC）營造明朝體質感
+     英文：Cormorant Garamond 古典襯線體（display）+ EB Garamond（body）
+     等寬：JetBrains Mono（編號、月份、計量）
+     Body 仍為 Noto Sans TC，避免長段中文襯線體在小字級難讀 */
+  --font-display: "Source Han Serif TC", "Noto Serif TC", "Cormorant Garamond", "EB Garamond", "Songti TC", "PingFang TC", Georgia, serif;
+  --font-display-en: "Cormorant Garamond", "EB Garamond", "Source Serif 4", Georgia, serif;
+  --font-body: "Noto Sans TC", "PingFang TC", "Inter Tight", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
-  /* 動效 timing */
+  /* === 動效 timing === */
   --ease-natural: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-snappy: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-editorial: cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* 純白底色（Card / Form / Map） */
+  /* 純白底色（少用，僅特定 surface） */
   --color-surface: #ffffff;
 
   /* LINE 品牌色（與 LINE 官方色票一致） */
   --color-line-brand: #00b900;
   --color-line-brand-hover: #009900;
 
-  /* 系統狀態色 — error / warning */
-  --color-error: #dc2626;
-  --color-error-bg: #fef2f2;
-  --color-warning: #f97316;
-  --color-warning-bg: #fff7ed;
-  --color-warning-text: #9a3412;
+  /* 系統狀態色 */
+  --color-error: #b34646;
+  --color-error-bg: #f9efef;
+  --color-warning: #b87a2a;
+  --color-warning-bg: #f9f1e3;
+  --color-warning-text: #6b461a;
 
-  /* 跑者路線難度色 — 與 routes.difficulty enum 對應 */
-  --color-difficulty-easy: #10b981;
-  --color-difficulty-medium: #f59e0b;
-  --color-difficulty-hard: #ef4444;
+  /* 跑者路線難度色 — 與 routes.difficulty enum 對應；改為較收斂的色票 */
+  --color-difficulty-easy: #6b8a5f;
+  --color-difficulty-medium: #b89261;
+  --color-difficulty-hard: #9a4f3c;
 }
+
+/* ============================================================
+ * 載入 Google Fonts —— 中英文襯線體
+ * 為避免阻斷渲染，使用 swap；Source Han / Noto Serif TC 較大，
+ * 僅載入需要的字重（400 / 600）；英文 Cormorant 載入 italic 變體供副標使用。
+ * ============================================================ */
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Noto+Serif+TC:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600&display=swap");
 
 /* 基礎重置 */
 @layer base {
@@ -94,32 +129,62 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    /* 全站底色：象牙白偏暖，呼應老屋木材質感 */
+    background-color: var(--color-bone-50);
   }
 
   body {
     font-family: var(--font-body);
-    color: var(--color-ink-900);
-    background-color: var(--color-timber-50);
-    line-height: 1.7;
-    letter-spacing: 0.01em;
+    color: var(--color-ink-800);
+    background-color: var(--color-bone-50);
+    /* 散文閱讀感：行高 1.85 + 字距 0.02em，營造「呼吸」 */
+    line-height: 1.85;
+    letter-spacing: 0.015em;
+    font-weight: 400;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
-    letter-spacing: -0.01em;
-    line-height: 1.2;
-    color: var(--color-ink-950);
+    /* 襯線標題微負字距收斂，避免漏縫 */
+    letter-spacing: -0.005em;
+    line-height: 1.18;
+    color: var(--color-ink-900);
+    font-weight: 500;
+  }
+
+  /* 內嵌 :lang(en) 的標題自動套用 Cormorant Garamond，
+     英文版頁面 / 英文 alt 自然轉襯線體，無需元件層特別處理。 */
+  :lang(en) h1,
+  :lang(en) h2,
+  :lang(en) h3,
+  :lang(en) h4 {
+    font-family: var(--font-display-en);
+    font-weight: 500;
+    letter-spacing: 0.005em;
+  }
+
+  p {
+    /* 段落 line-height 1.9 散文感 */
+    line-height: 1.9;
+  }
+
+  /* 大字標題（hero-grade）utility class，元件可選用 */
+  .hero-grade {
+    font-size: clamp(3rem, 9vw, 7rem);
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    font-weight: 400;
   }
 
   ::selection {
-    background-color: var(--color-ocean-300);
+    background-color: var(--color-copper-300);
     color: var(--color-ink-950);
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-ocean-500);
-    outline-offset: 2px;
-    border-radius: 2px;
+    outline: 1px solid var(--color-copper-500);
+    outline-offset: 3px;
+    border-radius: 1px;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -134,13 +199,21 @@
 /* 共用元件樣式 */
 @layer components {
   .container-prose {
-    max-width: 65ch;
+    max-width: 62ch;
     margin-inline: auto;
     padding-inline: 1.5rem;
   }
 
+  /* container-wide 收窄至 1100px：精品感、不再 80rem 寬版頁面感 */
   .container-wide {
-    max-width: 80rem;
+    max-width: 1120px;
+    margin-inline: auto;
+    padding-inline: 1.5rem;
+  }
+
+  /* container-narrow 用於文章主體與單欄章節 */
+  .container-narrow {
+    max-width: 780px;
     margin-inline: auto;
     padding-inline: 1.5rem;
   }
@@ -149,5 +222,74 @@
     .container-wide {
       padding-inline: 2.5rem;
     }
+    .container-narrow {
+      padding-inline: 2.5rem;
+    }
+  }
+
+  /* === 共用裝飾：銅金細線分隔符 === */
+  .rule-gold {
+    display: block;
+    width: 56px;
+    height: 1px;
+    background-color: var(--color-copper-500);
+    border: 0;
+    margin: 0;
+  }
+  .rule-gold-center {
+    margin-inline: auto;
+  }
+
+  /* === 共用標籤：eyebrow（小字 + 寬字距） === */
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.28em;
+    color: var(--color-copper-600);
+    font-weight: 500;
+  }
+  :lang(en) .eyebrow {
+    letter-spacing: 0.32em;
+  }
+
+  /* === 共用 CTA：極簡線框按鈕 === */
+  .btn-line {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.95rem 1.85rem;
+    border: 1px solid currentColor;
+    color: var(--color-ink-900);
+    background: transparent;
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition:
+      background-color 320ms var(--ease-editorial),
+      color 320ms var(--ease-editorial),
+      letter-spacing 320ms var(--ease-editorial);
+  }
+  .btn-line:hover {
+    background-color: var(--color-ink-900);
+    color: var(--color-bone-50);
+    letter-spacing: 0.22em;
+  }
+  .btn-line.on-dark {
+    color: var(--color-bone-100);
+  }
+  .btn-line.on-dark:hover {
+    background-color: var(--color-bone-100);
+    color: var(--color-ink-900);
+  }
+  .btn-line.is-copper {
+    color: var(--color-copper-400);
+  }
+  .btn-line.is-copper:hover {
+    background-color: var(--color-copper-500);
+    color: var(--color-ink-950);
+    border-color: var(--color-copper-500);
   }
 }

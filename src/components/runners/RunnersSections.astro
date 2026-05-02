@@ -1,9 +1,14 @@
 ---
 /**
- * RunnersSections
+ * RunnersSections — Editorial v3
  *
- * 跑者主場頁主體：簡介 + 賽事 + 路線 + 友善服務。
- * 採海洋運動風（ocean / sand 主色）。
+ * 跑者主場頁主體：簡介 + 賽事 + 路線 + 公共設施。
+ * 視覺改為 Editorial（沉穩 charcoal + 銅金細線 + 大量留白），
+ * 不再 cookie-cutter ocean/sand 區塊堆疊。
+ *
+ * 內容真值：services array 改為 3 項真實公共設施
+ *   serviceLaundry / serviceKitchen / serviceParking
+ * （業主已將舊 6 項假承諾從字典中移除）
  */
 import { getCollection } from 'astro:content';
 import { useTranslations } from '@/i18n/utils';
@@ -20,14 +25,12 @@ const t = useTranslations(locale);
 
 const racesAll = await getCollection('races');
 const routesAll = await getCollection('routes');
-// Collection 為空守門：賽事 / 路線資料缺失會讓畫面靜默呈現空白，build 期間 fail-loud。
 if (!racesAll.length) {
   throw new Error('[content] races collection 為空');
 }
 if (!routesAll.length) {
   throw new Error('[content] routes collection 為空');
 }
-// 穩定排序：order 相同時改以 id 字典序當 tiebreaker，避免 build / runtime 順序不一致導致 hydration 錯亂。
 const races = racesAll
   .slice()
   .sort((a, b) => a.data.order - b.data.order || a.data.id.localeCompare(b.data.id));
@@ -35,13 +38,11 @@ const routes = routesAll
   .slice()
   .sort((a, b) => a.data.order - b.data.order || a.data.id.localeCompare(b.data.id));
 
+// 公共設施：洗衣 / 廚房 / 停車（業主確認的真實項目）
 const services = [
-  { titleKey: 'runners.serviceShowerTitle', bodyKey: 'runners.serviceShowerBody', icon: 'S' },
-  { titleKey: 'runners.serviceDryTitle', bodyKey: 'runners.serviceDryBody', icon: 'D' },
-  { titleKey: 'runners.serviceFuelTitle', bodyKey: 'runners.serviceFuelBody', icon: 'F' },
-  { titleKey: 'runners.serviceStretchTitle', bodyKey: 'runners.serviceStretchBody', icon: 'Y' },
-  { titleKey: 'runners.serviceLaundryTitle', bodyKey: 'runners.serviceLaundryBody', icon: 'L' },
-  { titleKey: 'runners.serviceCoachTitle', bodyKey: 'runners.serviceCoachBody', icon: 'C' },
+  { titleKey: 'runners.serviceLaundryTitle', bodyKey: 'runners.serviceLaundryBody' },
+  { titleKey: 'runners.serviceKitchenTitle', bodyKey: 'runners.serviceKitchenBody' },
+  { titleKey: 'runners.serviceParkingTitle', bodyKey: 'runners.serviceParkingBody' },
 ];
 
 const difficultyLabel = {
@@ -54,19 +55,20 @@ const monthUnit = t('runners.monthUnit');
 ---
 
 <article class="runners" aria-labelledby="runners-page-heading">
-  <header class="page-header container-wide">
+  <header class="page-header container-narrow">
     <span class="eyebrow">{t('runners.eyebrow')}</span>
     <h1 id="runners-page-heading" class="page-title">{t('runners.pageTitle')}</h1>
+    <span class="rule-gold rule-gold-center" aria-hidden="true"></span>
     <p class="page-lead">{t('runners.pageLead')}</p>
   </header>
 
   <section class="intro" aria-labelledby="runners-intro-heading">
-    <div class="container-wide grid">
+    <div class="container-wide intro-grid">
       <div class="visual">
-        <ImagePlaceholder locale={locale} alt={t('runners.introHeading')} ratio="4:3" variant="ocean" />
+        <ImagePlaceholder locale={locale} alt={t('runners.introHeading')} ratio="3:4" variant="ocean" />
       </div>
       <div class="content">
-        <SectionHeading id="runners-intro-heading" title={t('runners.introHeading')} variant="ocean" />
+        <SectionHeading id="runners-intro-heading" title={t('runners.introHeading')} variant="wabi" />
         <p>{t('runners.introBody')}</p>
       </div>
     </div>
@@ -78,22 +80,24 @@ const monthUnit = t('runners.monthUnit');
         id="runners-events-heading"
         title={t('runners.eventsHeading')}
         subtitle={t('runners.eventsLead')}
-        variant="ocean"
+        align="center"
+        variant="wabi"
       />
-      <ul class="event-grid">
+      <ul class="event-rows">
         {
-          races.map((race) => {
+          races.map((race, idx) => {
             const name = locale === 'en' ? race.data.name_en : race.data.name_zh;
             const desc = locale === 'en' ? race.data.description_en : race.data.description_zh;
+            const num = String(idx + 1).padStart(2, '0');
             return (
-              <li class="event-card">
-                <div class="event-image">
-                  <ImagePlaceholder locale={locale} alt={name} ratio="16:9" variant="sand" />
-                </div>
-                <div class="event-body">
-                  <span class="month">{race.data.month}{monthUnit}</span>
+              <li class="event-row">
+                <span class="event-num" aria-hidden="true">{num}</span>
+                <div class="event-meta-col">
+                  <span class="event-month">{race.data.month}{monthUnit}</span>
                   <h3 class="event-name">{name}</h3>
                   <p class="event-distance">{race.data.distance}</p>
+                </div>
+                <div class="event-body">
                   <p class="event-desc">{desc}</p>
                   <a class="event-link" href={race.data.registrationUrl} target="_blank" rel="noopener noreferrer">
                     {t('ui.moreInfo')}
@@ -114,7 +118,8 @@ const monthUnit = t('runners.monthUnit');
         id="runners-routes-heading"
         title={t('runners.routesHeading')}
         subtitle={t('runners.routesLead')}
-        variant="ocean"
+        align="center"
+        variant="wabi"
       />
       <ul class="route-grid">
         {
@@ -124,6 +129,7 @@ const monthUnit = t('runners.monthUnit');
             return (
               <li class={`route-card diff-${route.data.difficulty}`}>
                 <h3 class="route-name">{name}</h3>
+                <span class="rule-gold" aria-hidden="true"></span>
                 <dl class="route-meta">
                   <div>
                     <dt>{t('runners.routesDistanceLabel')}</dt>
@@ -153,18 +159,19 @@ const monthUnit = t('runners.monthUnit');
 
   <section class="services" aria-labelledby="runners-services-heading">
     <div class="container-wide">
-      <SectionHeading id="runners-services-heading" title={t('runners.servicesHeading')} variant="ocean" />
+      <SectionHeading id="runners-services-heading" title={t('runners.servicesHeading')} align="center" variant="wabi" />
       <ul class="service-grid">
         {
-          services.map((s) => (
-            <li class="service-card">
-              <span class="service-icon" aria-hidden="true">{s.icon}</span>
-              <div>
+          services.map((s, i) => {
+            const num = String(i + 1).padStart(2, '0');
+            return (
+              <li class="service-card">
+                <span class="service-num" aria-hidden="true">{num}</span>
                 <h3 class="service-name">{t(s.titleKey)}</h3>
                 <p class="service-body">{t(s.bodyKey)}</p>
-              </div>
-            </li>
-          ))
+              </li>
+            );
+          })
         }
       </ul>
     </div>
@@ -172,147 +179,182 @@ const monthUnit = t('runners.monthUnit');
 </article>
 
 <style>
-  .runners { background-color: var(--color-ocean-50); padding-bottom: 5rem; }
+  .runners {
+    background-color: var(--color-bone-50);
+    padding-bottom: 7rem;
+  }
   .page-header {
-    padding-block: 4rem 2rem;
+    padding-block: 7rem 4rem;
     text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
-  }
-  .eyebrow {
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-    text-transform: uppercase;
-    letter-spacing: 0.18em;
-    color: var(--color-ocean-700);
+    gap: 1.5rem;
   }
   .page-title {
     margin: 0;
     font-family: var(--font-display);
-    font-size: clamp(2.25rem, 5vw, 3.25rem);
-    color: var(--color-ink-950);
+    font-size: clamp(2.5rem, 6vw, 4.25rem);
+    color: var(--color-ink-900);
+    letter-spacing: 0.02em;
+    font-weight: 400;
+    line-height: 1.1;
+  }
+  :lang(en) .page-title {
+    font-family: var(--font-display-en);
+    font-style: italic;
   }
   .page-lead {
     margin: 0;
-    max-width: 38rem;
-    color: var(--color-ink-700);
+    max-width: 36rem;
+    color: var(--color-ink-600);
+    font-family: var(--font-display);
     font-size: 1.05rem;
-    line-height: 1.85;
+    line-height: 2;
+    font-style: italic;
+    font-weight: 300;
   }
-  section { padding-block: 4rem; }
-  section + section { border-top: 1px solid var(--color-ocean-100); }
 
-  .intro { background-color: white; }
-  .grid {
+  section { padding-block: 6rem; }
+  section + section {
+    border-top: 1px solid rgb(160 134 96 / 0.15);
+  }
+
+  /* === intro === */
+  .intro { background-color: var(--color-bone-100); }
+  .intro-grid {
     display: grid;
-    gap: 2.5rem;
+    gap: 3rem;
     grid-template-columns: 1fr;
     align-items: center;
   }
   @media (min-width: 768px) {
-    .grid {
-      grid-template-columns: 1fr 1.2fr;
-      gap: 3.5rem;
+    .intro-grid {
+      grid-template-columns: 0.85fr 1fr;
+      gap: 5rem;
     }
   }
-  .visual { border-radius: 1.25rem; overflow: hidden; }
+  .visual { overflow: hidden; }
   .content {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.5rem;
     color: var(--color-ink-700);
     font-size: 1.02rem;
-    line-height: 1.85;
+    line-height: 2;
   }
-  .content p { margin: 0; }
+  .content p { margin: 0; max-width: 38rem; }
 
-  .event-grid {
+  /* === events: editorial horizontal rows === */
+  .event-rows {
     list-style: none;
-    margin: 0;
+    margin: 3rem 0 0;
     padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .event-row {
     display: grid;
     grid-template-columns: 1fr;
     gap: 1.5rem;
+    padding: 3rem 0;
+    border-top: 1px solid rgb(160 134 96 / 0.2);
+    align-items: start;
+  }
+  .event-row:last-child {
+    border-bottom: 1px solid rgb(160 134 96 / 0.2);
   }
   @media (min-width: 768px) {
-    .event-grid { grid-template-columns: repeat(2, 1fr); }
+    .event-row {
+      grid-template-columns: 80px 280px 1fr;
+      gap: 3rem;
+      padding: 4rem 0;
+    }
   }
-  .event-card {
-    background-color: white;
-    border-radius: 1rem;
-    overflow: hidden;
-    border: 1px solid var(--color-ocean-100);
-    display: flex;
-    flex-direction: column;
+  .event-num {
+    font-family: var(--font-display);
+    font-size: 2.4rem;
+    color: var(--color-copper-500);
+    line-height: 1;
+    font-weight: 300;
+    letter-spacing: 0.02em;
   }
-  .event-image { overflow: hidden; }
-  .event-body {
-    padding: 1.5rem;
+  .event-meta-col {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    flex: 1;
   }
-  .month {
-    align-self: flex-start;
-    padding: 0.25rem 0.75rem;
-    border-radius: 999px;
-    background-color: var(--color-sand-200);
-    color: var(--color-sand-900);
+  .event-month {
     font-family: var(--font-mono);
-    font-size: 0.78rem;
-    letter-spacing: 0.04em;
+    font-size: 0.7rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--color-copper-600);
   }
-  /* 月份單位由 i18n 透過 monthUnit inline 渲染（zh: "月" / en: " "），
-     不再用 CSS ::after 寫死字面，避免「中文字面綁死於 CSS」的反 i18n 模式 */
   .event-name {
     margin: 0;
     font-family: var(--font-display);
-    font-size: 1.35rem;
-    color: var(--color-ink-950);
+    font-size: clamp(1.45rem, 2.4vw, 1.85rem);
+    color: var(--color-ink-900);
+    letter-spacing: 0.02em;
+    line-height: 1.25;
+    font-weight: 400;
+  }
+  :lang(en) .event-name {
+    font-family: var(--font-display-en);
+    font-style: italic;
   }
   .event-distance {
     margin: 0;
-    color: var(--color-ocean-700);
-    font-weight: 600;
-    font-size: 0.95rem;
+    color: var(--color-ink-500);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+  }
+  .event-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
   }
   .event-desc {
     margin: 0;
     color: var(--color-ink-700);
-    font-size: 0.92rem;
-    line-height: 1.75;
+    font-size: 0.98rem;
+    line-height: 1.95;
+    max-width: 36rem;
   }
   .event-link {
-    margin-top: auto;
     align-self: flex-start;
-    color: var(--color-ocean-700);
+    color: var(--color-copper-600);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
     text-decoration: none;
-    font-weight: 600;
-    font-size: 0.9rem;
+    border-bottom: 1px solid currentColor;
+    padding-bottom: 0.3rem;
+    transition: color 280ms var(--ease-editorial);
   }
-  .event-link:hover { color: var(--color-ocean-900); }
+  .event-link:hover { color: var(--color-ink-900); }
 
-  .routes { background-color: white; }
+  /* === routes === */
+  .routes { background-color: var(--color-bone-100); }
   .route-grid {
     list-style: none;
-    margin: 0;
+    margin: 3rem 0 0;
     padding: 0;
     display: grid;
     grid-template-columns: 1fr;
-    gap: 1.25rem;
+    gap: 2rem;
   }
   @media (min-width: 768px) { .route-grid { grid-template-columns: repeat(3, 1fr); } }
   .route-card {
-    padding: 1.75rem;
-    border-radius: 1rem;
-    background-color: var(--color-ocean-50);
-    border-top: 4px solid;
+    padding: 2.5rem 2rem;
+    background-color: var(--color-bone-50);
+    border-top: 2px solid;
     display: flex;
     flex-direction: column;
-    gap: 0.85rem;
+    gap: 1.25rem;
   }
   .diff-easy { border-color: var(--color-difficulty-easy); }
   .diff-moderate { border-color: var(--color-difficulty-medium); }
@@ -320,76 +362,90 @@ const monthUnit = t('runners.monthUnit');
   .route-name {
     margin: 0;
     font-family: var(--font-display);
-    font-size: 1.25rem;
-    color: var(--color-ink-950);
+    font-size: 1.35rem;
+    color: var(--color-ink-900);
+    letter-spacing: 0.02em;
+    font-weight: 400;
+  }
+  :lang(en) .route-name {
+    font-family: var(--font-display-en);
+    font-style: italic;
   }
   .route-meta {
     margin: 0;
     display: grid;
     gap: 0.4rem;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
     font-size: 0.78rem;
   }
-  .route-meta div { display: flex; flex-direction: column; }
-  .route-meta dt { color: var(--color-ink-500); text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.65rem; }
-  .route-meta dd { margin: 0; color: var(--color-ink-900); font-weight: 500; }
+  .route-meta div { display: flex; flex-direction: column; gap: 0.2rem; }
+  .route-meta dt {
+    color: var(--color-ink-500);
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 0.6rem;
+  }
+  .route-meta dd { margin: 0; color: var(--color-ink-800); font-weight: 500; font-size: 0.85rem; }
   .route-desc {
     margin: 0;
-    color: var(--color-ink-700);
-    font-size: 0.9rem;
-    line-height: 1.75;
+    color: var(--color-ink-600);
+    font-size: 0.93rem;
+    line-height: 1.95;
   }
   .route-link {
     align-self: flex-start;
-    color: var(--color-ocean-700);
-    font-weight: 600;
+    color: var(--color-copper-600);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
     text-decoration: none;
-    font-size: 0.9rem;
+    border-bottom: 1px solid currentColor;
+    padding-bottom: 0.3rem;
   }
-  .route-link:hover { color: var(--color-ocean-900); }
+  .route-link:hover { color: var(--color-ink-900); }
 
+  /* === services (3-up minimal cards with editorial number) === */
   .service-grid {
     list-style: none;
-    margin: 0;
+    margin: 3rem 0 0;
     padding: 0;
     display: grid;
     grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: 1.5rem;
   }
-  @media (min-width: 768px) { .service-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (min-width: 1024px) { .service-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (min-width: 768px) { .service-grid { grid-template-columns: repeat(3, 1fr); } }
   .service-card {
-    display: grid;
-    grid-template-columns: 3rem 1fr;
+    padding: 2.5rem 2rem;
+    background-color: var(--color-bone-50);
+    border: 1px solid rgb(160 134 96 / 0.18);
+    display: flex;
+    flex-direction: column;
     gap: 1rem;
-    padding: 1.5rem;
-    background-color: white;
-    border-radius: 1rem;
-    border: 1px solid var(--color-ocean-100);
   }
-  .service-icon {
-    width: 3rem;
-    height: 3rem;
-    border-radius: 50%;
-    background: linear-gradient(140deg, var(--color-ocean-500), var(--color-ocean-800));
-    color: white;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+  .service-num {
     font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 1.2rem;
+    font-size: 1.6rem;
+    color: var(--color-copper-500);
+    font-weight: 300;
+    letter-spacing: 0.04em;
   }
   .service-name {
-    margin: 0 0 0.4rem;
+    margin: 0;
     font-family: var(--font-display);
-    font-size: 1.05rem;
-    color: var(--color-ink-950);
+    font-size: 1.1rem;
+    color: var(--color-ink-900);
+    letter-spacing: 0.02em;
+    font-weight: 500;
+  }
+  :lang(en) .service-name {
+    font-family: var(--font-display-en);
   }
   .service-body {
     margin: 0;
-    color: var(--color-ink-700);
-    font-size: 0.9rem;
-    line-height: 1.7;
+    color: var(--color-ink-600);
+    font-size: 0.93rem;
+    line-height: 1.95;
   }
 </style>
