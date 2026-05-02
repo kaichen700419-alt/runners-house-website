@@ -1,13 +1,13 @@
 ---
 /**
- * LocationMap 元件 v3 — Editorial Map
+ * LocationMap v4 — D1 Screen 10「位置與交通」
  *
- * 首頁位置區，含地址、Google Maps 嵌入、自駕與大眾運輸說明。
- * 視覺改為精品民宿排版：
- *   - 白象牙底 + 大量留白
- *   - 地址用大襯線體 + 銅金細線
- *   - 條列項目改為 magazine 樣式
- *   - 地圖框改為 1px 銅金細邊 + 灰階柔化
+ * 設計依據：研究報告 D1.Screen 10 + B7 Hotarutei 在地交通文化
+ *   - 沙白底 + 大量留白
+ *   - 左：經緯度大字 + 在地交通指引（步行/騎車單位）
+ *   - 右：Mapbox/Google Maps 嵌入，灰階柔化
+ *   - 章節 marker + editorial 標題
+ *   - 4 種交通方式改為「文字一行 + 細線分隔」magazine 表格樣式
  */
 import { useTranslations } from '@/i18n/utils';
 import { GEO } from '@/lib/site';
@@ -25,151 +25,196 @@ const mapsLink = `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
 ---
 
 <section class="location" id="location" aria-labelledby="location-heading">
-  <div class="container-wide">
-    <div class="header">
-      <span class="rule-gold" aria-hidden="true"></span>
-      <h2 id="location-heading" class="title">{t('home.locationHeading')}</h2>
-      <p class="lead">{t('home.locationLead')}</p>
+  <div class="container-wide chapter-row reveal">
+    <div class="chapter-mark">
+      <span class="num">X</span>
+      <span class="label">CHAPTER · {locale === 'en' ? 'HOW TO ARRIVE' : '如何抵達'}</span>
     </div>
-    <div class="grid">
-      <div class="info">
-        <p class="address">{t('common.addressFull')}</p>
-        <ul class="bullets">
-          <li>
-            <span class="bullet-mark" aria-hidden="true">↓</span>
-            <span>{t('home.locationDriveSouth')}</span>
-          </li>
-          <li>
-            <span class="bullet-mark" aria-hidden="true">↑</span>
-            <span>{t('home.locationDriveNorth')}</span>
-          </li>
-          <li>
-            <span class="bullet-mark" aria-hidden="true">P</span>
-            <span>{t('home.locationParking')}</span>
-          </li>
-          <li>
-            <span class="bullet-mark" aria-hidden="true">B</span>
-            <span>{t('home.locationTransit')}</span>
-          </li>
-        </ul>
-        <a class="btn-line" href={mapsLink} target="_blank" rel="noopener noreferrer">
-          {t('home.locationMapCta')}
-        </a>
+  </div>
+
+  <div class="container-wide header reveal" data-delay="1">
+    <h2 id="location-heading" class="title">{t('home.locationHeading')}</h2>
+    <p class="lead">{t('home.locationLead')}</p>
+  </div>
+
+  <div class="container-wide grid">
+    <div class="info reveal" data-delay="2">
+      <div class="coord">
+        <span class="coord-label">N</span>
+        <span class="coord-value">23.32°</span>
       </div>
-      <div class="map">
-        <iframe
-          title={t('footer.mapAria')}
-          aria-label={t('footer.mapAria')}
-          src={mapEmbedSrc}
-          loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade"
-          sandbox="allow-scripts allow-same-origin allow-popups"
-          width="100%"
-          height="460"
-        ></iframe>
+      <div class="coord">
+        <span class="coord-label">E</span>
+        <span class="coord-value">121.46°</span>
       </div>
+      <p class="address">{t('common.addressFull')}</p>
+      <ul class="bullets">
+        <li>
+          <span class="bullet-mark" aria-hidden="true">↓</span>
+          <span>{t('home.locationDriveSouth')}</span>
+        </li>
+        <li>
+          <span class="bullet-mark" aria-hidden="true">↑</span>
+          <span>{t('home.locationDriveNorth')}</span>
+        </li>
+        <li>
+          <span class="bullet-mark" aria-hidden="true">P</span>
+          <span>{t('home.locationParking')}</span>
+        </li>
+        <li>
+          <span class="bullet-mark" aria-hidden="true">B</span>
+          <span>{t('home.locationTransit')}</span>
+        </li>
+      </ul>
+      <a class="btn-line is-sea" href={mapsLink} target="_blank" rel="noopener noreferrer">
+        {t('home.locationMapCta')}
+      </a>
+    </div>
+    <div class="map reveal" data-delay="3">
+      <iframe
+        title={t('footer.mapAria')}
+        aria-label={t('footer.mapAria')}
+        src={mapEmbedSrc}
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        sandbox="allow-scripts allow-same-origin allow-popups"
+        width="100%"
+        height="540"
+      ></iframe>
     </div>
   </div>
 </section>
 
 <style>
   .location {
-    padding-block: 8rem;
-    background-color: var(--color-bone-50);
+    padding-block: 9rem 10rem;
+    background-color: var(--color-sand-50);
+    border-top: 1px solid var(--color-divider);
   }
+  @media (min-width: 1024px) {
+    .location { padding-block: 12rem 13rem; }
+  }
+  .chapter-row { margin-bottom: 4rem; }
   .header {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-    margin-bottom: 4rem;
-    max-width: 38rem;
+    margin-bottom: 5rem;
+    max-width: 56rem;
   }
   .title {
-    margin: 0;
+    margin: 0 0 1.5rem;
     font-family: var(--font-display);
-    font-size: clamp(2rem, 3.6vw, 2.85rem);
+    font-size: clamp(2rem, 4vw, 3.25rem);
     color: var(--color-ink-900);
-    letter-spacing: 0.02em;
-    font-weight: 400;
-    line-height: 1.2;
+    letter-spacing: -0.005em;
+    font-weight: 500;
+    line-height: 1.18;
   }
   :lang(en) .title {
     font-family: var(--font-display-en);
     font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.025em;
   }
   .lead {
     margin: 0;
-    color: var(--color-ink-600);
+    color: var(--color-ink-500);
     font-family: var(--font-display);
-    font-size: 1.02rem;
+    font-size: 1.05rem;
     font-style: italic;
     font-weight: 300;
     line-height: 1.95;
+    max-width: 32rem;
   }
+  :lang(en) .lead { font-family: var(--font-display-en); }
   .grid {
     display: grid;
-    gap: 3rem;
+    gap: 4rem;
     grid-template-columns: 1fr;
   }
   @media (min-width: 1024px) {
     .grid {
-      grid-template-columns: 0.75fr 1.4fr;
-      gap: 4.5rem;
+      grid-template-columns: 0.7fr 1.4fr;
+      gap: 5rem;
       align-items: start;
     }
   }
   .info {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1.75rem;
+  }
+  .coord {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    font-family: var(--font-display-en);
+  }
+  .coord-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.32em;
+    color: var(--color-sun-500);
+    text-transform: uppercase;
+    width: 1.5rem;
+  }
+  .coord-value {
+    font-style: italic;
+    font-size: clamp(2rem, 3vw, 2.8rem);
+    color: var(--color-sea-500);
+    letter-spacing: -0.03em;
+    font-weight: 400;
+    line-height: 1;
   }
   .address {
-    margin: 0;
+    margin: 1rem 0 0;
     font-family: var(--font-display);
-    font-size: 1.18rem;
+    font-size: 1.1rem;
     color: var(--color-ink-900);
     line-height: 1.7;
     letter-spacing: 0.02em;
     padding-bottom: 1.5rem;
-    border-bottom: 1px solid rgb(160 134 96 / 0.3);
+    border-bottom: 1px solid var(--color-divider);
   }
+  :lang(en) .address { font-family: var(--font-display-en); }
   .bullets {
     list-style: none;
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 0;
+    border-bottom: 1px solid var(--color-divider);
   }
   .bullets li {
     display: grid;
-    grid-template-columns: 2rem 1fr;
+    grid-template-columns: 2.4rem 1fr;
     gap: 0.85rem;
-    align-items: start;
+    align-items: center;
     color: var(--color-ink-700);
     font-size: 0.95rem;
     line-height: 1.85;
+    padding-block: 1rem;
+    border-top: 1px solid var(--color-divider);
   }
   .bullet-mark {
     width: 2rem;
     height: 2rem;
-    border: 1px solid var(--color-copper-500);
+    border: 1px solid var(--color-sea-500);
+    color: var(--color-sea-500);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     font-family: var(--font-display);
     font-size: 0.95rem;
-    color: var(--color-copper-600);
   }
   .map {
-    border: 1px solid rgb(160 134 96 / 0.3);
+    border: 1px solid var(--color-divider);
     overflow: hidden;
   }
   .map iframe {
     display: block;
     border: 0;
     width: 100%;
-    /* 灰階柔化讓地圖視覺退為背景，呼應 Aman 的克制審美 */
-    filter: grayscale(0.55) brightness(0.96) contrast(0.95);
+    /* 灰階柔化讓地圖視覺退為背景，不搶走主視覺 */
+    filter: grayscale(0.6) brightness(0.96) contrast(0.95);
   }
 </style>

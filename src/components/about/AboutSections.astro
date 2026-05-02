@@ -29,10 +29,14 @@ const timelineItems = [
 ---
 
 <article class="about" aria-labelledby="about-page-heading">
-  <header class="page-header container-wide">
-    <span class="eyebrow">{t('common.brandStatement')}</span>
+  <header class="page-header container-wide reveal">
+    <div class="chapter-mark">
+      <span class="num">I</span>
+      <span class="label">{locale === 'en' ? 'CHAPTER · THE STORY' : 'CHAPTER · 米倉故事'}</span>
+    </div>
     <h1 id="about-page-heading" class="page-title">{t('about.pageTitle')}</h1>
     <p class="page-lead">{t('about.pageLead')}</p>
+    <span class="brand-statement">{t('common.brandStatement')}</span>
   </header>
 
   <section class="origin" aria-labelledby="about-origin-heading">
@@ -125,51 +129,82 @@ const timelineItems = [
 </article>
 
 <style>
-  /* === About — Editorial v3 === */
+  /* === About — Mineral Coast v4 === */
   .about {
-    background-color: var(--color-bone-50);
+    background-color: var(--color-sand-50);
   }
   .page-header {
-    padding-block: 7rem 4rem;
-    text-align: center;
+    padding-block: 9rem 6rem;
+    text-align: left;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
+    align-items: flex-start;
+    gap: 2rem;
+    max-width: 56rem;
   }
-  .eyebrow {
+  @media (min-width: 1024px) {
+    .page-header { padding-block: 12rem 8rem; }
+  }
+  .page-header .chapter-mark {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .page-header .chapter-mark .num {
+    font-family: var(--font-display-en);
+    font-style: italic;
+    font-size: clamp(2.5rem, 4vw, 3.5rem);
+    color: var(--color-sun-400);
+    letter-spacing: -0.02em;
+    line-height: 0.9;
+    font-weight: 400;
+  }
+  .page-header .chapter-mark .label {
     font-family: var(--font-mono);
-    font-size: 0.7rem;
+    font-size: 0.66rem;
+    letter-spacing: 0.4em;
+    color: var(--color-ink-500);
     text-transform: uppercase;
-    letter-spacing: 0.36em;
-    color: var(--color-copper-600);
   }
   .page-title {
     margin: 0;
     font-family: var(--font-display);
-    font-size: clamp(2.5rem, 6vw, 4.25rem);
+    font-size: clamp(2.75rem, 7vw, 5.25rem);
     color: var(--color-ink-900);
-    letter-spacing: 0.02em;
-    line-height: 1.1;
-    font-weight: 400;
+    letter-spacing: -0.005em;
+    line-height: 1.05;
+    font-weight: 500;
   }
   :lang(en) .page-title {
     font-family: var(--font-display-en);
     font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.04em;
   }
   .page-lead {
     margin: 0;
     max-width: 38rem;
-    color: var(--color-ink-600);
+    color: var(--color-ink-500);
     font-family: var(--font-display);
-    font-size: 1.05rem;
+    font-size: 1.15rem;
     font-style: italic;
-    line-height: 2;
+    line-height: 1.85;
     font-weight: 300;
+  }
+  :lang(en) .page-lead { font-family: var(--font-display-en); }
+  .brand-statement {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--color-sun-500);
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    border-top: 1px solid var(--color-sun-400);
+    padding-top: 1rem;
+    width: fit-content;
   }
 
   section { padding-block: 6rem; }
-  section + section { border-top: 1px solid rgb(160 134 96 / 0.18); }
+  section + section { border-top: 1px solid rgb(213 207 194 / 0.18); }
 
   .grid {
     display: grid;
@@ -206,7 +241,7 @@ const timelineItems = [
     display: grid;
     grid-template-columns: 8rem 1fr;
     gap: 0.5rem;
-    border-bottom: 1px solid rgb(160 134 96 / 0.18);
+    border-bottom: 1px solid rgb(213 207 194 / 0.18);
     padding: 1rem 0;
   }
   .meta dt {
@@ -235,7 +270,7 @@ const timelineItems = [
   .bullets li {
     padding: 0.85rem 0 0.85rem 1.5rem;
     position: relative;
-    border-bottom: 1px solid rgb(160 134 96 / 0.15);
+    border-bottom: 1px solid rgb(213 207 194 / 0.15);
     font-family: var(--font-display);
     font-size: 0.95rem;
     color: var(--color-ink-700);
@@ -262,7 +297,7 @@ const timelineItems = [
   @media (min-width: 768px) {
     .trio { grid-template-columns: repeat(3, 1fr); }
     .trio li + li {
-      border-left: 1px solid rgb(160 134 96 / 0.25);
+      border-left: 1px solid rgb(213 207 194 / 0.25);
     }
   }
   .trio li {
@@ -295,7 +330,7 @@ const timelineItems = [
     padding: 0;
     display: flex;
     flex-direction: column;
-    border-left: 1px solid rgb(160 134 96 / 0.4);
+    border-left: 1px solid rgb(213 207 194 / 0.4);
     padding-left: 2.5rem;
     margin-left: 0.4rem;
     max-width: 52rem;
@@ -307,7 +342,7 @@ const timelineItems = [
     font-size: 1rem;
     line-height: 1.85;
     padding-block: 1.1rem;
-    border-bottom: 1px solid rgb(160 134 96 / 0.12);
+    border-bottom: 1px solid rgb(213 207 194 / 0.12);
     letter-spacing: 0.02em;
   }
   .timeline-list li:last-child { border-bottom: none; }
@@ -349,7 +384,7 @@ const timelineItems = [
     font-family: var(--font-display);
     font-size: 0.95rem;
     line-height: 1.85;
-    border-bottom: 1px solid rgb(160 134 96 / 0.18);
+    border-bottom: 1px solid rgb(213 207 194 / 0.18);
     position: relative;
   }
   .commit-list li::before {
@@ -362,7 +397,7 @@ const timelineItems = [
   }
   @media (min-width: 768px) {
     .commit-list li:nth-child(odd) {
-      border-right: 1px solid rgb(160 134 96 / 0.18);
+      border-right: 1px solid rgb(213 207 194 / 0.18);
     }
   }
 </style>

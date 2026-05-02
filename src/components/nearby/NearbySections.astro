@@ -48,7 +48,11 @@ const variants = ['ocean', 'sand', 'timber', 'ink'] as const;
 ---
 
 <article class="nearby" aria-labelledby="nearby-page-heading">
-  <header class="page-header container-wide">
+  <header class="page-header container-wide reveal">
+    <div class="chapter-mark">
+      <span class="num">V</span>
+      <span class="label">{locale === 'en' ? 'CHAPTER · WHAT’S NEARBY' : 'CHAPTER · 周邊景點'}</span>
+    </div>
     <h1 id="nearby-page-heading" class="page-title">{t('nearby.pageTitle')}</h1>
     <p class="page-lead">{t('nearby.pageLead')}</p>
   </header>
@@ -166,45 +170,73 @@ const variants = ['ocean', 'sand', 'timber', 'ink'] as const;
 </article>
 
 <style>
-  /* === Nearby — Editorial v3 === */
+  /* === Nearby — Mineral Coast v4 === */
   .nearby {
-    background-color: var(--color-bone-50);
+    background-color: var(--color-sand-50);
     padding-bottom: 0;
   }
   .page-header {
-    padding-block: 7rem 4rem;
-    text-align: center;
+    padding-block: 9rem 6rem;
+    text-align: left;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 1.25rem;
+    align-items: flex-start;
+    gap: 2rem;
+    max-width: 56rem;
+  }
+  @media (min-width: 1024px) {
+    .page-header { padding-block: 12rem 8rem; }
+  }
+  .page-header .chapter-mark {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .page-header .chapter-mark .num {
+    font-family: var(--font-display-en);
+    font-style: italic;
+    font-size: clamp(2.5rem, 4vw, 3.5rem);
+    color: var(--color-sun-400);
+    letter-spacing: -0.02em;
+    line-height: 0.9;
+    font-weight: 400;
+  }
+  .page-header .chapter-mark .label {
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.4em;
+    color: var(--color-ink-500);
+    text-transform: uppercase;
   }
   .page-title {
     margin: 0;
     font-family: var(--font-display);
-    font-size: clamp(2.5rem, 6vw, 4.25rem);
+    font-size: clamp(2.75rem, 7vw, 5.25rem);
     color: var(--color-ink-900);
-    letter-spacing: 0.02em;
-    line-height: 1.1;
-    font-weight: 400;
+    letter-spacing: -0.005em;
+    line-height: 1.05;
+    font-weight: 500;
   }
   :lang(en) .page-title {
     font-family: var(--font-display-en);
     font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.04em;
   }
   .page-lead {
     margin: 0;
     max-width: 38rem;
-    color: var(--color-ink-600);
+    color: var(--color-ink-500);
     font-family: var(--font-display);
-    font-size: 1.05rem;
+    font-size: 1.15rem;
     font-style: italic;
-    line-height: 2;
+    line-height: 1.85;
     font-weight: 300;
   }
+  :lang(en) .page-lead { font-family: var(--font-display-en); }
 
   section { padding-block: 6rem; }
-  section + section { border-top: 1px solid rgb(160 134 96 / 0.18); }
+  section + section { border-top: 1px solid rgb(213 207 194 / 0.18); }
 
   .no-meals { padding-block: 4rem; }
   .notice {
@@ -213,7 +245,7 @@ const variants = ['ocean', 'sand', 'timber', 'ink'] as const;
     gap: 1.75rem;
     padding: 2.5rem;
     background-color: var(--color-bone-100);
-    border: 1px solid rgb(160 134 96 / 0.3);
+    border: 1px solid rgb(213 207 194 / 0.3);
     border-left: 2px solid var(--color-copper-500);
     align-items: start;
     max-width: 880px;
@@ -334,7 +366,7 @@ const variants = ['ocean', 'sand', 'timber', 'ink'] as const;
   @media (min-width: 768px) {
     .days { grid-template-columns: 1fr 1fr; }
     .days li:first-child {
-      border-right: 1px solid rgb(160 134 96 / 0.25);
+      border-right: 1px solid rgb(213 207 194 / 0.25);
     }
   }
   .days li {
