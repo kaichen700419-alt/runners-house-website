@@ -35,32 +35,8 @@ const COORD = '23.32°N · 121.46°E';
 const KM_LABEL = locale === 'en' ? 'KM 91 · TAITUNG COAST RD' : '台 11 線 · 91K · 台東長濱';
 
 // === Hero 標題切兩行 ===
-// i18n 字串「跑步就是回家的路」業主已修正不可動；視覺上需錯落 editorial。
-// 中文以「就是」斷句、英文以中段空白斷句。
+// 業主反饋「錯落排版很醜」— 改為單一段落自然換行，不強制斷句、無裝飾色塊
 const fullTitle: string = t('home.heroTitle');
-let lineA: string;
-let lineB: string;
-if (locale === 'en') {
-  const words = fullTitle.split(' ');
-  const mid = Math.ceil(words.length / 2);
-  lineA = words.slice(0, mid).join(' ');
-  lineB = words.slice(mid).join(' ');
-} else {
-  const breakWords = ['就是', '在', '有', '便'];
-  let breakIdx = -1;
-  for (const w of breakWords) {
-    const i = fullTitle.indexOf(w);
-    if (i > 0) { breakIdx = i; break; }
-  }
-  if (breakIdx > 0) {
-    lineA = fullTitle.slice(0, breakIdx);
-    lineB = fullTitle.slice(breakIdx);
-  } else {
-    const half = Math.ceil(fullTitle.length / 2);
-    lineA = fullTitle.slice(0, half);
-    lineB = fullTitle.slice(half);
-  }
-}
 
 const tagline: string = t('common.brandStatement');
 const subtitle: string = t('home.heroSubtitle');
@@ -100,17 +76,11 @@ const facts = locale === 'en'
   <div class="hero-stage container-wide">
     {/* 左欄：飽滿文字內容 */}
     <div class="hero-text">
-      {/* eyebrow */}
-      <p class="hero-eyebrow">
-        <span class="dot" aria-hidden="true"></span>
-        {t('home.heroEyebrow')}
-      </p>
+      {/* eyebrow — 單純文字無裝飾圓點 */}
+      <p class="hero-eyebrow">{t('home.heroEyebrow')}</p>
 
-      {/* H1 — 兩行錯落 editorial */}
-      <h1 id="hero-title" class="hero-title">
-        <span class="line line-a">{lineA}</span>
-        <span class="line line-b">{lineB}</span>
-      </h1>
+      {/* H1 — 乾淨單一段落，自然換行不強制錯落 */}
+      <h1 id="hero-title" class="hero-title">{fullTitle}</h1>
 
       {/* italic 英文 brand statement */}
       <p class="hero-eng"><em>{tagline}</em></p>
@@ -206,11 +176,11 @@ const facts = locale === 'en'
   .topbar-coord, .topbar-km, .topbar-edition { white-space: nowrap; }
   .topbar-divider {
     width: 1px; height: 12px;
-    background-color: var(--color-sun-400);
-    opacity: 0.6;
+    background-color: var(--color-ink-300);
+    opacity: 0.5;
   }
   .topbar-spacer { flex: 1; }
-  .topbar-edition { color: var(--color-sun-500); }
+  .topbar-edition { color: var(--color-ink-500); }
 
   /* === Stage：左字 / 右圖 === */
   .hero-stage {
@@ -241,45 +211,23 @@ const facts = locale === 'en'
   }
   .hero-eyebrow {
     margin: 0;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.7rem;
     font-family: var(--font-mono);
-    font-size: 0.7rem;
-    letter-spacing: 0.34em;
-    color: var(--color-sun-500);
+    font-size: 0.72rem;
+    letter-spacing: 0.32em;
+    color: var(--color-ink-500);
     text-transform: uppercase;
     font-weight: 500;
-  }
-  .hero-eyebrow .dot {
-    width: 6px; height: 6px;
-    background-color: var(--color-sun-400);
-    border-radius: 50%;
   }
 
   .hero-title {
     margin: 0;
     font-family: var(--font-display);
     color: var(--color-ink-900);
-    font-weight: 600;
-    letter-spacing: -0.015em;
-    line-height: 1.04;
-    display: flex;
-    flex-direction: column;
-    gap: 0.05em;
-  }
-  .hero-title .line {
-    display: block;
-    font-size: clamp(2.6rem, 6.8vw, 5.6rem);
-    opacity: 0;
-    transform: translateY(24px);
-    animation: line-fade-up 1100ms var(--ease-out-expo) forwards;
-  }
-  .hero-title .line-a { animation-delay: 250ms; }
-  .hero-title .line-b {
-    animation-delay: 500ms;
-    color: var(--color-sea-500);
-    padding-left: 0.5em;
+    font-weight: 500;
+    letter-spacing: -0.012em;
+    line-height: 1.15;
+    font-size: clamp(2.4rem, 5.5vw, 4.4rem);
+    /* 統一文字無錯落、無背景塊、無強制裝飾色 */
   }
   :lang(en) .hero-title {
     font-family: var(--font-display-hero);
@@ -497,7 +445,7 @@ const facts = locale === 'en'
   .cue-line {
     width: 1px;
     height: 44px;
-    background: linear-gradient(180deg, var(--color-sun-400), transparent);
+    background: linear-gradient(180deg, var(--color-ink-700), transparent);
     animation: cue-pulse 2400ms var(--ease-editorial) infinite;
     transform-origin: top;
   }
