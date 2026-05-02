@@ -20,6 +20,8 @@ interface Props {
   align?: 'left' | 'center';
   /** 主題色彩變體；預設 ocean（首頁／跑者主場），wabi 為日系侘寂（內頁） */
   variant?: 'ocean' | 'wabi';
+  /** 主標題 id，供外層 section 以 aria-labelledby 串接 a11y 名稱 */
+  id?: string;
 }
 
 const {
@@ -28,6 +30,7 @@ const {
   level = 'h2',
   align = 'left',
   variant = 'ocean',
+  id,
 } = Astro.props;
 
 const HeadingTag = level;
@@ -35,7 +38,7 @@ const HeadingTag = level;
 
 <header class:list={['section-heading', `align-${align}`, `variant-${variant}`]}>
   <span class="divider" aria-hidden="true"></span>
-  <HeadingTag class="title">{title}</HeadingTag>
+  <HeadingTag class="title" id={id}>{title}</HeadingTag>
   {subtitle ? <p class="subtitle">{subtitle}</p> : null}
 </header>
 

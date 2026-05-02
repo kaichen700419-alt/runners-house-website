@@ -13,6 +13,18 @@ import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 
+/**
+ * https-only URL schema：拒絕 http、javascript:、data: 等危險協定。
+ * z.url() 預設只檢查語法合法性，不限制 protocol；本站對外連結（賽事報名、地圖、社群）
+ * 一律應為 https，避免使用者被導向不安全的 mixed content 或 XSS payload。
+ */
+const httpsUrl = () =>
+  z
+    .url()
+    .refine((url) => /^https:\/\//i.test(url), {
+      message: 'URL 必須以 https:// 開頭',
+    });
+
 const rooms = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/rooms' }),
   schema: z.object({
@@ -54,7 +66,7 @@ const races = defineCollection({
     distance: z.string(),
     description_zh: z.string(),
     description_en: z.string(),
-    registrationUrl: z.url(),
+    registrationUrl: httpsUrl(),
     /** 賽事代表圖 alt 文字 */
     image: z.string(),
     order: z.number().int(),
@@ -72,7 +84,7 @@ const routes = defineCollection({
     elevation: z.string(),
     description_zh: z.string(),
     description_en: z.string(),
-    mapUrl: z.url(),
+    mapUrl: httpsUrl(),
     /** 難度：easy/moderate/hard（頁面層映射為 i18n 字串） */
     difficulty: z.enum(['easy', 'moderate', 'hard']),
     image: z.string(),
@@ -90,7 +102,7 @@ const attractions = defineCollection({
     distanceMin: z.number().int().positive(),
     description_zh: z.string(),
     description_en: z.string(),
-    mapUrl: z.url(),
+    mapUrl: httpsUrl(),
     image: z.string(),
     order: z.number().int(),
   }),

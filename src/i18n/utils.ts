@@ -109,6 +109,11 @@ export function useTranslations(locale: Locale): TranslateFn {
 
   return (key, params) => {
     if (!key) {
+      // 空字串 key 通常為元件層誤算（例如 `t('' + maybeUndefined)`），
+      // 在 PROD build 應 fail-loud 以利第一時間發現；dev 則 warn 不阻擋開發。
+      if (import.meta.env.PROD) {
+        throw new Error('[i18n] production build 收到空字串 key，建置中止');
+      }
       console.warn('[i18n] 收到空字串 key，回傳空字串');
       return '';
     }

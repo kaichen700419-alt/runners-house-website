@@ -18,8 +18,22 @@ interface Props {
 const { locale } = Astro.props;
 const t = useTranslations(locale);
 
-const races = (await getCollection('races')).slice().sort((a, b) => a.data.order - b.data.order);
-const routes = (await getCollection('routes')).slice().sort((a, b) => a.data.order - b.data.order);
+const racesAll = await getCollection('races');
+const routesAll = await getCollection('routes');
+// Collection 為空守門：賽事 / 路線資料缺失會讓畫面靜默呈現空白，build 期間 fail-loud。
+if (!racesAll.length) {
+  throw new Error('[content] races collection 為空');
+}
+if (!routesAll.length) {
+  throw new Error('[content] routes collection 為空');
+}
+// 穩定排序：order 相同時改以 id 字典序當 tiebreaker，避免 build / runtime 順序不一致導致 hydration 錯亂。
+const races = racesAll
+  .slice()
+  .sort((a, b) => a.data.order - b.data.order || a.data.id.localeCompare(b.data.id));
+const routes = routesAll
+  .slice()
+  .sort((a, b) => a.data.order - b.data.order || a.data.id.localeCompare(b.data.id));
 
 const services = [
   { titleKey: 'runners.serviceShowerTitle', bodyKey: 'runners.serviceShowerBody', icon: 'S' },
@@ -31,34 +45,37 @@ const services = [
 ];
 
 const difficultyLabel = {
-  easy: locale === 'en' ? 'Easy' : '輕鬆',
-  moderate: locale === 'en' ? 'Moderate' : '中等',
-  hard: locale === 'en' ? 'Hard' : '進階',
+  easy: t('runners.difficultyEasy'),
+  moderate: t('runners.difficultyMedium'),
+  hard: t('runners.difficultyHard'),
 } as const;
+
+const monthUnit = t('runners.monthUnit');
 ---
 
-<article class="runners">
+<article class="runners" aria-labelledby="runners-page-heading">
   <header class="page-header container-wide">
-    <span class="eyebrow">RUN · {locale === 'en' ? 'home base' : '跑者主場'}</span>
-    <h1 class="page-title">{t('runners.pageTitle')}</h1>
+    <span class="eyebrow">{t('runners.eyebrow')}</span>
+    <h1 id="runners-page-heading" class="page-title">{t('runners.pageTitle')}</h1>
     <p class="page-lead">{t('runners.pageLead')}</p>
   </header>
 
-  <section class="intro">
+  <section class="intro" aria-labelledby="runners-intro-heading">
     <div class="container-wide grid">
       <div class="visual">
         <ImagePlaceholder locale={locale} alt={t('runners.introHeading')} ratio="4:3" variant="ocean" />
       </div>
       <div class="content">
-        <SectionHeading title={t('runners.introHeading')} variant="ocean" />
+        <SectionHeading id="runners-intro-heading" title={t('runners.introHeading')} variant="ocean" />
         <p>{t('runners.introBody')}</p>
       </div>
     </div>
   </section>
 
-  <section class="events">
+  <section class="events" aria-labelledby="runners-events-heading">
     <div class="container-wide">
       <SectionHeading
+        id="runners-events-heading"
         title={t('runners.eventsHeading')}
         subtitle={t('runners.eventsLead')}
         variant="ocean"
@@ -74,7 +91,7 @@ const difficultyLabel = {
                   <ImagePlaceholder locale={locale} alt={name} ratio="16:9" variant="sand" />
                 </div>
                 <div class="event-body">
-                  <span class="month">{race.data.month}</span>
+                  <span class="month">{race.data.month}{monthUnit}</span>
                   <h3 class="event-name">{name}</h3>
                   <p class="event-distance">{race.data.distance}</p>
                   <p class="event-desc">{desc}</p>
@@ -91,9 +108,10 @@ const difficultyLabel = {
     </div>
   </section>
 
-  <section class="routes">
+  <section class="routes" aria-labelledby="runners-routes-heading">
     <div class="container-wide">
       <SectionHeading
+        id="runners-routes-heading"
         title={t('runners.routesHeading')}
         subtitle={t('runners.routesLead')}
         variant="ocean"
@@ -133,9 +151,9 @@ const difficultyLabel = {
     </div>
   </section>
 
-  <section class="services">
+  <section class="services" aria-labelledby="runners-services-heading">
     <div class="container-wide">
-      <SectionHeading title={t('runners.servicesHeading')} variant="ocean" />
+      <SectionHeading id="runners-services-heading" title={t('runners.servicesHeading')} variant="ocean" />
       <ul class="service-grid">
         {
           services.map((s) => (
@@ -247,8 +265,8 @@ const difficultyLabel = {
     font-size: 0.78rem;
     letter-spacing: 0.04em;
   }
-  .month::after { content: '月'; margin-left: 0.15rem; }
-  :global(html[lang='en']) .month::after { content: ''; }
+  /* 月份單位由 i18n 透過 monthUnit inline 渲染（zh: "月" / en: " "），
+     不再用 CSS ::after 寫死字面，避免「中文字面綁死於 CSS」的反 i18n 模式 */
   .event-name {
     margin: 0;
     font-family: var(--font-display);
@@ -296,9 +314,9 @@ const difficultyLabel = {
     flex-direction: column;
     gap: 0.85rem;
   }
-  .diff-easy { border-color: #10b981; }
-  .diff-moderate { border-color: #f59e0b; }
-  .diff-hard { border-color: #ef4444; }
+  .diff-easy { border-color: var(--color-difficulty-easy); }
+  .diff-moderate { border-color: var(--color-difficulty-medium); }
+  .diff-hard { border-color: var(--color-difficulty-hard); }
   .route-name {
     margin: 0;
     font-family: var(--font-display);

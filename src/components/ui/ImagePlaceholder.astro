@@ -45,6 +45,17 @@ const ratioMap: Record<NonNullable<Props['ratio']>, string> = {
 };
 const aspectRatio = ratioMap[ratio];
 const badgeText = t('common.photoComingSoon');
+
+/**
+ * 唯一 ID 後綴：避免同頁多個 ImagePlaceholder 元件因為 variant 相同而 SVG <linearGradient>
+ * 與 <pattern> id 重複，導致瀏覽器只解析第一個、後續元件 fill="url(#grad-ocean)" 失效。
+ *
+ * 用 Math.random().toString(36) 產生 6 位 base36 字元；因為僅在 SSR 渲染時生成，
+ * 不影響 hydration 也不需要 crypto 強度。
+ */
+const uid = Math.random().toString(36).slice(2, 8);
+const gradId = `grad-${variant}-${uid}`;
+const dotsId = `dots-${variant}-${uid}`;
 ---
 
 <figure
@@ -60,16 +71,16 @@ const badgeText = t('common.photoComingSoon');
     aria-hidden="true"
   >
     <defs>
-      <linearGradient id={`grad-${variant}`} x1="0" y1="0" x2="1" y2="1">
+      <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
         <stop offset="0%" class="stop-from" />
         <stop offset="100%" class="stop-to" />
       </linearGradient>
-      <pattern id={`dots-${variant}`} width="24" height="24" patternUnits="userSpaceOnUse">
+      <pattern id={dotsId} width="24" height="24" patternUnits="userSpaceOnUse">
         <circle cx="12" cy="12" r="1.2" class="dot" />
       </pattern>
     </defs>
-    <rect width="400" height="225" fill={`url(#grad-${variant})`} />
-    <rect width="400" height="225" fill={`url(#dots-${variant})`} />
+    <rect width="400" height="225" fill={`url(#${gradId})`} />
+    <rect width="400" height="225" fill={`url(#${dotsId})`} />
   </svg>
   <figcaption class="caption">
     <span class="caption-text">{alt}</span>

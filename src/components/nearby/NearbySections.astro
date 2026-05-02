@@ -21,35 +21,52 @@ interface Props {
 const { locale } = Astro.props;
 const t = useTranslations(locale);
 
-const attractions = (await getCollection('attractions'))
+const attractionsAll = await getCollection('attractions');
+const restaurantsAll = await getCollection('restaurants');
+// Collection 為空守門：上線後若內容被誤刪會在頁面靜默呈現空白；build 期間 fail-loud 才能即時發現。
+if (!attractionsAll.length) {
+  throw new Error('[content] attractions collection 為空');
+}
+if (!restaurantsAll.length) {
+  throw new Error('[content] restaurants collection 為空');
+}
+// 穩定排序：distance 相同時改以 id 字典序當 tiebreaker，避免不同 build 順序不一致。
+const attractions = attractionsAll
   .slice()
-  .sort((a, b) => a.data.distanceMin - b.data.distanceMin);
-const restaurants = (await getCollection('restaurants'))
+  .sort(
+    (a, b) =>
+      a.data.distanceMin - b.data.distanceMin || a.data.id.localeCompare(b.data.id),
+  );
+const restaurants = restaurantsAll
   .slice()
-  .sort((a, b) => a.data.distanceMin - b.data.distanceMin);
+  .sort(
+    (a, b) =>
+      a.data.distanceMin - b.data.distanceMin || a.data.id.localeCompare(b.data.id),
+  );
 
 const variants = ['ocean', 'sand', 'timber', 'ink'] as const;
 ---
 
-<article class="nearby">
+<article class="nearby" aria-labelledby="nearby-page-heading">
   <header class="page-header container-wide">
-    <h1 class="page-title">{t('nearby.pageTitle')}</h1>
+    <h1 id="nearby-page-heading" class="page-title">{t('nearby.pageTitle')}</h1>
     <p class="page-lead">{t('nearby.pageLead')}</p>
   </header>
 
-  <section class="no-meals">
+  <section class="no-meals" aria-labelledby="nearby-nomeals-heading">
     <div class="container-wide notice">
       <span class="badge" aria-hidden="true">!</span>
       <div>
-        <h2 class="notice-title">{t('nearby.noMealsHeading')}</h2>
+        <h2 id="nearby-nomeals-heading" class="notice-title">{t('nearby.noMealsHeading')}</h2>
         <p class="notice-body">{t('nearby.noMealsBody')}</p>
       </div>
     </div>
   </section>
 
-  <section class="spots">
+  <section class="spots" aria-labelledby="nearby-spots-heading">
     <div class="container-wide">
       <SectionHeading
+        id="nearby-spots-heading"
         title={t('nearby.spotsHeading')}
         subtitle={t('nearby.spotsLead')}
         variant="ocean"
@@ -86,9 +103,10 @@ const variants = ['ocean', 'sand', 'timber', 'ink'] as const;
     </div>
   </section>
 
-  <section class="food">
+  <section class="food" aria-labelledby="nearby-food-heading">
     <div class="container-wide">
       <SectionHeading
+        id="nearby-food-heading"
         title={t('nearby.foodHeading')}
         subtitle={t('nearby.foodLead')}
         variant="ocean"
@@ -123,9 +141,10 @@ const variants = ['ocean', 'sand', 'timber', 'ink'] as const;
     </div>
   </section>
 
-  <section class="itinerary">
+  <section class="itinerary" aria-labelledby="nearby-itinerary-heading">
     <div class="container-wide">
       <SectionHeading
+        id="nearby-itinerary-heading"
         title={t('nearby.itineraryHeading')}
         subtitle={t('nearby.itineraryLead')}
         variant="ocean"
@@ -179,16 +198,16 @@ const variants = ['ocean', 'sand', 'timber', 'ink'] as const;
     grid-template-columns: 3.5rem 1fr;
     gap: 1.25rem;
     padding: 1.75rem 2rem;
-    background-color: #fff7ed;
+    background-color: var(--color-warning-bg);
     border-radius: 1rem;
-    border-left: 4px solid #f97316;
+    border-left: 4px solid var(--color-warning);
     align-items: start;
   }
   .badge {
     width: 3.5rem;
     height: 3.5rem;
     border-radius: 50%;
-    background-color: #f97316;
+    background-color: var(--color-warning);
     color: white;
     display: inline-flex;
     align-items: center;
@@ -201,7 +220,7 @@ const variants = ['ocean', 'sand', 'timber', 'ink'] as const;
     margin: 0 0 0.5rem;
     font-family: var(--font-display);
     font-size: 1.2rem;
-    color: #9a3412;
+    color: var(--color-warning-text);
   }
   .notice-body {
     margin: 0;
@@ -224,7 +243,7 @@ const variants = ['ocean', 'sand', 'timber', 'ink'] as const;
     .card-grid { grid-template-columns: repeat(3, 1fr); }
   }
   .card {
-    background-color: white;
+    background-color: var(--color-surface);
     border-radius: 1rem;
     overflow: hidden;
     border: 1px solid var(--color-timber-200);

@@ -1,0 +1,3 @@
+# Cloudflare Pages 重新導向規則
+# 預留檔案；目前不需任何 redirect。需要時依以下格式新增：
+# /old-path  /new-path  301

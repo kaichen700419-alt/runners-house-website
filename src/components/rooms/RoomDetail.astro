@@ -5,6 +5,7 @@
  * 單一房型詳情頁主體：相簿（CSS scroll snap）+ 規格 + 設施 + 規則 + 訂房 CTA。
  */
 import { useTranslations } from '@/i18n/utils';
+import { CONTACT } from '@/lib/site';
 import SectionHeading from '@/components/ui/SectionHeading.astro';
 import ImagePlaceholder from '@/components/ui/ImagePlaceholder.astro';
 import type { Locale } from '@/i18n/types';
@@ -24,13 +25,14 @@ const desc = locale === 'en' ? room.data.description_en : room.data.description_
 const amenities = locale === 'en' ? room.data.amenities_en : room.data.amenities_zh;
 const priceNote = locale === 'en' ? room.data.price_note_en : room.data.price_note_zh;
 const galleryVariants = ['ocean', 'timber', 'sand', 'ink'] as const;
-const lineUrl = t('common.realLineUrl');
-const phone = t('common.realPhonePrimary');
+const lineUrl = CONTACT.lineUrl;
+const phone = CONTACT.phonePrimary;
+const phoneTel = CONTACT.phonePrimaryTel;
 ---
 
-<article class="room-detail">
+<article class="room-detail" aria-labelledby="room-detail-heading">
   <header class="header container-wide">
-    <h1 class="title">{name}</h1>
+    <h1 id="room-detail-heading" class="title">{name}</h1>
     <p class="lead">{desc}</p>
     <dl class="overview">
       <div>
@@ -52,9 +54,9 @@ const phone = t('common.realPhonePrimary');
     </dl>
   </header>
 
-  <section class="gallery">
+  <section class="gallery" aria-labelledby="room-detail-gallery-heading">
     <div class="container-wide">
-      <SectionHeading title={t('rooms.detailGalleryHeading')} variant="wabi" />
+      <SectionHeading id="room-detail-gallery-heading" title={t('rooms.detailGalleryHeading')} variant="wabi" />
       <p class="hint" aria-hidden="true">{t('ui.galleryHint')}</p>
       <ul
         class="snap"
@@ -78,10 +80,10 @@ const phone = t('common.realPhonePrimary');
     </div>
   </section>
 
-  <section class="amenities">
+  <section class="amenities" aria-labelledby="room-detail-amenities-heading">
     <div class="container-wide grid">
       <div>
-        <SectionHeading title={t('rooms.detailAmenityHeading')} variant="wabi" />
+        <SectionHeading id="room-detail-amenities-heading" title={t('rooms.detailAmenityHeading')} variant="wabi" />
         <ul class="check-list">
           {amenities.map((a) => <li><span class="check" aria-hidden="true">✓</span><span>{a}</span></li>)}
         </ul>
@@ -98,9 +100,10 @@ const phone = t('common.realPhonePrimary');
     </div>
   </section>
 
-  <section class="cta-section">
+  <section class="cta-section" aria-labelledby="room-detail-cta-heading">
     <div class="container-wide cta-inner">
       <SectionHeading
+        id="room-detail-cta-heading"
         title={t('rooms.detailContactHeading')}
         subtitle={t('rooms.detailContactBody')}
         align="center"
@@ -112,7 +115,7 @@ const phone = t('common.realPhonePrimary');
           <span class="icon">L</span>
           <span>{t('common.addLine')}</span>
         </a>
-        <a class="cta cta-phone" href={`tel:${phone.replace(/\s+/g, '')}`}>
+        <a class="cta cta-phone" href={`tel:${phoneTel}`}>
           <span class="icon">☎</span>
           <span>{phone}</span>
         </a>
@@ -297,10 +300,10 @@ const phone = t('common.realPhonePrimary');
     transition: transform 200ms var(--ease-snappy);
   }
   .cta-line {
-    background-color: #00b900;
+    background-color: var(--color-line-brand);
   }
   .cta-line:hover {
-    background-color: #009900;
+    background-color: var(--color-line-brand-hover);
     transform: translateY(-1px);
   }
   .cta-phone {

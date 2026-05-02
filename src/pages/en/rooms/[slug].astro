@@ -11,6 +11,14 @@ import { SITE } from '@/lib/site';
 
 export async function getStaticPaths() {
   const rooms = await getCollection('rooms');
+  // 同 zh 版：slug 重複會默默吞掉某個房型，build 期間 fail-loud。
+  const seen = new Set<string>();
+  for (const room of rooms) {
+    if (seen.has(room.data.slug)) {
+      throw new Error(`[rooms en] slug 重複：${room.data.slug}`);
+    }
+    seen.add(room.data.slug);
+  }
   return rooms.map((room) => ({
     params: { slug: room.data.slug },
     props: { room },

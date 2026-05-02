@@ -19,9 +19,14 @@ const { locale } = Astro.props;
 const t = useTranslations(locale);
 
 const allRooms = await getCollection('rooms');
+if (!allRooms.length) {
+  throw new Error('[content] rooms collection 為空');
+}
+// 首頁預覽刻意只取前 4 房型；海景套房（order: 5）保留至房型列表頁完整呈現，避免首頁卡片數失衡。
+// 採穩定排序（order 相同時以 slug 字典序當 tiebreaker），避免 build 順序漂移導致 hydration 不一致。
 const previewRooms = allRooms
   .slice()
-  .sort((a, b) => a.data.order - b.data.order)
+  .sort((a, b) => a.data.order - b.data.order || a.data.slug.localeCompare(b.data.slug))
   .slice(0, 4);
 
 const placeholderVariants = ['ocean', 'timber', 'sand', 'ink'] as const;

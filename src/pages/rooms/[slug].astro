@@ -11,6 +11,15 @@ import { SITE } from '@/lib/site';
 
 export async function getStaticPaths() {
   const rooms = await getCollection('rooms');
+  // slug 重複會導致 Astro 後者覆寫前者，使前面定義的房型詳情頁靜默消失。
+  // 在 build 期間 fail-loud，由人工介入處理重命名而非默默吞 bug。
+  const seen = new Set<string>();
+  for (const room of rooms) {
+    if (seen.has(room.data.slug)) {
+      throw new Error(`[rooms] slug 重複：${room.data.slug}`);
+    }
+    seen.add(room.data.slug);
+  }
   return rooms.map((room) => ({
     params: { slug: room.data.slug },
     props: { room },

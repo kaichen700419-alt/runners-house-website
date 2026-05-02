@@ -22,10 +22,6 @@ const en: Dictionary = {
     copyrightLong: '© {year} {site} · {tagline}',
     languageLabel: 'Language',
     skipToContent: 'Skip to main content',
-    realPhonePrimary: '+886 933 430 418',
-    realPhoneSecondary: '+886 912 699 709',
-    realLineId: '@659gkrae',
-    realLineUrl: 'https://line.me/R/ti/p/%40659gkrae',
     addressFull: 'No. 47, Zhuhu Village, Changbin Township, Taitung 962, Taiwan (Highway 11, KM 91)',
     checkInWindow: 'Check-in 15:00 – 21:00',
     checkOutWindow: 'Check-out by 11:00',
@@ -117,6 +113,9 @@ const en: Dictionary = {
   about: {
     pageTitle: 'Our Story',
     pageLead: 'Runners House didn’t appear overnight — it’s the answer of a 50-year-old rice barn that finally got its turn.',
+    runBadge: 'Run',
+    stayBadge: 'Stay',
+    chargeBadge: 'Charge',
     originHeading: 'Origin · A barn waiting to breathe again',
     originBody:
       'Built by family elders in 1972 to store local rice, the barn fell silent for nearly thirty years as agriculture faded. The owner returned home to give it back to daily life.',
@@ -182,6 +181,12 @@ const en: Dictionary = {
   runners: {
     pageTitle: 'Runners',
     pageLead: 'More than a stay — a refuel point and training base for the Changbin coast.',
+    eyebrow: 'RUN · home base',
+    /** 月份後綴單位；en 不需要月字（顯示為純數字），用空白避免葉節點空字串斷言失敗 */
+    monthUnit: ' ',
+    difficultyEasy: 'Easy',
+    difficultyMedium: 'Moderate',
+    difficultyHard: 'Hard',
     introHeading: 'Why runners come here',
     introBody:
       'The host is himself a long-distance racer and knows what runners really need: room to stretch, taps to rinse shoes, electrolytes within reach, and people who understand the post-run silence.',
@@ -211,6 +216,7 @@ const en: Dictionary = {
     pageTitle: 'Tesla Charging',
     pageLead:
       'One of the few legal, paid Tesla Wall Connector stops on the Changbin stretch of Highway 11 — four dual-cable units serve up to eight cars at once.',
+    eyebrow: 'CHARGE · Tesla Wall Connector',
     paidNoticeHeading: 'Paid charging service (not free)',
     paidNoticeBody:
       'This is a paid self-service charging facility for guests and non-guests alike. It is not complimentary — please review pricing before plugging in.',
@@ -298,12 +304,16 @@ const en: Dictionary = {
     formPrivacyNote: 'By submitting, you agree we may reply via the contact info you provided. We do not use your data for anything else.',
     errorRequired: 'This field is required',
     errorEmail: 'Please enter a valid email address',
-    errorPhone: 'Please enter a valid phone number, e.g., 0912-345-678',
+    errorPhone: 'Please enter a valid phone number, e.g., 0912345678 or +886912345678',
     errorMessageMin: 'Message must be at least 10 characters',
+    errorMessageMax: 'Message cannot exceed 2000 characters',
     errorCheckInPast: 'Check-in date cannot be earlier than today',
     errorCheckOutBeforeIn: 'Check-out date must be after check-in date',
     errorGuestsRange: 'Guest count must be between 1 and 10',
     successMessage: 'Got it — we’ll reply within 24 hours.',
+    errorMessage: 'Submission failed. Please try again or contact us via LINE.',
+    formRetryLabel: 'Retry',
+    mapTitle: 'Runners House on Google Maps',
     contactInfoHeading: 'Other ways to reach us',
     contactPreferLine: 'For bookings, LINE Official is the fastest channel.',
     contactInfoAddress: 'Address',

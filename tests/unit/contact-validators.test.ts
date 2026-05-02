@@ -54,11 +54,12 @@ describe('validateEmail', () => {
 });
 
 describe('validatePhone', () => {
-  it('台灣行動電話格式合法（含 - 與空白）', () => {
+  it('台灣行動電話格式合法（純數字、含 - 與空白皆 strip 後比對）', () => {
     expect(validatePhone('0912345678').ok).toBe(true);
     expect(validatePhone('0912-345-678').ok).toBe(true);
     expect(validatePhone('0912 345 678').ok).toBe(true);
     expect(validatePhone('0933-430-418').ok).toBe(true);
+    expect(validatePhone('0933430418').ok).toBe(true);
   });
 
   it('+886 國際格式合法', () => {
@@ -80,6 +81,11 @@ describe('validatePhone', () => {
     expect(validatePhone('09123').error).toBe('errorPhone');
     expect(validatePhone('abcdefghij').error).toBe('errorPhone');
     expect(validatePhone('1234567890').error).toBe('errorPhone');
+  });
+
+  it('+886 後接非 9 位數字應拒絕（避免 pattern 過寬）', () => {
+    expect(validatePhone('+8869334304').error).toBe('errorPhone');
+    expect(validatePhone('+8869334304180').error).toBe('errorPhone');
   });
 });
 
@@ -155,7 +161,7 @@ describe('validateContactForm 整體', () => {
     expect(Object.keys(result.errors)).toHaveLength(0);
   });
 
-  it('全部欄位缺失時收集所有錯誤', () => {
+  it('全部欄位缺失時收集所有錯誤（roomPreference 為非必填，不應出現在 errors）', () => {
     const result = validateContactForm({
       name: '',
       email: '',
@@ -168,12 +174,34 @@ describe('validateContactForm 整體', () => {
       message: '',
     });
     expect(result.ok).toBe(false);
-    // 至少應蒐集到 name / email / phone / dateRange / guests / subject / roomPreference / message 8 個錯誤
-    expect(Object.keys(result.errors).length).toBeGreaterThanOrEqual(8);
+    // 應蒐集到 name / email / phone / dateRange / guests / subject / message 7 個錯誤
+    expect(Object.keys(result.errors).length).toBeGreaterThanOrEqual(7);
     expect(result.errors.name).toBe('errorRequired');
     expect(result.errors.email).toBe('errorRequired');
     expect(result.errors.message).toBe('errorRequired');
     expect(result.errors.guests).toBe('errorGuestsRange');
+    // roomPreference 非必填，空字串應視為合法
+    expect(result.errors.roomPreference).toBeUndefined();
+  });
+
+  it('roomPreference 為空字串（使用者選「尚未決定」）視為合法', () => {
+    const data = { ...validData(), roomPreference: '' };
+    const result = validateContactForm(data);
+    expect(result.ok).toBe(true);
+    expect(result.errors.roomPreference).toBeUndefined();
+  });
+
+  it('訊息超過 2000 字收集 errorMessageMax', () => {
+    const data = { ...validData(), message: 'a'.repeat(2001) };
+    const result = validateContactForm(data);
+    expect(result.ok).toBe(false);
+    expect(result.errors.message).toBe('errorMessageMax');
+  });
+
+  it('訊息恰好 2000 字應通過', () => {
+    const data = { ...validData(), message: 'a'.repeat(2000) };
+    const result = validateContactForm(data);
+    expect(result.ok).toBe(true);
   });
 
   it('短訊息（< 10 字）收集 errorMessageMin', () => {

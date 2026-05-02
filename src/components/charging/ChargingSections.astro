@@ -6,7 +6,7 @@
  * 強調「付費」、「非免費」，避免使用者誤解。
  */
 import { useTranslations } from '@/i18n/utils';
-import { GEO } from '@/lib/site';
+import { CONTACT, GEO } from '@/lib/site';
 import SectionHeading from '@/components/ui/SectionHeading.astro';
 import ImagePlaceholder from '@/components/ui/ImagePlaceholder.astro';
 import type { Locale } from '@/i18n/types';
@@ -19,21 +19,21 @@ const { locale } = Astro.props;
 const t = useTranslations(locale);
 const mapQuery = encodeURIComponent(`${GEO.latitude},${GEO.longitude}`);
 const mapEmbedSrc = `https://www.google.com/maps?q=${mapQuery}&hl=${locale === 'en' ? 'en' : 'zh-TW'}&z=17&output=embed`;
-const lineUrl = t('common.realLineUrl');
+const lineUrl = CONTACT.lineUrl;
 ---
 
-<article class="charging">
+<article class="charging" aria-labelledby="charging-page-heading">
   <header class="page-header container-wide">
-    <span class="eyebrow">CHARGE · Tesla Wall Connector</span>
-    <h1 class="page-title">{t('charging.pageTitle')}</h1>
+    <span class="eyebrow">{t('charging.eyebrow')}</span>
+    <h1 id="charging-page-heading" class="page-title">{t('charging.pageTitle')}</h1>
     <p class="page-lead">{t('charging.pageLead')}</p>
   </header>
 
-  <section class="paid-notice">
+  <section class="paid-notice" aria-labelledby="charging-paid-heading">
     <div class="container-wide notice-box">
       <span class="badge" aria-hidden="true">$</span>
       <div>
-        <h2 class="notice-title">{t('charging.paidNoticeHeading')}</h2>
+        <h2 id="charging-paid-heading" class="notice-title">{t('charging.paidNoticeHeading')}</h2>
         <p class="notice-body">{t('charging.paidNoticeBody')}</p>
         <dl class="notice-meta">
           <div>
@@ -49,9 +49,9 @@ const lineUrl = t('common.realLineUrl');
     </div>
   </section>
 
-  <section class="specs">
+  <section class="specs" aria-labelledby="charging-specs-heading">
     <div class="container-wide">
-      <SectionHeading title={t('charging.specsHeading')} variant="ocean" />
+      <SectionHeading id="charging-specs-heading" title={t('charging.specsHeading')} variant="ocean" />
       <ul class="spec-grid">
         <li>
           <h3>{t('charging.specsConnectorTitle')}</h3>
@@ -73,9 +73,9 @@ const lineUrl = t('common.realLineUrl');
     </div>
   </section>
 
-  <section class="rules">
+  <section class="rules" aria-labelledby="charging-rules-heading">
     <div class="container-wide">
-      <SectionHeading title={t('charging.rulesHeading')} variant="ocean" />
+      <SectionHeading id="charging-rules-heading" title={t('charging.rulesHeading')} variant="ocean" />
       <ol class="rules-list">
         <li>{t('charging.ruleReserve')}</li>
         <li>{t('charging.ruleNoOvernight')}</li>
@@ -88,10 +88,10 @@ const lineUrl = t('common.realLineUrl');
     </div>
   </section>
 
-  <section class="location">
+  <section class="location" aria-labelledby="charging-location-heading">
     <div class="container-wide grid">
       <div class="info">
-        <SectionHeading title={t('charging.locationHeading')} variant="ocean" />
+        <SectionHeading id="charging-location-heading" title={t('charging.locationHeading')} variant="ocean" />
         <p>{t('charging.locationBody')}</p>
         <p class="address">{t('common.addressFull')}</p>
       </div>
@@ -109,13 +109,13 @@ const lineUrl = t('common.realLineUrl');
     </div>
   </section>
 
-  <section class="non-guest">
+  <section class="non-guest" aria-labelledby="charging-nonguest-heading">
     <div class="container-wide non-guest-inner">
       <div class="visual">
         <ImagePlaceholder locale={locale} alt={t('charging.nonGuestHeading')} ratio="4:3" variant="ocean" />
       </div>
       <div class="content">
-        <SectionHeading title={t('charging.nonGuestHeading')} variant="ocean" />
+        <SectionHeading id="charging-nonguest-heading" title={t('charging.nonGuestHeading')} variant="ocean" />
         <p>{t('charging.nonGuestBody')}</p>
       </div>
     </div>
@@ -290,13 +290,13 @@ const lineUrl = t('common.realLineUrl');
     margin-top: 1.5rem;
     padding: 0.85rem 1.5rem;
     border-radius: 999px;
-    background-color: #00b900;
+    background-color: var(--color-line-brand);
     color: white;
     text-decoration: none;
     font-weight: 600;
     transition: background-color 200ms var(--ease-snappy);
   }
-  .reserve-cta:hover { background-color: #009900; }
+  .reserve-cta:hover { background-color: var(--color-line-brand-hover); }
 
   .location { background-color: white; }
   .grid {

@@ -20,6 +20,17 @@
 | `npm run build` | 型別檢查 + 靜態建置（輸出至 `dist/`） |
 | `npm run preview` | 預覽建置後的網站 |
 | `npm run typecheck` | 僅執行型別檢查 |
+| `npm run test` | 執行 Vitest 單元測試 |
+
+## 環境變數（業主上線前必填）
+
+複製 `.env.example` 為 `.env`，填入下列必填變數：
+
+| 變數 | 說明 | 取得方式 |
+| ---- | ---- | -------- |
+| `PUBLIC_WEB3FORMS_KEY` | 聯絡頁表單後端 access_key | 至 https://web3forms.com/ 申請；輸入收件 email 後即可拿到 key |
+
+未設定時聯絡頁表單可正常顯示但**送出會失敗**。建置時若仍為 placeholder，會在 console 印出警告但不中斷 build。
 
 ## 專案結構
 

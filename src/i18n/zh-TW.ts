@@ -49,10 +49,6 @@ const zhTW = {
     copyrightLong: '© {year} {site} · {tagline}',
     languageLabel: '語言',
     skipToContent: '跳至主要內容',
-    realPhonePrimary: '0933-430-418',
-    realPhoneSecondary: '0912-699-709',
-    realLineId: '@659gkrae',
-    realLineUrl: 'https://line.me/R/ti/p/%40659gkrae',
     addressFull: '962 台東縣長濱鄉竹湖村 47 號（台 11 線 91K）',
     checkInWindow: '入住 15:00 – 21:00',
     checkOutWindow: '退房 11:00 前',
@@ -144,6 +140,9 @@ const zhTW = {
   about: {
     pageTitle: '品牌故事',
     pageLead: '跑者之家不是一夜之間冒出來的民宿，是 50 年米倉沉默的回答。',
+    runBadge: 'Run',
+    stayBadge: 'Stay',
+    chargeBadge: 'Charge',
     originHeading: '起源 · 一座等待重新呼吸的米倉',
     originBody:
       '老屋於 1972 年由家族長輩興建，最初是儲存稻穀的米倉。隨著農業沒落而閒置近三十年，直到主理人決定回鄉，把這棟看海的米倉重新交給生活。',
@@ -209,6 +208,11 @@ const zhTW = {
   runners: {
     pageTitle: '跑者主場',
     pageLead: '不只是民宿，是長濱海岸線跑者的補給站與訓練基地。',
+    eyebrow: 'RUN · 跑者主場',
+    monthUnit: '月',
+    difficultyEasy: '輕鬆',
+    difficultyMedium: '中等',
+    difficultyHard: '進階',
     introHeading: '為什麼跑者來這裡',
     introBody:
       '主理人本身是長期參賽的長距離跑者，知道跑者真正需要：能拉筋的空間、能洗鞋的水龍頭、能補給的電解質、能被理解的伸展時間。',
@@ -238,6 +242,7 @@ const zhTW = {
     pageTitle: '特斯拉超充服務',
     pageLead:
       '台 11 線長濱段少數提供 Tesla Wall Connector 的合法自費充電點，4 支雙頭龍同時可服務 8 輛車。',
+    eyebrow: 'CHARGE · Tesla Wall Connector',
     paidNoticeHeading: '付費充電服務（非免費）',
     paidNoticeBody:
       '本服務為「付費自助」充電，住客與非住客皆可使用；非贈送、非免費，使用前請先了解計費方式。',
@@ -325,12 +330,16 @@ const zhTW = {
     formPrivacyNote: '送出即表示同意我們以您提供的聯絡方式回覆，我們不會將資料另作他用。',
     errorRequired: '此欄位為必填',
     errorEmail: '請輸入正確的 Email 格式',
-    errorPhone: '請輸入正確的電話號碼，例：0912-345-678',
+    errorPhone: '請輸入正確的電話號碼，例：0912345678 或 +886912345678',
     errorMessageMin: '訊息內容至少 10 個字',
+    errorMessageMax: '訊息內容不可超過 2000 個字',
     errorCheckInPast: '入住日期不能早於今日',
     errorCheckOutBeforeIn: '退房日期必須晚於入住日期',
     errorGuestsRange: '人數必須在 1 至 10 人之間',
     successMessage: '已收到您的訊息，我們會在 24 小時內回覆。',
+    errorMessage: '送出失敗，請稍後再試或改用 LINE 聯絡。',
+    formRetryLabel: '重新送出',
+    mapTitle: '跑者之家 Google 地圖位置',
     contactInfoHeading: '其他聯絡方式',
     contactPreferLine: '訂房優先建議使用 LINE 官方帳號，回覆最快。',
     contactInfoAddress: '地址',

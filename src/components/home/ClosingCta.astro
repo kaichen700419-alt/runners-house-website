@@ -5,6 +5,7 @@
  * 首頁底部最終三聯 CTA：LINE / 電話 / 看房型。
  */
 import { getLocalizedPath, useTranslations } from '@/i18n/utils';
+import { CONTACT } from '@/lib/site';
 import type { Locale } from '@/i18n/types';
 
 interface Props {
@@ -13,8 +14,9 @@ interface Props {
 
 const { locale } = Astro.props;
 const t = useTranslations(locale);
-const lineUrl = t('common.realLineUrl');
-const phone = t('common.realPhonePrimary');
+const lineUrl = CONTACT.lineUrl;
+const phone = CONTACT.phonePrimary;
+const phoneTel = CONTACT.phonePrimaryTel;
 ---
 
 <section class="closing">
@@ -26,7 +28,7 @@ const phone = t('common.realPhonePrimary');
         <span class="icon" aria-hidden="true">L</span>
         <span class="label">{t('home.closingCtaLine')}</span>
       </a>
-      <a class="cta cta-phone" href={`tel:${phone.replace(/\s+/g, '')}`}>
+      <a class="cta cta-phone" href={`tel:${phoneTel}`}>
         <span class="icon" aria-hidden="true">☎</span>
         <span class="label">{t('home.closingCtaPhone')}</span>
         <span class="phone-num">{phone}</span>

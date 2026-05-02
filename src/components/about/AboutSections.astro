@@ -28,20 +28,20 @@ const timelineItems = [
 ];
 ---
 
-<article class="about">
+<article class="about" aria-labelledby="about-page-heading">
   <header class="page-header container-wide">
     <span class="eyebrow">{t('common.brandStatement')}</span>
-    <h1 class="page-title">{t('about.pageTitle')}</h1>
+    <h1 id="about-page-heading" class="page-title">{t('about.pageTitle')}</h1>
     <p class="page-lead">{t('about.pageLead')}</p>
   </header>
 
-  <section class="origin">
+  <section class="origin" aria-labelledby="about-origin-heading">
     <div class="container-wide grid">
       <div class="visual">
         <ImagePlaceholder locale={locale} alt={t('about.originHeading')} ratio="3:4" variant="timber" />
       </div>
       <div class="content">
-        <SectionHeading title={t('about.originHeading')} variant="wabi" />
+        <SectionHeading id="about-origin-heading" title={t('about.originHeading')} variant="wabi" />
         <p>{t('about.originBody')}</p>
         <dl class="meta">
           <div>
@@ -61,10 +61,10 @@ const timelineItems = [
     </div>
   </section>
 
-  <section class="host">
+  <section class="host" aria-labelledby="about-host-heading">
     <div class="container-wide grid grid-flip">
       <div class="content">
-        <SectionHeading title={t('about.hostHeading')} variant="wabi" />
+        <SectionHeading id="about-host-heading" title={t('about.hostHeading')} variant="wabi" />
         <p>{t('about.hostBody')}</p>
         <ul class="bullets">
           <li>{t('about.hostHobby')}</li>
@@ -77,25 +77,26 @@ const timelineItems = [
     </div>
   </section>
 
-  <section class="philosophy">
+  <section class="philosophy" aria-labelledby="about-philosophy-heading">
     <div class="container-wide">
       <SectionHeading
+        id="about-philosophy-heading"
         title={t('about.philosophyHeading')}
         subtitle={t('about.philosophyBody')}
         align="center"
         variant="wabi"
       />
       <ul class="trio">
-        <li><span class="badge">Run</span><p>{t('about.philosophyRun')}</p></li>
-        <li><span class="badge">Stay</span><p>{t('about.philosophyStay')}</p></li>
-        <li><span class="badge">Charge</span><p>{t('about.philosophyCharge')}</p></li>
+        <li><span class="badge">{t('about.runBadge')}</span><p>{t('about.philosophyRun')}</p></li>
+        <li><span class="badge">{t('about.stayBadge')}</span><p>{t('about.philosophyStay')}</p></li>
+        <li><span class="badge">{t('about.chargeBadge')}</span><p>{t('about.philosophyCharge')}</p></li>
       </ul>
     </div>
   </section>
 
-  <section class="timeline">
+  <section class="timeline" aria-labelledby="about-timeline-heading">
     <div class="container-wide">
-      <SectionHeading title={t('about.timelineHeading')} variant="wabi" />
+      <SectionHeading id="about-timeline-heading" title={t('about.timelineHeading')} variant="wabi" />
       <ol class="timeline-list">
         {
           timelineItems.map((item) => (
@@ -109,9 +110,9 @@ const timelineItems = [
     </div>
   </section>
 
-  <section class="sustainability">
+  <section class="sustainability" aria-labelledby="about-sustainability-heading">
     <div class="container-wide">
-      <SectionHeading title={t('about.sustainabilityHeading')} variant="wabi" />
+      <SectionHeading id="about-sustainability-heading" title={t('about.sustainabilityHeading')} variant="wabi" />
       <p class="lead">{t('about.sustainabilityBody')}</p>
       <ul class="commit-list">
         <li>{t('about.sustainabilityNoSingleUse')}</li>

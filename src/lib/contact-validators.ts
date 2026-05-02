@@ -186,16 +186,25 @@ export function validateGuestCount(count: number): FieldResult {
 }
 
 /**
- * 驗證訊息內容（至少 10 個字）。
+ * 驗證訊息內容（至少 10 個字、最多 2000 字）。
  * 計算用 Array.from(str).length 以正確計算 emoji / 中日韓字元（避免 surrogate pair 多算）。
+ *
+ * 上限 2000 字與 HTML maxlength="2000" 同步，防止：
+ *   - 惡意大量資料灌入後端
+ *   - Web3Forms email 內文過長被截斷
+ *   - DoS 風險（client 端純函式仍應守上限以利伺服器端共用）
  */
-function validateMessage(message: string): FieldResult {
+export function validateMessage(message: string): FieldResult {
   const trimmed = message.trim();
   if (!trimmed) {
     return { ok: false, error: 'errorRequired' };
   }
-  if (Array.from(trimmed).length < 10) {
+  const len = Array.from(trimmed).length;
+  if (len < 10) {
     return { ok: false, error: 'errorMessageMin' };
+  }
+  if (len > 2000) {
+    return { ok: false, error: 'errorMessageMax' };
   }
   return { ok: true };
 }
@@ -251,10 +260,9 @@ export function validateContactForm(data: ContactFormData): FormResult {
     errors.subject = subjectResult.error;
   }
 
-  const roomResult = validateRequired(data.roomPreference);
-  if (!roomResult.ok && roomResult.error) {
-    errors.roomPreference = roomResult.error;
-  }
+  // roomPreference 為「下拉偏好」非必填欄位：使用者可選「尚未決定／請推薦」（值為空字串），
+  // 與 HTML 中該 select 不帶 required 一致。先前誤標為必填會導致 client / server 驗證錯位。
+  // 不再呼叫 validateRequired(data.roomPreference)。
 
   const messageResult = validateMessage(data.message);
   if (!messageResult.ok && messageResult.error) {

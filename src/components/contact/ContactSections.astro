@@ -4,16 +4,20 @@
  *
  * 聯絡頁主體：CtaTrio → ContactForm → 完整聯絡資訊 → Google Maps。
  *
- * 表單採 HTML5 native validation + Web3Forms POST（無自有後端）。
+ * 表單採 client-side 驗證（contact-validators 純函式）+ AJAX POST 至 Web3Forms。
  * 提交按鈕滾動位置：CTA 按鈕「Email 表單」用 anchor `#contact-form`。
  *
- * 注意：
- *  - access_key 使用 placeholder「YOUR_WEB3FORMS_KEY」，業主後續以環境變數方式覆蓋
- *  - 客戶端不寫 JS（無 alert/confirm）；錯誤訊息靠 :user-invalid CSS 與字典提示文字
- *  - 真正提交後 Web3Forms 會 redirect 到自家 thank-you 頁面（已內建）
+ * 重點：
+ *  - access_key 透過 PUBLIC_WEB3FORMS_KEY 環境變數注入；本地預設 placeholder，
+ *    PROD build 時若仍為 placeholder 會 console.warn（不阻擋 build，因業主可能還在開發）
+ *  - 所有欄位錯誤訊息 inline 渲染於對應欄位下方，aria-describedby 串連 a11y
+ *  - submit 成功 / 失敗皆 inline 顯示，失敗附「重試」按鈕；不使用 alert
+ *  - 蜂蜜罐 botcheck 加 tabindex="-1" + aria-hidden 確保鍵盤與 AT 跳過
+ *  - 預留 captcha 欄位註解（業主未來啟用 hCaptcha / Turnstile 時填入 sitekey 即可）
+ *  - check_in 動態調整 check_out.min（隔日起跳）
  */
 import { useTranslations } from '@/i18n/utils';
-import { GEO } from '@/lib/site';
+import { CONTACT, GEO } from '@/lib/site';
 import SectionHeading from '@/components/ui/SectionHeading.astro';
 import type { Locale } from '@/i18n/types';
 
@@ -23,11 +27,31 @@ interface Props {
 
 const { locale } = Astro.props;
 const t = useTranslations(locale);
-const lineUrl = t('common.realLineUrl');
-const phone = t('common.realPhonePrimary');
-const phone2 = t('common.realPhoneSecondary');
+const lineUrl = CONTACT.lineUrl;
+const phone = CONTACT.phonePrimary;
+const phoneTel = CONTACT.phonePrimaryTel;
+const phone2 = CONTACT.phoneSecondary;
+const phone2Tel = CONTACT.phoneSecondaryTel;
+const lineId = CONTACT.lineId;
 const mapQuery = encodeURIComponent(`${GEO.latitude},${GEO.longitude}`);
 const mapEmbedSrc = `https://www.google.com/maps?q=${mapQuery}&hl=${locale === 'en' ? 'en' : 'zh-TW'}&z=14&output=embed`;
+
+// 今日日期字串（本地時區 yyyy-mm-dd），用於 date input min 屬性，避免使用者選到過去日期
+const now = new Date();
+const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+// 電話 HTML5 pattern：與 contact-validators.ts 的 phone regex 完全一致。
+// 用 const 變數 + 雙反斜線確保 build 後輸出 HTML attribute 仍保留 `\d`，
+// 避免 Astro / esbuild 將 attribute 字面值的 `\d` 在編譯期間吞掉。
+const phonePattern = '^(09\\d{8}|0[1-8]\\d{7,8}|\\+886\\d{9})$';
+
+// Web3Forms access_key：透過環境變數覆蓋，業主上線前必須設定 PUBLIC_WEB3FORMS_KEY
+const web3formsKey = import.meta.env.PUBLIC_WEB3FORMS_KEY ?? 'YOUR_WEB3FORMS_KEY';
+if (import.meta.env.PROD && web3formsKey === 'YOUR_WEB3FORMS_KEY') {
+  // 不阻擋 build；業主可能仍在預覽開發版本
+  // 真正的告警會出現在伺服器/CI 構建記錄中
+  console.warn('[contact] PUBLIC_WEB3FORMS_KEY 仍為 placeholder，表單提交將失敗');
+}
 
 const roomOptions: Array<{ value: string; key: string }> = [
   { value: '', key: 'contact.formRoomOptionAny' },
@@ -44,17 +68,35 @@ const subjectOptions: Array<{ value: string; key: string }> = [
   { value: 'media', key: 'contact.formSubjectMedia' },
   { value: 'other', key: 'contact.formSubjectOther' },
 ];
+
+// 用於 client script 的錯誤訊息字典（事先序列化為 JSON，
+// 嵌入 <script type="application/json"> 後由 client 端讀取，避免 client 重複載入 i18n 模組）
+const clientI18n = {
+  errorDict: {
+    errorRequired: t('contact.errorRequired'),
+    errorEmail: t('contact.errorEmail'),
+    errorPhone: t('contact.errorPhone'),
+    errorMessageMin: t('contact.errorMessageMin'),
+    errorMessageMax: t('contact.errorMessageMax'),
+    errorCheckInPast: t('contact.errorCheckInPast'),
+    errorCheckOutBeforeIn: t('contact.errorCheckOutBeforeIn'),
+    errorGuestsRange: t('contact.errorGuestsRange'),
+  },
+  successText: t('contact.successMessage'),
+  errorText: t('contact.errorMessage'),
+  retryText: t('contact.formRetryLabel'),
+};
 ---
 
-<article class="contact">
+<article class="contact" aria-labelledby="contact-page-heading">
   <header class="page-header container-wide">
-    <h1 class="page-title">{t('contact.pageTitle')}</h1>
+    <h1 id="contact-page-heading" class="page-title">{t('contact.pageTitle')}</h1>
     <p class="page-lead">{t('contact.pageLead')}</p>
   </header>
 
-  <section class="cta-trio">
+  <section class="cta-trio" aria-labelledby="cta-trio-heading">
     <div class="container-wide">
-      <SectionHeading title={t('contact.ctaTrioHeading')} align="center" variant="ocean" />
+      <SectionHeading id="cta-trio-heading" title={t('contact.ctaTrioHeading')} align="center" variant="ocean" />
       <ul class="trio">
         <li class="trio-card line">
           <span class="badge">L</span>
@@ -68,7 +110,7 @@ const subjectOptions: Array<{ value: string; key: string }> = [
           <span class="badge">☎</span>
           <h3>{t('contact.ctaTrioPhoneTitle')}</h3>
           <p>{t('contact.ctaTrioPhoneBody')}</p>
-          <a class="trio-btn" href={`tel:${phone.replace(/\s+/g, '')}`}>
+          <a class="trio-btn" href={`tel:${phoneTel}`}>
             {phone}
           </a>
         </li>
@@ -84,9 +126,10 @@ const subjectOptions: Array<{ value: string; key: string }> = [
     </div>
   </section>
 
-  <section class="form-section">
+  <section class="form-section" aria-labelledby="form-section-heading">
     <div class="container-wide form-wrap">
       <SectionHeading
+        id="form-section-heading"
         title={t('contact.formHeading')}
         subtitle={t('contact.formLead')}
         variant="ocean"
@@ -97,8 +140,9 @@ const subjectOptions: Array<{ value: string; key: string }> = [
         class="contact-form"
         action="https://api.web3forms.com/submit"
         method="POST"
+        novalidate
       >
-        <input type="hidden" name="access_key" value="YOUR_WEB3FORMS_KEY" />
+        <input type="hidden" name="access_key" value={web3formsKey} />
         <input type="hidden" name="from_name" value="Runners House Website" />
         <input
           type="hidden"
@@ -107,7 +151,22 @@ const subjectOptions: Array<{ value: string; key: string }> = [
             ? '[Runners House] New inquiry from website'
             : '[跑者之家] 官網新詢問'}
         />
-        <input type="checkbox" name="botcheck" class="botcheck" tabindex="-1" autocomplete="off" />
+        {/* 蜂蜜罐：人類使用者不應填寫，bot 會誤以為要填的欄位；
+            tabindex="-1" + aria-hidden 確保鍵盤導覽與 AT 完全跳過 */}
+        <input
+          type="checkbox"
+          name="botcheck"
+          class="botcheck"
+          tabindex="-1"
+          aria-hidden="true"
+          autocomplete="off"
+        />
+        {/*
+         * 預留 captcha 欄位（業主未來啟用 hCaptcha / Turnstile 時放上對應 widget）
+         * Web3Forms 支援 h-captcha-response 欄位驗證；啟用後須在 Web3Forms 後台啟用 captcha。
+         * <div class="h-captcha" data-captcha="true"></div>
+         * <script src="https://web3forms.com/client/script.js" async defer></script>
+         */}
 
         <div class="row">
           <label class="field">
@@ -123,8 +182,9 @@ const subjectOptions: Array<{ value: string; key: string }> = [
               maxlength="80"
               placeholder={t('contact.formNamePlaceholder')}
               autocomplete="name"
+              aria-describedby="err-name"
             />
-            <span class="error-msg">{t('contact.errorRequired')}</span>
+            <span id="err-name" class="error-msg" role="alert"></span>
           </label>
         </div>
 
@@ -140,8 +200,9 @@ const subjectOptions: Array<{ value: string; key: string }> = [
               required
               placeholder={t('contact.formEmailPlaceholder')}
               autocomplete="email"
+              aria-describedby="err-email"
             />
-            <span class="error-msg">{t('contact.errorEmail')}</span>
+            <span id="err-email" class="error-msg" role="alert"></span>
           </label>
           <label class="field">
             <span class="label-text">
@@ -152,11 +213,12 @@ const subjectOptions: Array<{ value: string; key: string }> = [
               type="tel"
               name="phone"
               required
-              pattern="^(\+886|0)[0-9\s\-()]{8,15}$"
+              pattern={phonePattern}
               placeholder={t('contact.formPhonePlaceholder')}
               autocomplete="tel"
+              aria-describedby="err-phone"
             />
-            <span class="error-msg">{t('contact.errorPhone')}</span>
+            <span id="err-phone" class="error-msg" role="alert"></span>
           </label>
         </div>
 
@@ -166,16 +228,28 @@ const subjectOptions: Array<{ value: string; key: string }> = [
               {t('contact.formCheckInLabel')}
               <span class="req" aria-hidden="true">{t('ui.required')}</span>
             </span>
-            <input type="date" name="check_in" required />
-            <span class="error-msg">{t('contact.errorRequired')}</span>
+            <input
+              type="date"
+              name="check_in"
+              required
+              min={today}
+              aria-describedby="err-check_in"
+            />
+            <span id="err-check_in" class="error-msg" role="alert"></span>
           </label>
           <label class="field">
             <span class="label-text">
               {t('contact.formCheckOutLabel')}
               <span class="req" aria-hidden="true">{t('ui.required')}</span>
             </span>
-            <input type="date" name="check_out" required />
-            <span class="error-msg">{t('contact.errorCheckOutBeforeIn')}</span>
+            <input
+              type="date"
+              name="check_out"
+              required
+              min={today}
+              aria-describedby="err-check_out"
+            />
+            <span id="err-check_out" class="error-msg" role="alert"></span>
           </label>
         </div>
 
@@ -193,17 +267,22 @@ const subjectOptions: Array<{ value: string; key: string }> = [
               max="10"
               step="1"
               value="2"
+              aria-describedby="err-guests guests-hint"
             />
-            <span class="hint-text">{t('contact.formGuestsHint')}</span>
-            <span class="error-msg">{t('contact.errorGuestsRange')}</span>
+            <span id="guests-hint" class="hint-text">{t('contact.formGuestsHint')}</span>
+            <span id="err-guests" class="error-msg" role="alert"></span>
           </label>
           <label class="field">
-            <span class="label-text">{t('contact.formRoomLabel')}</span>
-            <select name="room_preference">
+            <span class="label-text">
+              {t('contact.formRoomLabel')}
+              <span class="optional" aria-hidden="true">{t('ui.optional')}</span>
+            </span>
+            <select name="room_preference" aria-describedby="err-room_preference">
               {roomOptions.map((opt) => (
                 <option value={opt.value}>{t(opt.key)}</option>
               ))}
             </select>
+            <span id="err-room_preference" class="error-msg" role="alert"></span>
           </label>
         </div>
 
@@ -213,11 +292,12 @@ const subjectOptions: Array<{ value: string; key: string }> = [
               {t('contact.formSubjectLabel')}
               <span class="req" aria-hidden="true">{t('ui.required')}</span>
             </span>
-            <select name="subject_topic" required>
+            <select name="subject_topic" required aria-describedby="err-subject_topic">
               {subjectOptions.map((opt) => (
                 <option value={opt.value}>{t(opt.key)}</option>
               ))}
             </select>
+            <span id="err-subject_topic" class="error-msg" role="alert"></span>
           </label>
         </div>
 
@@ -234,21 +314,31 @@ const subjectOptions: Array<{ value: string; key: string }> = [
               maxlength="2000"
               rows="6"
               placeholder={t('contact.formMessagePlaceholder')}
+              aria-describedby="err-message"
             ></textarea>
-            <span class="error-msg">{t('contact.errorMessageMin')}</span>
+            <span id="err-message" class="error-msg" role="alert"></span>
           </label>
         </div>
 
         <p class="privacy">{t('contact.formPrivacyNote')}</p>
 
         <button class="submit" type="submit">{t('contact.formSubmitLabel')}</button>
+
+        {/* 結果訊息區：成功或失敗時 inline 顯示，不使用 alert */}
+        <div
+          id="contact-result"
+          class="result"
+          role="status"
+          aria-live="polite"
+          hidden
+        ></div>
       </form>
     </div>
   </section>
 
-  <section class="info-section">
+  <section class="info-section" aria-labelledby="info-section-heading">
     <div class="container-wide">
-      <SectionHeading title={t('contact.contactInfoHeading')} variant="ocean" />
+      <SectionHeading id="info-section-heading" title={t('contact.contactInfoHeading')} variant="ocean" />
       <p class="prefer">{t('contact.contactPreferLine')}</p>
       <dl class="info-grid">
         <div>
@@ -257,15 +347,15 @@ const subjectOptions: Array<{ value: string; key: string }> = [
         </div>
         <div>
           <dt>{t('contact.contactInfoPhonePrimary')}</dt>
-          <dd><a href={`tel:${phone.replace(/\s+/g, '')}`}>{phone}</a></dd>
+          <dd><a href={`tel:${phoneTel}`}>{phone}</a></dd>
         </div>
         <div>
           <dt>{t('contact.contactInfoPhoneSecondary')}</dt>
-          <dd><a href={`tel:${phone2.replace(/\s+/g, '')}`}>{phone2}</a></dd>
+          <dd><a href={`tel:${phone2Tel}`}>{phone2}</a></dd>
         </div>
         <div>
           <dt>{t('contact.contactInfoLine')}</dt>
-          <dd><a href={lineUrl} target="_blank" rel="noopener noreferrer">{t('common.realLineId')}</a></dd>
+          <dd><a href={lineUrl} target="_blank" rel="noopener noreferrer">{lineId}</a></dd>
         </div>
         <div>
           <dt>{t('contact.contactInfoCheckIn')}</dt>
@@ -283,10 +373,10 @@ const subjectOptions: Array<{ value: string; key: string }> = [
     </div>
   </section>
 
-  <section class="map-section">
+  <section class="map-section" aria-label={t('contact.mapTitle')}>
     <div class="container-wide map-wrap">
       <iframe
-        title={t('home.locationHeading')}
+        title={t('contact.mapTitle')}
         src={mapEmbedSrc}
         loading="lazy"
         referrerpolicy="no-referrer-when-downgrade"
@@ -297,6 +387,232 @@ const subjectOptions: Array<{ value: string; key: string }> = [
     </div>
   </section>
 </article>
+
+{/*
+ * Client i18n payload：以 application/json 嵌入頁面，由下方 module script 讀取。
+ * 這樣可以保留 i18n 字串於 SSR 階段，又讓 module script 維持「無 attribute」
+ * 以利 Astro / Vite 處理 ESM import（contact-validators 才能正確 bundle）。
+ */}
+<script is:inline type="application/json" id="contact-i18n-payload" set:html={JSON.stringify(clientI18n)}></script>
+
+{/*
+ * Client-side 驗證 + AJAX 提交腳本：
+ *  - 載入 contact-validators 純函式（與伺服器端共用同一驗證邏輯）
+ *  - submit 時 preventDefault → 驗證 → 失敗顯示 inline 錯誤 → 通過則 fetch POST
+ *  - 成功 → 顯示綠色成功訊息並 reset 表單；失敗 → 顯示紅色訊息含「重試」按鈕
+ *  - check_in change 事件動態調整 check_out 最小值（強制隔日起）
+ *
+ * 不加任何 attribute（包含 type="module"）以讓 Astro 走預設處理鏈，
+ * vite 會把 import 路徑解析、bundle、加 hash，避免 production 找不到 .ts 原始檔。
+ */}
+<script>
+  import { validateContactForm } from '@/lib/contact-validators';
+
+  interface ClientI18n {
+    errorDict: Record<string, string>;
+    successText: string;
+    errorText: string;
+    retryText: string;
+  }
+
+  function readI18n(): ClientI18n {
+    const node = document.getElementById('contact-i18n-payload');
+    if (!node) {
+      // 若 payload 缺漏，仍提供最基本英文字串以利使用者看到提示
+      return {
+        errorDict: {},
+        successText: 'Got it — we will reply within 24 hours.',
+        errorText: 'Submission failed. Please try again.',
+        retryText: 'Retry',
+      };
+    }
+    try {
+      return JSON.parse(node.textContent ?? '{}');
+    } catch {
+      return {
+        errorDict: {},
+        successText: '',
+        errorText: '',
+        retryText: 'Retry',
+      };
+    }
+  }
+
+  function setFieldError(
+    form: HTMLFormElement,
+    i18n: ClientI18n,
+    name: string,
+    errorKey: string | null,
+  ) {
+    const input = form.elements.namedItem(name);
+    const errSpan = form.querySelector(`#err-${name}`);
+    if (!errSpan) return;
+    if (errorKey) {
+      errSpan.textContent = i18n.errorDict[errorKey] ?? errorKey;
+      errSpan.classList.add('show');
+      if (input instanceof HTMLElement) {
+        input.setAttribute('aria-invalid', 'true');
+      }
+    } else {
+      errSpan.textContent = '';
+      errSpan.classList.remove('show');
+      if (input instanceof HTMLElement) {
+        input.removeAttribute('aria-invalid');
+      }
+    }
+  }
+
+  function clearAllErrors(form: HTMLFormElement) {
+    form.querySelectorAll('.error-msg').forEach((el) => {
+      el.textContent = '';
+      el.classList.remove('show');
+    });
+    form.querySelectorAll('[aria-invalid="true"]').forEach((el) => {
+      el.removeAttribute('aria-invalid');
+    });
+  }
+
+  function showResult(
+    form: HTMLFormElement,
+    i18n: ClientI18n,
+    type: 'success' | 'error',
+    message: string,
+  ) {
+    const box = form.querySelector('#contact-result');
+    if (!(box instanceof HTMLElement)) return;
+    box.hidden = false;
+    box.className = `result result-${type}`;
+    if (type === 'error') {
+      box.innerHTML = '';
+      const text = document.createElement('span');
+      text.textContent = message;
+      const retryBtn = document.createElement('button');
+      retryBtn.type = 'button';
+      retryBtn.className = 'retry-btn';
+      retryBtn.textContent = i18n.retryText;
+      retryBtn.addEventListener('click', () => {
+        box.hidden = true;
+        box.textContent = '';
+      });
+      box.appendChild(text);
+      box.appendChild(retryBtn);
+    } else {
+      box.textContent = message;
+    }
+  }
+
+  function initContactForm() {
+    const form = document.getElementById('contact-form');
+    if (!(form instanceof HTMLFormElement)) return;
+    const i18n = readI18n();
+
+    // check_in 變更時，強制 check_out 最小值為隔日（避免使用者選到同日或更早）
+    const checkIn = form.elements.namedItem('check_in');
+    const checkOut = form.elements.namedItem('check_out');
+    if (checkIn instanceof HTMLInputElement && checkOut instanceof HTMLInputElement) {
+      checkIn.addEventListener('change', () => {
+        if (!checkIn.value) return;
+        const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(checkIn.value);
+        if (!m) return;
+        const next = new Date(
+          Number(m[1]),
+          Number(m[2]) - 1,
+          Number(m[3]) + 1,
+        );
+        const ny = next.getFullYear();
+        const nm = String(next.getMonth() + 1).padStart(2, '0');
+        const nd = String(next.getDate()).padStart(2, '0');
+        checkOut.min = `${ny}-${nm}-${nd}`;
+        if (checkOut.value && checkOut.value <= checkIn.value) {
+          checkOut.value = `${ny}-${nm}-${nd}`;
+        }
+      });
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearAllErrors(form);
+
+      const data = new FormData(form);
+
+      // 蜂蜜罐：被填即視為 bot，靜默丟棄
+      if (data.get('botcheck')) {
+        return;
+      }
+
+      const payload = {
+        name: String(data.get('name') ?? ''),
+        email: String(data.get('email') ?? ''),
+        phone: String(data.get('phone') ?? ''),
+        checkIn: String(data.get('check_in') ?? ''),
+        checkOut: String(data.get('check_out') ?? ''),
+        guests: Number(data.get('guests') ?? 0),
+        roomPreference: String(data.get('room_preference') ?? ''),
+        subject: String(data.get('subject_topic') ?? ''),
+        message: String(data.get('message') ?? ''),
+      };
+
+      const result = validateContactForm(payload);
+      if (!result.ok) {
+        const fieldMap: Record<string, string> = {
+          name: 'name',
+          email: 'email',
+          phone: 'phone',
+          dateRange: 'check_out',
+          guests: 'guests',
+          subject: 'subject_topic',
+          roomPreference: 'room_preference',
+          message: 'message',
+        };
+        for (const [errKey, fieldName] of Object.entries(fieldMap)) {
+          if (result.errors[errKey]) {
+            setFieldError(form, i18n, fieldName, result.errors[errKey]);
+          }
+        }
+        const firstInvalid = form.querySelector('[aria-invalid="true"]');
+        if (firstInvalid instanceof HTMLElement) {
+          firstInvalid.focus();
+        }
+        return;
+      }
+
+      const submitBtn = form.querySelector('button[type="submit"]');
+      if (submitBtn instanceof HTMLButtonElement) {
+        submitBtn.disabled = true;
+      }
+
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          headers: { Accept: 'application/json' },
+          body: data,
+        });
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+        const json = await res.json().catch(() => ({}) as { success?: boolean; message?: string });
+        if (json && json.success === false) {
+          throw new Error(json.message ?? 'Submission failed');
+        }
+        showResult(form, i18n, 'success', i18n.successText);
+        form.reset();
+      } catch (err) {
+        console.error('[contact] submit failed:', err);
+        showResult(form, i18n, 'error', i18n.errorText);
+      } finally {
+        if (submitBtn instanceof HTMLButtonElement) {
+          submitBtn.disabled = false;
+        }
+      }
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initContactForm);
+  } else {
+    initContactForm();
+  }
+</script>
 
 <style>
   .contact { background-color: var(--color-timber-50); padding-bottom: 5rem; }
@@ -339,7 +655,7 @@ const subjectOptions: Array<{ value: string; key: string }> = [
   .trio-card {
     padding: 1.75rem;
     border-radius: 1rem;
-    background-color: white;
+    background-color: var(--color-surface);
     border: 1px solid var(--color-timber-200);
     display: flex;
     flex-direction: column;
@@ -359,7 +675,7 @@ const subjectOptions: Array<{ value: string; key: string }> = [
     font-size: 1.4rem;
     color: white;
   }
-  .trio-card.line .badge { background-color: #00b900; }
+  .trio-card.line .badge { background-color: var(--color-line-brand); }
   .trio-card.phone .badge { background-color: var(--color-ocean-700); }
   .trio-card.form .badge { background-color: var(--color-timber-700); }
   .trio-card h3 {
@@ -384,14 +700,14 @@ const subjectOptions: Array<{ value: string; key: string }> = [
     color: white;
     font-size: 0.95rem;
   }
-  .trio-card.line .trio-btn { background-color: #00b900; }
-  .trio-card.line .trio-btn:hover { background-color: #009900; }
+  .trio-card.line .trio-btn { background-color: var(--color-line-brand); }
+  .trio-card.line .trio-btn:hover { background-color: var(--color-line-brand-hover); }
   .trio-card.phone .trio-btn { background-color: var(--color-ocean-700); font-family: var(--font-mono); }
   .trio-card.phone .trio-btn:hover { background-color: var(--color-ocean-800); }
   .trio-card.form .trio-btn { background-color: var(--color-timber-700); }
   .trio-card.form .trio-btn:hover { background-color: var(--color-timber-800); }
 
-  .form-section { background-color: white; }
+  .form-section { background-color: var(--color-surface); }
   .form-wrap { max-width: 48rem; }
   .contact-form {
     display: flex;
@@ -419,8 +735,14 @@ const subjectOptions: Array<{ value: string; key: string }> = [
     font-weight: 500;
   }
   .req {
-    color: #dc2626;
+    color: var(--color-error);
     margin-left: 0.25rem;
+  }
+  .optional {
+    color: var(--color-ink-500);
+    margin-left: 0.25rem;
+    font-size: 0.85rem;
+    font-weight: 400;
   }
   .field input,
   .field select,
@@ -428,35 +750,44 @@ const subjectOptions: Array<{ value: string; key: string }> = [
     padding: 0.7rem 0.85rem;
     border: 1px solid var(--color-timber-300);
     border-radius: 0.5rem;
-    background-color: white;
+    background-color: var(--color-surface);
     color: var(--color-ink-900);
     font-family: var(--font-body);
     font-size: 0.95rem;
-    transition: border-color 160ms var(--ease-snappy), box-shadow 160ms var(--ease-snappy);
+    transition: border-color 160ms var(--ease-snappy);
   }
   .field textarea {
     resize: vertical;
     min-height: 6rem;
   }
-  .field input:focus,
-  .field select:focus,
-  .field textarea:focus {
-    outline: none;
+  /* 採 :focus-visible 而非 :focus，僅在鍵盤導覽顯示焦點環，
+     滑鼠點擊不會留下視覺殘留；用 outline 取代 box-shadow 確保 high-contrast 模式下仍可見 */
+  .field input:focus-visible,
+  .field select:focus-visible,
+  .field textarea:focus-visible {
+    outline: 2px solid var(--color-ocean-600);
+    outline-offset: 2px;
     border-color: var(--color-ocean-600);
-    box-shadow: 0 0 0 3px rgb(2 132 199 / 0.18);
   }
   .field input:user-invalid,
-  .field textarea:user-invalid {
-    border-color: #dc2626;
-    background-color: #fef2f2;
+  .field select:user-invalid,
+  .field textarea:user-invalid,
+  .field input[aria-invalid='true'],
+  .field select[aria-invalid='true'],
+  .field textarea[aria-invalid='true'] {
+    border-color: var(--color-error);
+    background-color: var(--color-error-bg);
   }
   .error-msg {
-    color: #dc2626;
+    color: var(--color-error);
     font-size: 0.82rem;
+    min-height: 1.1em;
     display: none;
   }
   .field input:user-invalid ~ .error-msg,
-  .field textarea:user-invalid ~ .error-msg {
+  .field select:user-invalid ~ .error-msg,
+  .field textarea:user-invalid ~ .error-msg,
+  .error-msg.show {
     display: inline;
   }
   .hint-text {
@@ -482,6 +813,41 @@ const subjectOptions: Array<{ value: string; key: string }> = [
     transition: background-color 160ms var(--ease-snappy), transform 160ms var(--ease-snappy);
   }
   .submit:hover { background-color: var(--color-ocean-800); transform: translateY(-1px); }
+  .submit:disabled { background-color: var(--color-ink-400); cursor: wait; transform: none; }
+
+  .result {
+    margin-top: 0.5rem;
+    padding: 1rem 1.25rem;
+    border-radius: 0.5rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .result-success {
+    background-color: #ecfdf5;
+    color: #065f46;
+    border-left: 3px solid #10b981;
+  }
+  .result-error {
+    background-color: var(--color-error-bg);
+    color: var(--color-error);
+    border-left: 3px solid var(--color-error);
+  }
+  .retry-btn {
+    margin-left: auto;
+    padding: 0.4rem 1rem;
+    border-radius: 999px;
+    background-color: var(--color-error);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+  .retry-btn:hover { filter: brightness(0.92); }
 
   .info-section { background-color: var(--color-timber-50); }
   .prefer {
@@ -501,7 +867,7 @@ const subjectOptions: Array<{ value: string; key: string }> = [
   @media (min-width: 768px) { .info-grid { grid-template-columns: 1fr 1fr; } }
   .info-grid div {
     padding: 0.85rem 1rem;
-    background-color: white;
+    background-color: var(--color-surface);
     border-radius: 0.5rem;
     display: grid;
     grid-template-columns: 9rem 1fr;
@@ -522,7 +888,7 @@ const subjectOptions: Array<{ value: string; key: string }> = [
   .info-grid a { color: var(--color-ocean-700); text-decoration: none; }
   .info-grid a:hover { color: var(--color-ocean-900); }
 
-  .map-section { padding-block: 0 3rem; background-color: white; }
+  .map-section { padding-block: 0 3rem; background-color: var(--color-surface); }
   .map-wrap {
     border-radius: 1rem;
     overflow: hidden;
