@@ -45,9 +45,93 @@ jobs:
         run: npm run build
 
       - name: Upload build artifact
-        if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist
           retention-days: 7
+
+  unit-test:
+    name: 單元測試（Vitest）
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm test
+
+  e2e-test:
+    name: E2E 與無障礙測試（Playwright + axe-core）
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: typecheck-build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright tests
+        # playwright.config.ts 的 webServer 會自動 build + preview
+        run: npm run test:e2e
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report
+          retention-days: 14
+
+  lighthouse:
+    name: Lighthouse 效能稽核
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: typecheck-build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download build artifact
+        # 複用 typecheck-build job 的 dist artifact，避免重複 build 浪費 CI 時間
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+      - name: Run Lighthouse CI
+        # lighthouserc.json 設定的目標：Performance ≥ 90、Accessibility = 100、Best Practices ≥ 90、SEO = 100
+        # numberOfRuns: 3 取中位數降低 flaky；staticDistDir 直接用 dist 不需 preview server
+        run: npm run test:perf
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}

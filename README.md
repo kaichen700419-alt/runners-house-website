@@ -21,6 +21,21 @@
 | `npm run preview` | 預覽建置後的網站 |
 | `npm run typecheck` | 僅執行型別檢查 |
 | `npm run test` | 執行 Vitest 單元測試 |
+| `npm run test:e2e` | 執行 Playwright E2E 測試（含 axe-core 無障礙稽核） |
+| `npm run test:e2e:ui` | Playwright UI 模式，互動式偵錯 E2E 測試 |
+| `npm run test:a11y` | 僅執行 axe-core 無障礙稽核 |
+| `npm run test:perf` | 執行 Lighthouse CI（建議僅於 CI 環境執行，本地需 Chrome） |
+
+### E2E 測試前置作業
+
+第一次執行需安裝 Playwright 瀏覽器 binary：
+
+```bash
+npx playwright install chromium
+```
+
+`npm run test:e2e` 會自動 `npm run build` + 啟動 preview server（http://localhost:4321）後執行 chromium 測試；
+共 9 個 spec 檔，覆蓋 7 個主要頁面 + 5 個房型詳情 + 中英對等 + 響應式 + 表單驗證 + a11y 稽核。
 
 ## 環境變數（業主上線前必填）
 
@@ -45,6 +60,31 @@ src/
 ├── pages/         # 路由頁面（Astro 約定）
 └── styles/        # 全域 CSS 與 design tokens
 ```
+
+## 部署（Cloudflare Pages）
+
+完整部署步驟、安全 header 設定、舊 Wix 路徑導向、緊急回滾流程詳見
+[`docs/deployment.md`](./docs/deployment.md)。
+
+簡述：
+
+1. Cloudflare Dashboard → Workers & Pages → Connect to Git，選 `main` 分支
+2. Build command：`npm run build`、Output dir：`dist`、Node 22
+3. Environment variables 設定 `PUBLIC_WEB3FORMS_KEY`（必填）與 `PUBLIC_GA_ID`（選填）
+4. `public/_headers`、`public/_redirects` 會自動套用（含 CSP/HSTS/X-Frame-Options 與舊 Wix 路徑 301）
+5. `wrangler.toml` 已備好，亦可 `wrangler pages deploy dist` 從本地推送
+
+## CI
+
+`docs/ci-template.yml` 為 GitHub Actions workflow 模板，啟用步驟：
+
+```bash
+gh auth refresh -h github.com -s workflow
+mv docs/ci-template.yml .github/workflows/ci.yml
+git add -A && git commit -m "ci: 啟用 GitHub Actions CI" && git push
+```
+
+包含 4 個 job：typecheck-build / unit-test / e2e-test（Playwright + axe）/ lighthouse。
 
 ## 開發守則
 

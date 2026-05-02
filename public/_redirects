@@ -1,3 +1,20 @@
 # Cloudflare Pages 重新導向規則
-# 預留檔案；目前不需任何 redirect。需要時依以下格式新增：
-# /old-path  /new-path  301
+#
+# 從舊 Wix 站台路徑導向新 Astro 站台路徑。
+# 規則格式：<舊路徑>  <新路徑>  <狀態碼>
+# 301 = 永久重定向，搜尋引擎會把舊網址的權重轉移到新網址。
+#
+# 順序由上而下匹配；越精確的規則越要放上面。
+
+# 房型相關
+/runnershouse-room    /rooms    301
+/rooms-1              /rooms    301
+
+# 跑者主場 / 賽事 / 路線
+/courses              /runners  301
+
+# 周邊景點
+/xiang-mu             /nearby   301
+
+# Wix 慣用查詢字串路徑（保險起見再多收一條 booking → contact）
+/booking              /contact  301
