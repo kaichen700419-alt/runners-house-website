@@ -23,12 +23,27 @@ export const SITE = {
   ogLocaleEn: 'en_US',
 } as const;
 
+/**
+ * 真實聯絡資料（單一真相）。
+ *
+ * 此處為跑者之家對外公開的真實電話、Email、LINE 與社群連結，
+ * Footer / Schema.org / 聯絡頁 / 房型詳情頁 / ClosingCta / 充電頁皆從此檔取得，
+ * 避免散落於 i18n 字典造成「中文與英文顯示不同電話」的雙真相 bug。
+ *
+ * - phone：對 tel: 用的 E.164 形式（含 + 與國碼，以 - 分組）
+ * - phoneDisplay：對畫面顯示用的台灣慣用格式
+ * - phonePrimary / phoneSecondary：主要與副線聯絡電話
+ */
 export const CONTACT = {
-  phone: '+886-89-100100',
-  phoneDisplay: '089-100100',
+  phone: '+886-933-430-418',
+  phoneDisplay: '0933-430-418',
+  phonePrimary: '0933-430-418',
+  phonePrimaryTel: '+886933430418',
+  phoneSecondary: '0912-699-709',
+  phoneSecondaryTel: '+886912699709',
   email: 'hello@runnershouse.tw',
-  lineId: '@runnershouse',
-  lineUrl: 'https://line.me/R/ti/p/@runnershouse',
+  lineId: '@659gkrae',
+  lineUrl: 'https://line.me/R/ti/p/%40659gkrae',
   facebookUrl: 'https://www.facebook.com/runnershouse.tw',
   instagramUrl: 'https://www.instagram.com/runnershouse.tw',
 } as const;

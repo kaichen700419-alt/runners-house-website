@@ -1,0 +1,32 @@
+---
+/**
+ * Runners page (English)
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import RunnersSections from '@/components/runners/RunnersSections.astro';
+import Breadcrumbs from '@/components/ui/Breadcrumbs.astro';
+import { useTranslations } from '@/i18n/utils';
+import { SITE } from '@/lib/site';
+
+const locale = 'en';
+const t = useTranslations(locale);
+
+const breadcrumbItems = [
+  { label: t('runners.pageTitle') },
+];
+const schemaBreadcrumbs = [
+  { name: t('ui.breadcrumbHome'), url: new URL('/en', SITE.url).toString() },
+  { name: t('runners.pageTitle'), url: new URL('/en/runners', SITE.url).toString() },
+];
+---
+
+<BaseLayout
+  title={t('seo.runnersTitle')}
+  description={t('seo.runnersDescription')}
+  breadcrumbs={schemaBreadcrumbs}
+>
+  <div class="container-wide">
+    <Breadcrumbs locale={locale} items={breadcrumbItems} />
+  </div>
+  <RunnersSections locale={locale} />
+</BaseLayout>

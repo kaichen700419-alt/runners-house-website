@@ -66,6 +66,25 @@
   /* 動效 timing */
   --ease-natural: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-snappy: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* 純白底色（Card / Form / Map） */
+  --color-surface: #ffffff;
+
+  /* LINE 品牌色（與 LINE 官方色票一致） */
+  --color-line-brand: #00b900;
+  --color-line-brand-hover: #009900;
+
+  /* 系統狀態色 — error / warning */
+  --color-error: #dc2626;
+  --color-error-bg: #fef2f2;
+  --color-warning: #f97316;
+  --color-warning-bg: #fff7ed;
+  --color-warning-text: #9a3412;
+
+  /* 跑者路線難度色 — 與 routes.difficulty enum 對應 */
+  --color-difficulty-easy: #10b981;
+  --color-difficulty-medium: #f59e0b;
+  --color-difficulty-hard: #ef4444;
 }
 
 /* 基礎重置 */

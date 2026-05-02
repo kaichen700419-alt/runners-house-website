@@ -1,0 +1,155 @@
+---
+/**
+ * LocationMap 元件
+ *
+ * 首頁位置區，含地址、Google Maps 嵌入、自駕與大眾運輸說明。
+ */
+import { useTranslations } from '@/i18n/utils';
+import { GEO } from '@/lib/site';
+import SectionHeading from '@/components/ui/SectionHeading.astro';
+import type { Locale } from '@/i18n/types';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+const mapQuery = encodeURIComponent(`${GEO.latitude},${GEO.longitude}`);
+const mapEmbedSrc = `https://www.google.com/maps?q=${mapQuery}&hl=${locale === 'en' ? 'en' : 'zh-TW'}&z=14&output=embed`;
+const mapsLink = `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
+---
+
+<section class="location" id="location">
+  <div class="container-wide">
+    <SectionHeading
+      title={t('home.locationHeading')}
+      subtitle={t('home.locationLead')}
+      variant="ocean"
+    />
+    <div class="grid">
+      <div class="info">
+        <p class="address">{t('common.addressFull')}</p>
+        <ul class="bullets">
+          <li>
+            <span class="bullet" aria-hidden="true">↓</span>
+            <span>{t('home.locationDriveSouth')}</span>
+          </li>
+          <li>
+            <span class="bullet" aria-hidden="true">↑</span>
+            <span>{t('home.locationDriveNorth')}</span>
+          </li>
+          <li>
+            <span class="bullet" aria-hidden="true">P</span>
+            <span>{t('home.locationParking')}</span>
+          </li>
+          <li>
+            <span class="bullet" aria-hidden="true">B</span>
+            <span>{t('home.locationTransit')}</span>
+          </li>
+        </ul>
+        <a
+          class="map-cta"
+          href={mapsLink}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {t('home.locationMapCta')}
+          <span aria-hidden="true">↗</span>
+        </a>
+      </div>
+      <div class="map">
+        <iframe
+          title={t('footer.mapAria')}
+          aria-label={t('footer.mapAria')}
+          src={mapEmbedSrc}
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          sandbox="allow-scripts allow-same-origin allow-popups"
+          width="100%"
+          height="380"
+        ></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .location {
+    padding-block: 5rem;
+    background-color: var(--color-ocean-50);
+  }
+  .grid {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 1024px) {
+    .grid {
+      grid-template-columns: 1fr 1.4fr;
+      gap: 3rem;
+      align-items: center;
+    }
+  }
+  .info {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .address {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    color: var(--color-ink-950);
+    line-height: 1.5;
+  }
+  .bullets {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+  .bullets li {
+    display: grid;
+    grid-template-columns: 1.75rem 1fr;
+    gap: 0.5rem;
+    align-items: start;
+    color: var(--color-ink-700);
+    font-size: 0.95rem;
+    line-height: 1.65;
+  }
+  .bullet {
+    font-size: 1.1rem;
+    line-height: 1.4;
+  }
+  .map-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.7rem 1.2rem;
+    border-radius: 999px;
+    background-color: var(--color-ocean-700);
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    width: fit-content;
+    transition: background-color 160ms var(--ease-snappy), transform 160ms var(--ease-snappy);
+  }
+  .map-cta:hover {
+    background-color: var(--color-ocean-800);
+    transform: translateY(-1px);
+  }
+  .map {
+    border-radius: 1rem;
+    overflow: hidden;
+    border: 1px solid var(--color-ocean-200);
+    background-color: white;
+  }
+  .map iframe {
+    display: block;
+    border: 0;
+    width: 100%;
+  }
+</style>

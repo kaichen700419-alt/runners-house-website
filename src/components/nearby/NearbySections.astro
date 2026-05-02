@@ -1,0 +1,340 @@
+---
+/**
+ * NearbySections
+ *
+ * 周邊景點 + 餐廳頁主體：
+ *   1. 「不提供餐點」醒目提醒
+ *   2. 景點清單（按距離由近至遠）
+ *   3. 餐廳清單（按距離由近至遠）
+ *   4. 建議行程（兩日一夜）
+ */
+import { getCollection } from 'astro:content';
+import { useTranslations } from '@/i18n/utils';
+import SectionHeading from '@/components/ui/SectionHeading.astro';
+import ImagePlaceholder from '@/components/ui/ImagePlaceholder.astro';
+import type { Locale } from '@/i18n/types';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+
+const attractionsAll = await getCollection('attractions');
+const restaurantsAll = await getCollection('restaurants');
+// Collection 為空守門：上線後若內容被誤刪會在頁面靜默呈現空白；build 期間 fail-loud 才能即時發現。
+if (!attractionsAll.length) {
+  throw new Error('[content] attractions collection 為空');
+}
+if (!restaurantsAll.length) {
+  throw new Error('[content] restaurants collection 為空');
+}
+// 穩定排序：distance 相同時改以 id 字典序當 tiebreaker，避免不同 build 順序不一致。
+const attractions = attractionsAll
+  .slice()
+  .sort(
+    (a, b) =>
+      a.data.distanceMin - b.data.distanceMin || a.data.id.localeCompare(b.data.id),
+  );
+const restaurants = restaurantsAll
+  .slice()
+  .sort(
+    (a, b) =>
+      a.data.distanceMin - b.data.distanceMin || a.data.id.localeCompare(b.data.id),
+  );
+
+const variants = ['ocean', 'sand', 'timber', 'ink'] as const;
+---
+
+<article class="nearby" aria-labelledby="nearby-page-heading">
+  <header class="page-header container-wide">
+    <h1 id="nearby-page-heading" class="page-title">{t('nearby.pageTitle')}</h1>
+    <p class="page-lead">{t('nearby.pageLead')}</p>
+  </header>
+
+  <section class="no-meals" aria-labelledby="nearby-nomeals-heading">
+    <div class="container-wide notice">
+      <span class="badge" aria-hidden="true">!</span>
+      <div>
+        <h2 id="nearby-nomeals-heading" class="notice-title">{t('nearby.noMealsHeading')}</h2>
+        <p class="notice-body">{t('nearby.noMealsBody')}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="spots" aria-labelledby="nearby-spots-heading">
+    <div class="container-wide">
+      <SectionHeading
+        id="nearby-spots-heading"
+        title={t('nearby.spotsHeading')}
+        subtitle={t('nearby.spotsLead')}
+        variant="ocean"
+      />
+      <ul class="card-grid">
+        {
+          attractions.map((spot, i) => {
+            const name = locale === 'en' ? spot.data.name_en : spot.data.name_zh;
+            const desc = locale === 'en' ? spot.data.description_en : spot.data.description_zh;
+            return (
+              <li class="card">
+                <div class="image">
+                  <ImagePlaceholder
+                    locale={locale}
+                    alt={name}
+                    ratio="4:3"
+                    variant={variants[i % variants.length] ?? 'ocean'}
+                  />
+                </div>
+                <div class="body">
+                  <span class="distance">{spot.data.distanceMin} {t('nearby.distanceMinUnit')}</span>
+                  <h3 class="name">{name}</h3>
+                  <p class="desc">{desc}</p>
+                  <a class="link" href={spot.data.mapUrl} target="_blank" rel="noopener noreferrer">
+                    {t('home.locationMapCta')}
+                    <span aria-hidden="true">↗</span>
+                  </a>
+                </div>
+              </li>
+            );
+          })
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="food" aria-labelledby="nearby-food-heading">
+    <div class="container-wide">
+      <SectionHeading
+        id="nearby-food-heading"
+        title={t('nearby.foodHeading')}
+        subtitle={t('nearby.foodLead')}
+        variant="ocean"
+      />
+      <ul class="card-grid">
+        {
+          restaurants.map((r, i) => {
+            const name = locale === 'en' ? r.data.name_en : r.data.name_zh;
+            const type = locale === 'en' ? r.data.type_en : r.data.type_zh;
+            const desc = locale === 'en' ? r.data.description_en : r.data.description_zh;
+            return (
+              <li class="card">
+                <div class="image">
+                  <ImagePlaceholder
+                    locale={locale}
+                    alt={name}
+                    ratio="4:3"
+                    variant={variants[i % variants.length] ?? 'sand'}
+                  />
+                </div>
+                <div class="body">
+                  <span class="distance">{r.data.distanceMin} {t('nearby.distanceMinUnit')}</span>
+                  <h3 class="name">{name}</h3>
+                  <p class="type">{type}</p>
+                  <p class="desc">{desc}</p>
+                </div>
+              </li>
+            );
+          })
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="itinerary" aria-labelledby="nearby-itinerary-heading">
+    <div class="container-wide">
+      <SectionHeading
+        id="nearby-itinerary-heading"
+        title={t('nearby.itineraryHeading')}
+        subtitle={t('nearby.itineraryLead')}
+        variant="ocean"
+      />
+      <ol class="days">
+        <li>
+          <span class="day-tag">D1</span>
+          <h3>{t('nearby.itineraryDay1Title')}</h3>
+          <p>{t('nearby.itineraryDay1Body')}</p>
+        </li>
+        <li>
+          <span class="day-tag">D2</span>
+          <h3>{t('nearby.itineraryDay2Title')}</h3>
+          <p>{t('nearby.itineraryDay2Body')}</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+</article>
+
+<style>
+  .nearby { background-color: var(--color-timber-50); padding-bottom: 5rem; }
+  .page-header {
+    padding-block: 4rem 2rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  .page-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(2.25rem, 5vw, 3.25rem);
+    color: var(--color-ink-950);
+  }
+  .page-lead {
+    margin: 0;
+    max-width: 38rem;
+    color: var(--color-ink-700);
+    font-size: 1.05rem;
+    line-height: 1.85;
+  }
+
+  section { padding-block: 3.5rem; }
+  section + section { border-top: 1px solid var(--color-timber-200); }
+
+  .no-meals { padding-block: 2rem; }
+  .notice {
+    display: grid;
+    grid-template-columns: 3.5rem 1fr;
+    gap: 1.25rem;
+    padding: 1.75rem 2rem;
+    background-color: var(--color-warning-bg);
+    border-radius: 1rem;
+    border-left: 4px solid var(--color-warning);
+    align-items: start;
+  }
+  .badge {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    background-color: var(--color-warning);
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.6rem;
+  }
+  .notice-title {
+    margin: 0 0 0.5rem;
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    color: var(--color-warning-text);
+  }
+  .notice-body {
+    margin: 0;
+    color: var(--color-ink-800);
+    line-height: 1.75;
+  }
+
+  .card-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 768px) {
+    .card-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 1024px) {
+    .card-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  .card {
+    background-color: var(--color-surface);
+    border-radius: 1rem;
+    overflow: hidden;
+    border: 1px solid var(--color-timber-200);
+    display: flex;
+    flex-direction: column;
+    transition: transform 220ms var(--ease-snappy);
+  }
+  .card:hover { transform: translateY(-3px); }
+  .image { overflow: hidden; }
+  .body {
+    padding: 1.25rem 1.5rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    flex: 1;
+  }
+  .distance {
+    align-self: flex-start;
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    background-color: var(--color-ocean-100);
+    color: var(--color-ocean-900);
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    letter-spacing: 0.04em;
+  }
+  .name {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    color: var(--color-ink-950);
+  }
+  .type {
+    margin: 0;
+    color: var(--color-timber-700);
+    font-size: 0.85rem;
+    font-style: italic;
+  }
+  .desc {
+    margin: 0;
+    color: var(--color-ink-700);
+    font-size: 0.9rem;
+    line-height: 1.75;
+  }
+  .link {
+    margin-top: auto;
+    align-self: flex-start;
+    color: var(--color-ocean-700);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  .link:hover { color: var(--color-ocean-900); }
+
+  .itinerary { background-color: white; }
+  .days {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 768px) { .days { grid-template-columns: 1fr 1fr; } }
+  .days li {
+    padding: 1.75rem;
+    border-radius: 1rem;
+    background-color: var(--color-timber-50);
+    border-left: 4px solid var(--color-ocean-600);
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+  .day-tag {
+    align-self: flex-start;
+    padding: 0.2rem 0.7rem;
+    border-radius: 999px;
+    background-color: var(--color-ocean-700);
+    color: white;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+  }
+  .days h3 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    color: var(--color-ink-950);
+  }
+  .days p {
+    margin: 0;
+    color: var(--color-ink-700);
+    line-height: 1.75;
+  }
+</style>

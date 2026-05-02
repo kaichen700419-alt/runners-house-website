@@ -1,0 +1,395 @@
+---
+/**
+ * RunnersSections
+ *
+ * 跑者主場頁主體：簡介 + 賽事 + 路線 + 友善服務。
+ * 採海洋運動風（ocean / sand 主色）。
+ */
+import { getCollection } from 'astro:content';
+import { useTranslations } from '@/i18n/utils';
+import SectionHeading from '@/components/ui/SectionHeading.astro';
+import ImagePlaceholder from '@/components/ui/ImagePlaceholder.astro';
+import type { Locale } from '@/i18n/types';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+
+const racesAll = await getCollection('races');
+const routesAll = await getCollection('routes');
+// Collection 為空守門：賽事 / 路線資料缺失會讓畫面靜默呈現空白，build 期間 fail-loud。
+if (!racesAll.length) {
+  throw new Error('[content] races collection 為空');
+}
+if (!routesAll.length) {
+  throw new Error('[content] routes collection 為空');
+}
+// 穩定排序：order 相同時改以 id 字典序當 tiebreaker，避免 build / runtime 順序不一致導致 hydration 錯亂。
+const races = racesAll
+  .slice()
+  .sort((a, b) => a.data.order - b.data.order || a.data.id.localeCompare(b.data.id));
+const routes = routesAll
+  .slice()
+  .sort((a, b) => a.data.order - b.data.order || a.data.id.localeCompare(b.data.id));
+
+const services = [
+  { titleKey: 'runners.serviceShowerTitle', bodyKey: 'runners.serviceShowerBody', icon: 'S' },
+  { titleKey: 'runners.serviceDryTitle', bodyKey: 'runners.serviceDryBody', icon: 'D' },
+  { titleKey: 'runners.serviceFuelTitle', bodyKey: 'runners.serviceFuelBody', icon: 'F' },
+  { titleKey: 'runners.serviceStretchTitle', bodyKey: 'runners.serviceStretchBody', icon: 'Y' },
+  { titleKey: 'runners.serviceLaundryTitle', bodyKey: 'runners.serviceLaundryBody', icon: 'L' },
+  { titleKey: 'runners.serviceCoachTitle', bodyKey: 'runners.serviceCoachBody', icon: 'C' },
+];
+
+const difficultyLabel = {
+  easy: t('runners.difficultyEasy'),
+  moderate: t('runners.difficultyMedium'),
+  hard: t('runners.difficultyHard'),
+} as const;
+
+const monthUnit = t('runners.monthUnit');
+---
+
+<article class="runners" aria-labelledby="runners-page-heading">
+  <header class="page-header container-wide">
+    <span class="eyebrow">{t('runners.eyebrow')}</span>
+    <h1 id="runners-page-heading" class="page-title">{t('runners.pageTitle')}</h1>
+    <p class="page-lead">{t('runners.pageLead')}</p>
+  </header>
+
+  <section class="intro" aria-labelledby="runners-intro-heading">
+    <div class="container-wide grid">
+      <div class="visual">
+        <ImagePlaceholder locale={locale} alt={t('runners.introHeading')} ratio="4:3" variant="ocean" />
+      </div>
+      <div class="content">
+        <SectionHeading id="runners-intro-heading" title={t('runners.introHeading')} variant="ocean" />
+        <p>{t('runners.introBody')}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="events" aria-labelledby="runners-events-heading">
+    <div class="container-wide">
+      <SectionHeading
+        id="runners-events-heading"
+        title={t('runners.eventsHeading')}
+        subtitle={t('runners.eventsLead')}
+        variant="ocean"
+      />
+      <ul class="event-grid">
+        {
+          races.map((race) => {
+            const name = locale === 'en' ? race.data.name_en : race.data.name_zh;
+            const desc = locale === 'en' ? race.data.description_en : race.data.description_zh;
+            return (
+              <li class="event-card">
+                <div class="event-image">
+                  <ImagePlaceholder locale={locale} alt={name} ratio="16:9" variant="sand" />
+                </div>
+                <div class="event-body">
+                  <span class="month">{race.data.month}{monthUnit}</span>
+                  <h3 class="event-name">{name}</h3>
+                  <p class="event-distance">{race.data.distance}</p>
+                  <p class="event-desc">{desc}</p>
+                  <a class="event-link" href={race.data.registrationUrl} target="_blank" rel="noopener noreferrer">
+                    {t('ui.moreInfo')}
+                    <span aria-hidden="true">↗</span>
+                  </a>
+                </div>
+              </li>
+            );
+          })
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="routes" aria-labelledby="runners-routes-heading">
+    <div class="container-wide">
+      <SectionHeading
+        id="runners-routes-heading"
+        title={t('runners.routesHeading')}
+        subtitle={t('runners.routesLead')}
+        variant="ocean"
+      />
+      <ul class="route-grid">
+        {
+          routes.map((route) => {
+            const name = locale === 'en' ? route.data.name_en : route.data.name_zh;
+            const desc = locale === 'en' ? route.data.description_en : route.data.description_zh;
+            return (
+              <li class={`route-card diff-${route.data.difficulty}`}>
+                <h3 class="route-name">{name}</h3>
+                <dl class="route-meta">
+                  <div>
+                    <dt>{t('runners.routesDistanceLabel')}</dt>
+                    <dd>{route.data.distance}</dd>
+                  </div>
+                  <div>
+                    <dt>{t('runners.routesElevationLabel')}</dt>
+                    <dd>{route.data.elevation}</dd>
+                  </div>
+                  <div>
+                    <dt>{t('runners.routesDifficultyLabel')}</dt>
+                    <dd>{difficultyLabel[route.data.difficulty]}</dd>
+                  </div>
+                </dl>
+                <p class="route-desc">{desc}</p>
+                <a class="route-link" href={route.data.mapUrl} target="_blank" rel="noopener noreferrer">
+                  {t('runners.routesMapCta')}
+                  <span aria-hidden="true">↗</span>
+                </a>
+              </li>
+            );
+          })
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="services" aria-labelledby="runners-services-heading">
+    <div class="container-wide">
+      <SectionHeading id="runners-services-heading" title={t('runners.servicesHeading')} variant="ocean" />
+      <ul class="service-grid">
+        {
+          services.map((s) => (
+            <li class="service-card">
+              <span class="service-icon" aria-hidden="true">{s.icon}</span>
+              <div>
+                <h3 class="service-name">{t(s.titleKey)}</h3>
+                <p class="service-body">{t(s.bodyKey)}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</article>
+
+<style>
+  .runners { background-color: var(--color-ocean-50); padding-bottom: 5rem; }
+  .page-header {
+    padding-block: 4rem 2rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-ocean-700);
+  }
+  .page-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(2.25rem, 5vw, 3.25rem);
+    color: var(--color-ink-950);
+  }
+  .page-lead {
+    margin: 0;
+    max-width: 38rem;
+    color: var(--color-ink-700);
+    font-size: 1.05rem;
+    line-height: 1.85;
+  }
+  section { padding-block: 4rem; }
+  section + section { border-top: 1px solid var(--color-ocean-100); }
+
+  .intro { background-color: white; }
+  .grid {
+    display: grid;
+    gap: 2.5rem;
+    grid-template-columns: 1fr;
+    align-items: center;
+  }
+  @media (min-width: 768px) {
+    .grid {
+      grid-template-columns: 1fr 1.2fr;
+      gap: 3.5rem;
+    }
+  }
+  .visual { border-radius: 1.25rem; overflow: hidden; }
+  .content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    color: var(--color-ink-700);
+    font-size: 1.02rem;
+    line-height: 1.85;
+  }
+  .content p { margin: 0; }
+
+  .event-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  @media (min-width: 768px) {
+    .event-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  .event-card {
+    background-color: white;
+    border-radius: 1rem;
+    overflow: hidden;
+    border: 1px solid var(--color-ocean-100);
+    display: flex;
+    flex-direction: column;
+  }
+  .event-image { overflow: hidden; }
+  .event-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    flex: 1;
+  }
+  .month {
+    align-self: flex-start;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    background-color: var(--color-sand-200);
+    color: var(--color-sand-900);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+  }
+  /* 月份單位由 i18n 透過 monthUnit inline 渲染（zh: "月" / en: " "），
+     不再用 CSS ::after 寫死字面，避免「中文字面綁死於 CSS」的反 i18n 模式 */
+  .event-name {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    color: var(--color-ink-950);
+  }
+  .event-distance {
+    margin: 0;
+    color: var(--color-ocean-700);
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  .event-desc {
+    margin: 0;
+    color: var(--color-ink-700);
+    font-size: 0.92rem;
+    line-height: 1.75;
+  }
+  .event-link {
+    margin-top: auto;
+    align-self: flex-start;
+    color: var(--color-ocean-700);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  .event-link:hover { color: var(--color-ocean-900); }
+
+  .routes { background-color: white; }
+  .route-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  @media (min-width: 768px) { .route-grid { grid-template-columns: repeat(3, 1fr); } }
+  .route-card {
+    padding: 1.75rem;
+    border-radius: 1rem;
+    background-color: var(--color-ocean-50);
+    border-top: 4px solid;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+  .diff-easy { border-color: var(--color-difficulty-easy); }
+  .diff-moderate { border-color: var(--color-difficulty-medium); }
+  .diff-hard { border-color: var(--color-difficulty-hard); }
+  .route-name {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    color: var(--color-ink-950);
+  }
+  .route-meta {
+    margin: 0;
+    display: grid;
+    gap: 0.4rem;
+    grid-template-columns: 1fr 1fr 1fr;
+    font-size: 0.78rem;
+  }
+  .route-meta div { display: flex; flex-direction: column; }
+  .route-meta dt { color: var(--color-ink-500); text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.65rem; }
+  .route-meta dd { margin: 0; color: var(--color-ink-900); font-weight: 500; }
+  .route-desc {
+    margin: 0;
+    color: var(--color-ink-700);
+    font-size: 0.9rem;
+    line-height: 1.75;
+  }
+  .route-link {
+    align-self: flex-start;
+    color: var(--color-ocean-700);
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 0.9rem;
+  }
+  .route-link:hover { color: var(--color-ocean-900); }
+
+  .service-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  @media (min-width: 768px) { .service-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) { .service-grid { grid-template-columns: repeat(3, 1fr); } }
+  .service-card {
+    display: grid;
+    grid-template-columns: 3rem 1fr;
+    gap: 1rem;
+    padding: 1.5rem;
+    background-color: white;
+    border-radius: 1rem;
+    border: 1px solid var(--color-ocean-100);
+  }
+  .service-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background: linear-gradient(140deg, var(--color-ocean-500), var(--color-ocean-800));
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.2rem;
+  }
+  .service-name {
+    margin: 0 0 0.4rem;
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    color: var(--color-ink-950);
+  }
+  .service-body {
+    margin: 0;
+    color: var(--color-ink-700);
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+</style>

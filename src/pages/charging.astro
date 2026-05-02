@@ -1,0 +1,32 @@
+---
+/**
+ * 特斯拉超充頁（zh-TW）
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ChargingSections from '@/components/charging/ChargingSections.astro';
+import Breadcrumbs from '@/components/ui/Breadcrumbs.astro';
+import { useTranslations } from '@/i18n/utils';
+import { SITE } from '@/lib/site';
+
+const locale = 'zh-TW';
+const t = useTranslations(locale);
+
+const breadcrumbItems = [
+  { label: t('charging.pageTitle') },
+];
+const schemaBreadcrumbs = [
+  { name: t('ui.breadcrumbHome'), url: new URL('/', SITE.url).toString() },
+  { name: t('charging.pageTitle'), url: new URL('/charging', SITE.url).toString() },
+];
+---
+
+<BaseLayout
+  title={t('seo.chargingTitle')}
+  description={t('seo.chargingDescription')}
+  breadcrumbs={schemaBreadcrumbs}
+>
+  <div class="container-wide">
+    <Breadcrumbs locale={locale} items={breadcrumbItems} />
+  </div>
+  <ChargingSections locale={locale} />
+</BaseLayout>

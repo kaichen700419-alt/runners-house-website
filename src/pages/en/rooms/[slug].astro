@@ -1,0 +1,54 @@
+---
+/**
+ * Room detail (English, dynamic /en/rooms/[slug])
+ */
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import RoomDetail from '@/components/rooms/RoomDetail.astro';
+import Breadcrumbs from '@/components/ui/Breadcrumbs.astro';
+import { useTranslations } from '@/i18n/utils';
+import { SITE } from '@/lib/site';
+
+export async function getStaticPaths() {
+  const rooms = await getCollection('rooms');
+  // 同 zh 版：slug 重複會默默吞掉某個房型，build 期間 fail-loud。
+  const seen = new Set<string>();
+  for (const room of rooms) {
+    if (seen.has(room.data.slug)) {
+      throw new Error(`[rooms en] slug 重複：${room.data.slug}`);
+    }
+    seen.add(room.data.slug);
+  }
+  return rooms.map((room) => ({
+    params: { slug: room.data.slug },
+    props: { room },
+  }));
+}
+
+const locale = 'en';
+const t = useTranslations(locale);
+const { room } = Astro.props;
+const name = room.data.name_en;
+
+const breadcrumbItems = [
+  { label: t('rooms.pageTitle'), href: '/rooms' },
+  { label: name },
+];
+const schemaBreadcrumbs = [
+  { name: t('ui.breadcrumbHome'), url: new URL('/en', SITE.url).toString() },
+  { name: t('rooms.pageTitle'), url: new URL('/en/rooms', SITE.url).toString() },
+  { name, url: new URL(`/en/rooms/${room.data.slug}`, SITE.url).toString() },
+];
+const title = t('seo.roomDetailTitleTemplate', { room: name });
+---
+
+<BaseLayout
+  title={title}
+  description={t('seo.roomDetailDescription')}
+  breadcrumbs={schemaBreadcrumbs}
+>
+  <div class="container-wide">
+    <Breadcrumbs locale={locale} items={breadcrumbItems} />
+  </div>
+  <RoomDetail locale={locale} room={room} />
+</BaseLayout>

@@ -1,0 +1,189 @@
+---
+/**
+ * RoomPreview 元件
+ *
+ * 首頁房型預覽區，顯示前 4 個房型卡片（按 order 排序）。
+ * 從 rooms collection 讀取資料，連結到 /rooms/[slug] 詳情頁。
+ */
+import { getCollection } from 'astro:content';
+import { getLocalizedPath, useTranslations } from '@/i18n/utils';
+import SectionHeading from '@/components/ui/SectionHeading.astro';
+import ImagePlaceholder from '@/components/ui/ImagePlaceholder.astro';
+import type { Locale } from '@/i18n/types';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+
+const allRooms = await getCollection('rooms');
+if (!allRooms.length) {
+  throw new Error('[content] rooms collection 為空');
+}
+// 首頁預覽刻意只取前 4 房型；海景套房（order: 5）保留至房型列表頁完整呈現，避免首頁卡片數失衡。
+// 採穩定排序（order 相同時以 slug 字典序當 tiebreaker），避免 build 順序漂移導致 hydration 不一致。
+const previewRooms = allRooms
+  .slice()
+  .sort((a, b) => a.data.order - b.data.order || a.data.slug.localeCompare(b.data.slug))
+  .slice(0, 4);
+
+const placeholderVariants = ['ocean', 'timber', 'sand', 'ink'] as const;
+---
+
+<section class="room-preview">
+  <div class="container-wide">
+    <SectionHeading
+      title={t('home.roomPreviewHeading')}
+      subtitle={t('home.roomPreviewLead')}
+      align="left"
+      variant="wabi"
+    />
+    <ul class="grid">
+      {
+        previewRooms.map((room, idx) => {
+          const name = locale === 'en' ? room.data.name_en : room.data.name_zh;
+          const view = locale === 'en' ? room.data.view_en : room.data.view_zh;
+          const beds = locale === 'en' ? room.data.beds_en : room.data.beds_zh;
+          const variant = placeholderVariants[idx % placeholderVariants.length] ?? 'ocean';
+          const href = getLocalizedPath(`/rooms/${room.data.slug}`, locale);
+          return (
+            <li class="card">
+              <a href={href} class="card-link" aria-label={name}>
+                <div class="image-wrap">
+                  <ImagePlaceholder
+                    locale={locale}
+                    alt={name}
+                    ratio="4:3"
+                    variant={variant}
+                  />
+                </div>
+                <div class="card-body">
+                  <h3 class="name">{name}</h3>
+                  <dl class="meta">
+                    <div>
+                      <dt>{t('rooms.sizeLabel')}</dt>
+                      <dd>{room.data.size}{t('rooms.sizeUnit')}</dd>
+                    </div>
+                    <div>
+                      <dt>{t('rooms.capacityLabel')}</dt>
+                      <dd>{room.data.capacity}{t('rooms.capacityUnit')}</dd>
+                    </div>
+                    <div>
+                      <dt>{t('rooms.viewLabel')}</dt>
+                      <dd>{view}</dd>
+                    </div>
+                    <div>
+                      <dt>{t('rooms.bedLabel')}</dt>
+                      <dd>{beds}</dd>
+                    </div>
+                  </dl>
+                </div>
+              </a>
+            </li>
+          );
+        })
+      }
+    </ul>
+    <div class="see-all-row">
+      <a class="see-all" href={getLocalizedPath('/rooms', locale)}>
+        {t('home.roomPreviewSeeAll')}
+        <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .room-preview {
+    padding-block: 5rem;
+    background-color: white;
+  }
+  .grid {
+    list-style: none;
+    margin: 0 0 2rem;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  @media (min-width: 768px) {
+    .grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  .card {
+    border-radius: 1rem;
+    overflow: hidden;
+    background-color: var(--color-timber-50);
+    border: 1px solid var(--color-timber-200);
+    transition: transform 220ms var(--ease-snappy);
+  }
+  .card:hover {
+    transform: translateY(-4px);
+  }
+  .card-link {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+  }
+  .image-wrap {
+    overflow: hidden;
+  }
+  .card-body {
+    padding: 1.1rem 1.25rem 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+  .name {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    color: var(--color-ink-950);
+  }
+  .meta {
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem 1rem;
+    font-size: 0.82rem;
+  }
+  .meta div {
+    display: flex;
+    flex-direction: column;
+  }
+  .meta dt {
+    color: var(--color-ink-500);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .meta dd {
+    margin: 0;
+    color: var(--color-ink-800);
+    font-weight: 500;
+  }
+  .see-all-row {
+    text-align: right;
+  }
+  .see-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--color-ocean-700);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .see-all:hover {
+    color: var(--color-ocean-900);
+  }
+</style>

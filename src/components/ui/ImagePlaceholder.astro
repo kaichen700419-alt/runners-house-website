@@ -1,0 +1,154 @@
+---
+/**
+ * ImagePlaceholder 元件
+ *
+ * 因業主未提供實景照片，全站圖片改用此元件渲染：
+ *  - 一塊有品牌色漸層的 SVG 區塊
+ *  - 中央顯示 alt 文字（也即圖片描述）
+ *  - 角落顯示「實景陸續更新」標籤
+ *
+ * 為何不用真實占位圖片：
+ *  - 真實占位（如 placehold.it）會增加外部請求、傷害效能與隱私
+ *  - 自製 SVG 漸層在 print / dark mode / no-image 環境都安全
+ *  - 內嵌 alt 與標籤直接告訴使用者「等待實景」，比模糊的灰色塊有意義
+ */
+import { useTranslations } from '@/i18n/utils';
+import type { Locale } from '@/i18n/types';
+
+interface Props {
+  locale: Locale;
+  /** 圖片 alt 文字（用於 aria-label 與中央顯示） */
+  alt: string;
+  /** 寬高比；預設 16:9 */
+  ratio?: '1:1' | '4:3' | '16:9' | '21:9' | '3:4';
+  /** 主題色彩變體；預設 ocean */
+  variant?: 'ocean' | 'sand' | 'timber' | 'ink';
+  /** 是否顯示「實景陸續更新」標籤；預設 true */
+  showBadge?: boolean;
+}
+
+const {
+  locale,
+  alt,
+  ratio = '16:9',
+  variant = 'ocean',
+  showBadge = true,
+} = Astro.props;
+const t = useTranslations(locale);
+
+const ratioMap: Record<NonNullable<Props['ratio']>, string> = {
+  '1:1': '1 / 1',
+  '4:3': '4 / 3',
+  '16:9': '16 / 9',
+  '21:9': '21 / 9',
+  '3:4': '3 / 4',
+};
+const aspectRatio = ratioMap[ratio];
+const badgeText = t('common.photoComingSoon');
+
+/**
+ * 唯一 ID 後綴：避免同頁多個 ImagePlaceholder 元件因為 variant 相同而 SVG <linearGradient>
+ * 與 <pattern> id 重複，導致瀏覽器只解析第一個、後續元件 fill="url(#grad-ocean)" 失效。
+ *
+ * 用 Math.random().toString(36) 產生 6 位 base36 字元；因為僅在 SSR 渲染時生成，
+ * 不影響 hydration 也不需要 crypto 強度。
+ */
+const uid = Math.random().toString(36).slice(2, 8);
+const gradId = `grad-${variant}-${uid}`;
+const dotsId = `dots-${variant}-${uid}`;
+---
+
+<figure
+  class:list={['placeholder', `variant-${variant}`]}
+  style={`--placeholder-aspect: ${aspectRatio};`}
+  role="img"
+  aria-label={alt}
+>
+  <svg
+    class="bg"
+    viewBox="0 0 400 225"
+    preserveAspectRatio="xMidYMid slice"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" class="stop-from" />
+        <stop offset="100%" class="stop-to" />
+      </linearGradient>
+      <pattern id={dotsId} width="24" height="24" patternUnits="userSpaceOnUse">
+        <circle cx="12" cy="12" r="1.2" class="dot" />
+      </pattern>
+    </defs>
+    <rect width="400" height="225" fill={`url(#${gradId})`} />
+    <rect width="400" height="225" fill={`url(#${dotsId})`} />
+  </svg>
+  <figcaption class="caption">
+    <span class="caption-text">{alt}</span>
+  </figcaption>
+  {showBadge ? <span class="badge">{badgeText}</span> : null}
+</figure>
+
+<style>
+  .placeholder {
+    position: relative;
+    margin: 0;
+    width: 100%;
+    aspect-ratio: var(--placeholder-aspect);
+    overflow: hidden;
+    border-radius: 0.85rem;
+    isolation: isolate;
+  }
+  .bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .caption {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background-color: rgb(0 0 0 / 0.18);
+  }
+  .caption-text {
+    font-family: var(--font-display);
+    font-size: clamp(0.95rem, 1.6vw, 1.15rem);
+    color: white;
+    text-align: center;
+    text-shadow: 0 1px 4px rgb(0 0 0 / 0.45);
+    line-height: 1.45;
+    max-width: 32ch;
+  }
+  .badge {
+    position: absolute;
+    top: 0.85rem;
+    right: 0.85rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    background-color: rgb(255 255 255 / 0.92);
+    color: var(--color-ink-800);
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    font-family: var(--font-mono);
+  }
+  /* 漸層配色與點狀紋理 — 透過 currentColor 對應變體 */
+  .variant-ocean .stop-from { stop-color: var(--color-ocean-500); }
+  .variant-ocean .stop-to { stop-color: var(--color-ocean-900); }
+  .variant-ocean .dot { fill: rgb(255 255 255 / 0.10); }
+
+  .variant-sand .stop-from { stop-color: var(--color-sand-300); }
+  .variant-sand .stop-to { stop-color: var(--color-sand-700); }
+  .variant-sand .dot { fill: rgb(255 255 255 / 0.18); }
+
+  .variant-timber .stop-from { stop-color: var(--color-timber-400); }
+  .variant-timber .stop-to { stop-color: var(--color-timber-800); }
+  .variant-timber .dot { fill: rgb(255 255 255 / 0.10); }
+
+  .variant-ink .stop-from { stop-color: var(--color-ink-700); }
+  .variant-ink .stop-to { stop-color: var(--color-ink-950); }
+  .variant-ink .dot { fill: rgb(255 255 255 / 0.08); }
+</style>

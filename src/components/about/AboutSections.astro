@@ -1,0 +1,337 @@
+---
+/**
+ * AboutSections
+ *
+ * 關於我們頁的所有區塊：
+ *  BrandOrigin / HostStory / BrandPhilosophy / Timeline / Sustainability。
+ * 採日系侘寂風（timber 主色），左右錯落留白排版。
+ */
+import { useTranslations } from '@/i18n/utils';
+import SectionHeading from '@/components/ui/SectionHeading.astro';
+import ImagePlaceholder from '@/components/ui/ImagePlaceholder.astro';
+import type { Locale } from '@/i18n/types';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+
+const timelineItems = [
+  { key: 'about.timeline1972' },
+  { key: 'about.timeline1995' },
+  { key: 'about.timeline2023' },
+  { key: 'about.timeline2024' },
+  { key: 'about.timeline2025' },
+  { key: 'about.timeline2026' },
+];
+---
+
+<article class="about" aria-labelledby="about-page-heading">
+  <header class="page-header container-wide">
+    <span class="eyebrow">{t('common.brandStatement')}</span>
+    <h1 id="about-page-heading" class="page-title">{t('about.pageTitle')}</h1>
+    <p class="page-lead">{t('about.pageLead')}</p>
+  </header>
+
+  <section class="origin" aria-labelledby="about-origin-heading">
+    <div class="container-wide grid">
+      <div class="visual">
+        <ImagePlaceholder locale={locale} alt={t('about.originHeading')} ratio="3:4" variant="timber" />
+      </div>
+      <div class="content">
+        <SectionHeading id="about-origin-heading" title={t('about.originHeading')} variant="wabi" />
+        <p>{t('about.originBody')}</p>
+        <dl class="meta">
+          <div>
+            <dt>{t('about.originDetailWhen')}</dt>
+            <dd>{t('about.originDetailWhenValue')}</dd>
+          </div>
+          <div>
+            <dt>{t('about.originDetailWhere')}</dt>
+            <dd>{t('about.originDetailWhereValue')}</dd>
+          </div>
+          <div>
+            <dt>{t('about.originDetailMaterial')}</dt>
+            <dd>{t('about.originDetailMaterialValue')}</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section class="host" aria-labelledby="about-host-heading">
+    <div class="container-wide grid grid-flip">
+      <div class="content">
+        <SectionHeading id="about-host-heading" title={t('about.hostHeading')} variant="wabi" />
+        <p>{t('about.hostBody')}</p>
+        <ul class="bullets">
+          <li>{t('about.hostHobby')}</li>
+          <li>{t('about.hostBelief')}</li>
+        </ul>
+      </div>
+      <div class="visual">
+        <ImagePlaceholder locale={locale} alt={t('about.hostHeading')} ratio="4:3" variant="ocean" />
+      </div>
+    </div>
+  </section>
+
+  <section class="philosophy" aria-labelledby="about-philosophy-heading">
+    <div class="container-wide">
+      <SectionHeading
+        id="about-philosophy-heading"
+        title={t('about.philosophyHeading')}
+        subtitle={t('about.philosophyBody')}
+        align="center"
+        variant="wabi"
+      />
+      <ul class="trio">
+        <li><span class="badge">{t('about.runBadge')}</span><p>{t('about.philosophyRun')}</p></li>
+        <li><span class="badge">{t('about.stayBadge')}</span><p>{t('about.philosophyStay')}</p></li>
+        <li><span class="badge">{t('about.chargeBadge')}</span><p>{t('about.philosophyCharge')}</p></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="timeline" aria-labelledby="about-timeline-heading">
+    <div class="container-wide">
+      <SectionHeading id="about-timeline-heading" title={t('about.timelineHeading')} variant="wabi" />
+      <ol class="timeline-list">
+        {
+          timelineItems.map((item) => (
+            <li>
+              <span class="dot" aria-hidden="true"></span>
+              <span class="text">{t(item.key)}</span>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="sustainability" aria-labelledby="about-sustainability-heading">
+    <div class="container-wide">
+      <SectionHeading id="about-sustainability-heading" title={t('about.sustainabilityHeading')} variant="wabi" />
+      <p class="lead">{t('about.sustainabilityBody')}</p>
+      <ul class="commit-list">
+        <li>{t('about.sustainabilityNoSingleUse')}</li>
+        <li>{t('about.sustainabilityWater')}</li>
+        <li>{t('about.sustainabilityEnergy')}</li>
+        <li>{t('about.sustainabilityLocal')}</li>
+      </ul>
+    </div>
+  </section>
+</article>
+
+<style>
+  .about {
+    background-color: var(--color-timber-50);
+  }
+  .page-header {
+    padding-block: 5rem 3rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-timber-700);
+  }
+  .page-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(2.25rem, 5vw, 3.5rem);
+    color: var(--color-ink-950);
+    line-height: 1.1;
+  }
+  .page-lead {
+    margin: 0;
+    max-width: 42rem;
+    color: var(--color-ink-600);
+    font-size: 1.05rem;
+    line-height: 1.85;
+  }
+
+  section {
+    padding-block: 4rem;
+  }
+  section + section {
+    border-top: 1px solid var(--color-timber-200);
+  }
+  .grid {
+    display: grid;
+    gap: 2.5rem;
+    grid-template-columns: 1fr;
+    align-items: center;
+  }
+  @media (min-width: 768px) {
+    .grid {
+      grid-template-columns: 1fr 1.2fr;
+      gap: 3.5rem;
+    }
+    .grid-flip {
+      grid-template-columns: 1.2fr 1fr;
+    }
+  }
+  .visual {
+    border-radius: 1.25rem;
+    overflow: hidden;
+  }
+  .content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    color: var(--color-ink-700);
+    font-size: 1.02rem;
+    line-height: 1.85;
+  }
+  .content p { margin: 0; }
+  .meta {
+    display: grid;
+    gap: 0.85rem;
+    margin: 1rem 0 0;
+  }
+  .meta div {
+    display: grid;
+    grid-template-columns: 8rem 1fr;
+    gap: 0.5rem;
+    border-bottom: 1px dashed var(--color-timber-300);
+    padding-bottom: 0.5rem;
+  }
+  .meta dt {
+    color: var(--color-timber-700);
+    font-size: 0.85rem;
+    font-family: var(--font-mono);
+    letter-spacing: 0.05em;
+  }
+  .meta dd {
+    margin: 0;
+    color: var(--color-ink-800);
+    font-weight: 500;
+  }
+  .bullets {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .bullets li {
+    padding-left: 1.25rem;
+    position: relative;
+  }
+  .bullets li::before {
+    content: '·';
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--color-timber-700);
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+
+  .philosophy {
+    background-color: white;
+  }
+  .trio {
+    list-style: none;
+    margin: 2rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 768px) {
+    .trio {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .trio li {
+    padding: 1.75rem;
+    background-color: var(--color-timber-50);
+    border-radius: 1rem;
+    text-align: center;
+    color: var(--color-ink-700);
+    line-height: 1.7;
+  }
+  .badge {
+    display: inline-block;
+    padding: 0.25rem 0.85rem;
+    margin-bottom: 0.85rem;
+    border-radius: 999px;
+    background-color: var(--color-timber-200);
+    color: var(--color-timber-900);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .trio p { margin: 0; }
+
+  .timeline-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    border-left: 2px solid var(--color-timber-300);
+    padding-left: 2rem;
+    margin-left: 0.5rem;
+  }
+  .timeline-list li {
+    position: relative;
+    color: var(--color-ink-800);
+    font-size: 1rem;
+    line-height: 1.65;
+  }
+  .timeline-list .dot {
+    position: absolute;
+    left: -2.4rem;
+    top: 0.45rem;
+    width: 0.85rem;
+    height: 0.85rem;
+    border-radius: 50%;
+    background-color: var(--color-timber-600);
+    box-shadow: 0 0 0 4px var(--color-timber-50);
+  }
+
+  .sustainability {
+    background-color: var(--color-timber-100);
+  }
+  .lead {
+    margin: 0 0 1.5rem;
+    color: var(--color-ink-700);
+    font-size: 1.02rem;
+    line-height: 1.85;
+    max-width: 48rem;
+  }
+  .commit-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.85rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 768px) {
+    .commit-list {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .commit-list li {
+    padding: 1.25rem 1.5rem;
+    background-color: white;
+    border-radius: 0.85rem;
+    color: var(--color-ink-800);
+    line-height: 1.65;
+    border-left: 3px solid var(--color-timber-500);
+  }
+</style>
