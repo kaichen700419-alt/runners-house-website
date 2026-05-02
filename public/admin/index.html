@@ -4,181 +4,351 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
-    <title>跑者之家｜內容後台</title>
+    <title>跑者之家｜內容管理後台</title>
     <link rel="icon" type="image/svg+xml" href="/runners-house-website/favicon.svg" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600&family=Noto+Serif+TC:wght@500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <style>
+      /* === 後台 design tokens（與前台一致：深木色 + 暖米 + 木金） === */
       :root {
-        --bg: #faf7f2;
-        --ink: #1f1e1c;
-        --ink-soft: #6e6b64;
-        --line: #d8d7d4;
-        --accent: #a08660;
-        --accent-hover: #8a724f;
+        --bg: #f5efe5;
+        --bg-deep: #1a1411;
+        --bg-card: #ffffff;
+        --ink-900: #1a1411;
+        --ink-700: #4a3f33;
+        --ink-500: #6e6c63;
+        --ink-300: #c5c2b9;
+        --gold: #8b6f47;
+        --gold-soft: #b89e75;
         --error: #c0392b;
-        --success: #27ae60;
-        --shadow: 0 20px 60px -20px rgba(0, 0, 0, 0.15);
       }
       * { box-sizing: border-box; }
+      html, body { height: 100%; margin: 0; }
       body {
-        margin: 0;
-        font-family: 'Noto Sans TC', 'Inter', system-ui, sans-serif;
+        font-family: 'Noto Sans TC', system-ui, sans-serif;
         background: var(--bg);
-        color: var(--ink);
-        min-height: 100vh;
+        color: var(--ink-900);
+      }
+
+      /* === 登入畫面：左品牌右表單 === */
+      .splash {
+        position: fixed;
+        inset: 0;
         display: grid;
-        place-items: center;
-        padding: 1.5rem;
+        grid-template-columns: 1fr;
+        background: var(--bg);
+        z-index: 10;
       }
-      .login-card {
-        width: 100%;
-        max-width: 420px;
-        background: #fff;
-        border: 1px solid var(--line);
-        border-radius: 4px;
-        box-shadow: var(--shadow);
+      @media (min-width: 900px) {
+        .splash { grid-template-columns: 1.1fr 1fr; }
+      }
+
+      .splash-brand {
+        position: relative;
+        background:
+          radial-gradient(ellipse at 30% 20%, rgba(184, 142, 92, 0.4) 0%, transparent 60%),
+          radial-gradient(ellipse at 70% 80%, rgba(60, 50, 40, 0.5) 0%, transparent 70%),
+          linear-gradient(160deg, #2d2520 0%, #1a1411 50%, #251c16 100%);
+        color: #f5efe5;
         padding: 3rem 2.5rem;
+        display: none;
+        flex-direction: column;
+        justify-content: space-between;
       }
-      .brand {
-        text-align: center;
-        margin-bottom: 2.5rem;
+      @media (min-width: 900px) {
+        .splash-brand { display: flex; }
       }
+      .brand-top { display: flex; align-items: center; gap: 1rem; }
       .brand-mark {
+        width: 44px; height: 44px;
+        border: 1.5px solid var(--gold-soft);
+        color: var(--gold-soft);
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 56px;
-        height: 56px;
-        border: 1.5px solid var(--accent);
-        color: var(--accent);
-        font-family: 'Noto Serif TC', 'Cormorant Garamond', Georgia, serif;
-        font-size: 1.5rem;
-        letter-spacing: 0.05em;
-        border-radius: 50%;
-        margin-bottom: 1rem;
+        font-family: 'Noto Serif TC', Georgia, serif;
+        font-size: 1.05rem;
+        letter-spacing: 0.04em;
       }
-      .brand-title {
-        font-family: 'Noto Serif TC', 'Cormorant Garamond', Georgia, serif;
-        font-size: 1.5rem;
+      .brand-name {
+        font-family: 'Noto Serif TC', Georgia, serif;
+        font-size: 1.05rem;
         font-weight: 500;
-        margin: 0 0 0.25rem;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.08em;
+      }
+      .brand-name small {
+        display: block;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem;
+        letter-spacing: 0.3em;
+        color: var(--gold-soft);
+        margin-top: 0.25rem;
+      }
+      .brand-center { max-width: 420px; }
+      .brand-eyebrow {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        letter-spacing: 0.4em;
+        color: var(--gold-soft);
+        margin: 0 0 1rem;
+        text-transform: uppercase;
+      }
+      .brand-headline {
+        font-family: 'Noto Serif TC', Georgia, serif;
+        font-size: clamp(2rem, 3.5vw, 2.6rem);
+        font-weight: 600;
+        line-height: 1.35;
+        letter-spacing: 0.04em;
+        margin: 0 0 1.5rem;
       }
       .brand-subtitle {
+        font-family: 'Noto Sans TC', sans-serif;
+        font-size: 0.95rem;
+        line-height: 1.85;
+        color: rgba(245, 239, 229, 0.8);
+        font-weight: 300;
         margin: 0;
-        font-size: 0.8125rem;
-        color: var(--ink-soft);
-        letter-spacing: 0.15em;
+      }
+      .brand-footer {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem;
+        letter-spacing: 0.3em;
+        color: rgba(245, 239, 229, 0.5);
         text-transform: uppercase;
       }
-      .field {
-        margin-bottom: 1.25rem;
+
+      .splash-login {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1.5rem;
       }
+      .login-card { width: 100%; max-width: 380px; }
+      .login-eyebrow {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        letter-spacing: 0.35em;
+        color: var(--gold);
+        text-transform: uppercase;
+        margin: 0 0 0.75rem;
+      }
+      .login-title {
+        margin: 0 0 0.5rem;
+        font-family: 'Noto Serif TC', Georgia, serif;
+        font-size: 1.85rem;
+        font-weight: 600;
+        color: var(--ink-900);
+        letter-spacing: 0.04em;
+      }
+      .login-hint {
+        margin: 0 0 2.25rem;
+        font-family: 'Noto Sans TC', sans-serif;
+        font-size: 0.9rem;
+        color: var(--ink-500);
+        line-height: 1.7;
+      }
+
+      .field { margin-bottom: 1.25rem; }
       .field label {
         display: block;
-        font-size: 0.75rem;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        color: var(--ink-soft);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        letter-spacing: 0.2em;
+        color: var(--ink-500);
         margin-bottom: 0.5rem;
+        text-transform: uppercase;
       }
       .field input {
         width: 100%;
         padding: 0.875rem 1rem;
-        border: 1px solid var(--line);
-        border-radius: 2px;
-        background: #fff;
-        font-size: 0.9375rem;
+        border: 1px solid var(--ink-300);
+        background: var(--bg-card);
+        font-size: 0.95rem;
         font-family: inherit;
-        color: var(--ink);
+        color: var(--ink-900);
         transition: border-color 0.15s ease;
       }
-      .field input:focus {
-        outline: none;
-        border-color: var(--accent);
-      }
+      .field input:focus { outline: none; border-color: var(--gold); }
+
       .submit {
         width: 100%;
-        padding: 0.9375rem;
-        background: var(--ink);
-        color: #fff;
-        border: none;
-        border-radius: 2px;
+        padding: 0.95rem;
+        background: var(--ink-900);
+        color: var(--bg);
+        border: 1.5px solid var(--ink-900);
         font-size: 0.875rem;
-        letter-spacing: 0.15em;
+        letter-spacing: 0.18em;
         text-transform: uppercase;
         font-family: inherit;
+        font-weight: 500;
         cursor: pointer;
         margin-top: 0.5rem;
-        transition: background 0.15s ease;
+        transition: all 0.25s ease;
       }
-      .submit:hover { background: var(--accent); }
+      .submit:hover {
+        background: transparent;
+        color: var(--ink-900);
+      }
       .submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
       .error {
         margin-top: 1rem;
         padding: 0.75rem 1rem;
-        background: #fdf2f0;
+        background: #fbeae7;
         border-left: 3px solid var(--error);
         color: var(--error);
         font-size: 0.875rem;
         display: none;
       }
       .error.show { display: block; }
-      .footer-note {
-        margin-top: 2rem;
+
+      .login-footer {
+        margin-top: 2.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--ink-300);
         text-align: center;
-        font-size: 0.75rem;
-        color: var(--ink-soft);
-        letter-spacing: 0.1em;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem;
+        letter-spacing: 0.25em;
+        color: var(--ink-500);
+        text-transform: uppercase;
       }
-      .footer-note a {
-        color: var(--accent);
+      .login-footer a {
+        color: var(--gold);
         text-decoration: none;
-        border-bottom: 1px solid currentColor;
       }
-      /* CMS 容器：登入後才顯示 */
+      .login-footer a:hover { text-decoration: underline; }
+
+      /* === 進入 CMS 過場動畫 === */
+      .loading {
+        position: fixed;
+        inset: 0;
+        background: var(--bg);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 1.5rem;
+        z-index: 50;
+      }
+      .loading.show { display: flex; }
+      .loading-mark {
+        width: 56px; height: 56px;
+        border: 1.5px solid var(--gold);
+        color: var(--gold);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Noto Serif TC', Georgia, serif;
+        font-size: 1.4rem;
+      }
+      .loading-text {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        letter-spacing: 0.4em;
+        color: var(--ink-500);
+        text-transform: uppercase;
+      }
+      .loading-dot {
+        width: 6px; height: 6px;
+        background: var(--gold);
+        border-radius: 50%;
+        animation: pulse 1.4s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        0%, 100% { opacity: 0.3; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.4); }
+      }
+
+      /* === Sveltia CMS 客製化主題：注入木色 === */
       #cms-container { display: none; }
-      body.cms-active {
+      body.cms-active { overflow: auto; height: auto; }
+      body.cms-active .splash { display: none; }
+      body.cms-active .loading { display: none; }
+      body.cms-active #cms-container {
         display: block;
-        padding: 0;
-        background: #fff;
+        min-height: 100vh;
+        background: var(--bg);
       }
-      body.cms-active .login-card { display: none; }
-      body.cms-active #cms-container { display: block; min-height: 100vh; }
+      body.cms-active {
+        --sui-primary-accent-color-hue: 30;
+        --sui-primary-accent-color-saturation: 25%;
+        --sui-primary-accent-color-lightness: 42%;
+      }
     </style>
   </head>
   <body>
-    <main class="login-card" aria-labelledby="login-title">
-      <header class="brand">
-        <div class="brand-mark" aria-hidden="true">RH</div>
-        <h1 class="brand-title" id="login-title">跑者之家 後台</h1>
-        <p class="brand-subtitle">Content Studio</p>
-      </header>
-      <form id="login-form" autocomplete="off" novalidate>
-        <div class="field">
-          <label for="username">帳號</label>
-          <input type="text" id="username" name="username" required autocomplete="username" />
+    <main class="splash">
+      <aside class="splash-brand" aria-hidden="true">
+        <div class="brand-top">
+          <div class="brand-mark">RH</div>
+          <div class="brand-name">
+            跑者之家
+            <small>Runners House</small>
+          </div>
         </div>
-        <div class="field">
-          <label for="password">密碼</label>
-          <input type="password" id="password" name="password" required autocomplete="current-password" />
+
+        <div class="brand-center">
+          <p class="brand-eyebrow">Content Management</p>
+          <h1 class="brand-headline">把家鄉的故事<br/>一字一字寫進來。</h1>
+          <p class="brand-subtitle">
+            這裡是您的網站內容後台。修改房型、上傳照片、調整文字 — 所有變動會在 1-2 分鐘內出現在前台網站上。
+          </p>
         </div>
-        <button type="submit" class="submit" id="submit-btn">登入後台</button>
-        <div class="error" id="error-msg" role="alert" aria-live="polite"></div>
-      </form>
-      <p class="footer-note">遺失帳號密碼？請聯絡您的網站維運人員。</p>
+
+        <div class="brand-footer">Taitung · Changbin · Coastal Highway 11</div>
+      </aside>
+
+      <section class="splash-login">
+        <div class="login-card">
+          <p class="login-eyebrow">內容後台</p>
+          <h2 class="login-title">歡迎回來</h2>
+          <p class="login-hint">請使用維運人員提供的帳號密碼登入。</p>
+
+          <form id="login-form" autocomplete="off" novalidate>
+            <div class="field">
+              <label for="username">帳號</label>
+              <input type="text" id="username" name="username" required autocomplete="username" />
+            </div>
+            <div class="field">
+              <label for="password">密碼</label>
+              <input type="password" id="password" name="password" required autocomplete="current-password" />
+            </div>
+            <button type="submit" class="submit" id="submit-btn">登入後台</button>
+            <div class="error" id="error-msg" role="alert" aria-live="polite"></div>
+          </form>
+
+          <div class="login-footer">
+            <a href="/runners-house-website/" target="_blank" rel="noopener">回到網站首頁</a>
+            <span style="margin: 0 0.75rem;">·</span>
+            <a href="/runners-house-website/admin/help.html">使用說明</a>
+          </div>
+        </div>
+      </section>
     </main>
+
+    <div class="loading" aria-hidden="true">
+      <div class="loading-mark">RH</div>
+      <span class="loading-text">準備內容管理介面</span>
+      <span class="loading-dot"></span>
+    </div>
 
     <div id="cms-container"></div>
 
     <script type="module">
-      // 帳號密碼配置（業主可請維運人員修改 hash）
-      // 預設帳號 admin / 密碼 runnershouse2026
-      // hash 為密碼 SHA-256；修改密碼請計算新 hash 後替換
+      // === 帳號密碼配置（前端 SHA-256 比對） ===
+      // 預設：admin / runnershouse2026
       const VALID_USERS = {
         admin: 'fc37ee4daa5019ee3784b540055b5302e26a181291dd482e14d1172180de7b2d',
       };
+      const TOKEN_STORAGE_KEY = 'rh-cms-backend-token';
 
-      // 計算 SHA-256（瀏覽器原生）
+      function loadStoredToken() {
+        return localStorage.getItem(TOKEN_STORAGE_KEY);
+      }
+      function saveToken(token) {
+        localStorage.setItem(TOKEN_STORAGE_KEY, token.trim());
+      }
+
       async function sha256(text) {
         const buf = new TextEncoder().encode(text);
         const hash = await crypto.subtle.digest('SHA-256', buf);
@@ -187,15 +357,15 @@
           .join('');
       }
 
-      // 載入 Sveltia CMS（使用者登入成功後）
       function activateCMS(token) {
-        // 將 token 寫入 localStorage 模擬 Sveltia 的 token 機制
-        // 然後動態載入 Sveltia CMS bundle
-        localStorage.setItem('sveltia-cms.user', JSON.stringify({
-          backendName: 'github',
-          token,
-          login: 'kaichen700419-alt',
-        }));
+        localStorage.setItem(
+          'sveltia-cms.user',
+          JSON.stringify({
+            backendName: 'github',
+            token,
+            login: 'kaichen700419-alt',
+          }),
+        );
         document.body.classList.add('cms-active');
         const script = document.createElement('script');
         script.type = 'module';
@@ -203,19 +373,10 @@
         document.body.appendChild(script);
       }
 
-      // 取得後台用 GitHub 寫入 token（業主第一次設定後存於 localStorage）
-      // 由維運人員在初始化時透過 prompt 一次性設定，業主之後永遠不需接觸
-      function getStoredGitHubToken() {
-        return localStorage.getItem('rh-cms-token');
-      }
-
-      function setStoredGitHubToken(token) {
-        localStorage.setItem('rh-cms-token', token);
-      }
-
       const form = document.getElementById('login-form');
       const errorEl = document.getElementById('error-msg');
       const submitBtn = document.getElementById('submit-btn');
+      const loadingEl = document.querySelector('.loading');
 
       function showError(msg) {
         errorEl.textContent = msg;
@@ -236,6 +397,7 @@
         }
         submitBtn.disabled = true;
         submitBtn.textContent = '驗證中…';
+
         try {
           const expected = VALID_USERS[username];
           if (!expected) {
@@ -247,21 +409,22 @@
             showError('帳號或密碼錯誤');
             return;
           }
-          // 驗證通過 — 取得後台寫入 token
-          let token = getStoredGitHubToken();
+
+          let token = loadStoredToken();
           if (!token) {
-            // 第一次登入：請維運人員透過 prompt 貼入一次性 token
-            // 業主完成第一次設定後永久無感
-            token = window.prompt(
-              '初次設定（僅需一次）：請貼入維運人員提供的後台金鑰。\n\n業主：請聯絡開發者代為完成此步驟，之後您再也不會看到這個提示。',
+            const inputToken = window.prompt(
+              '【初次設定 — 僅此一次】\n請貼入維運人員提供的後台金鑰，之後您不會再看到這個提示。',
             );
-            if (!token) {
+            if (!inputToken) {
               showError('未取得後台金鑰，無法進入');
               return;
             }
-            setStoredGitHubToken(token.trim());
+            saveToken(inputToken);
+            token = inputToken.trim();
           }
-          activateCMS(token);
+
+          loadingEl.classList.add('show');
+          setTimeout(() => activateCMS(token), 600);
         } catch (err) {
           console.error(err);
           showError('登入過程發生錯誤，請重試');
@@ -271,11 +434,16 @@
         }
       });
 
-      // 已登入過 → 自動進入 CMS
-      if (sessionStorage.getItem('rh-admin-logged-in') === '1') {
-        const token = getStoredGitHubToken();
-        if (token) activateCMS(token);
+      if (loadStoredToken() && sessionStorage.getItem('rh-admin-active') === '1') {
+        loadingEl.classList.add('show');
+        setTimeout(() => activateCMS(loadStoredToken()), 200);
       }
+
+      window.addEventListener('beforeunload', () => {
+        if (document.body.classList.contains('cms-active')) {
+          sessionStorage.setItem('rh-admin-active', '1');
+        }
+      });
     </script>
   </body>
 </html>
