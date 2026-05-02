@@ -72,7 +72,8 @@ const siteName = locale === 'en' ? SITE.nameEn : SITE.nameZh;
 <meta name="theme-color" content="#0c4a6e" />
 
 <link rel="canonical" href={canonicalUrl} />
-<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+{/* favicon 必須含 base 子路徑（GitHub Pages 部署於 /runners-house-website/ 子路徑下）— MiniMax 健檢 #5 修復 */}
+<link rel="icon" type="image/svg+xml" href={`${baseUrlRaw}/favicon.svg`} />
 {/* apple-touch-icon 暫不輸出：未提供 180x180 PNG；用 SVG 會在 iOS 顯示異常，待業主提供圖檔後補上 */}
 
 {/* hreflang：zh-TW、en、x-default */}
