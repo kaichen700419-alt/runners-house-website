@@ -209,6 +209,84 @@ export function lodgingBusinessSchema(input: LodgingBusinessInput): SchemaObject
  * @returns     可序列化為 JSON-LD 的 SchemaObject
  * @throws      Error 當任一項目 name 或 url 為空 / 全空白；或 url 非絕對 URL
  */
+/**
+ * 房型詳情頁專用 schema 輸入。
+ *
+ * 對應 schema.org HotelRoom（https://schema.org/HotelRoom）— 商業價值最高的單品結構：
+ *   Google 與 AI 系統會根據此 schema 在搜尋結果直接顯示房型卡片
+ *   （含坪數、容納人數、設施、訂房按鈕）。
+ */
+export interface HotelRoomInput {
+  locale: Locale;
+  /** 房型 slug，用於組成 @id 與 url */
+  slug: string;
+  /** 房型完整名稱（依 locale） */
+  name: string;
+  /** 房型描述（依 locale） */
+  description: string;
+  /** 容納人數（最大佔用） */
+  occupancy: number;
+  /** 坪數（公制平方公尺） */
+  floorSizeSqm: number;
+  /** 床型描述（依 locale） */
+  bedType: string;
+  /** 房型景觀描述（依 locale） */
+  view: string;
+  /** 設施清單（依 locale） */
+  amenities: ReadonlyArray<string>;
+  /** 房型主視覺絕對 URL */
+  imageUrl: string;
+}
+
+/**
+ * 產生 HotelRoom JSON-LD（schema.org/HotelRoom）。
+ *
+ * 修法依據：MiniMax v2 健檢報告 P0-2 — 房型頁缺核心結構是商業曝光最大缺口。
+ *
+ * @param input HotelRoomInput；imageUrl 必須為絕對 URL
+ * @returns     可序列化為 JSON-LD 的 SchemaObject
+ * @throws      Error 當 imageUrl 非絕對 URL
+ */
+export function hotelRoomSchema(input: HotelRoomInput): SchemaObject {
+  assertAbsoluteUrl(input.imageUrl, 'hotelRoomSchema.imageUrl');
+  const baseSite = siteBaseUrl();
+  const roomUrl = `${baseSite}${input.locale === 'en' ? '/en' : ''}/rooms/${input.slug}`;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'HotelRoom',
+    '@id': `${roomUrl}#room`,
+    name: input.name,
+    description: input.description,
+    url: roomUrl,
+    inLanguage: inLanguageTag(input.locale),
+    image: input.imageUrl,
+    // schema.org QuantitativeValue + 國際單位代碼 MTK = 平方公尺、C62 = 純數字
+    occupancy: {
+      '@type': 'QuantitativeValue',
+      maxValue: input.occupancy,
+      unitCode: 'C62',
+    },
+    floorSize: {
+      '@type': 'QuantitativeValue',
+      value: input.floorSizeSqm,
+      unitCode: 'MTK',
+    },
+    bed: {
+      '@type': 'BedDetails',
+      typeOfBed: input.bedType,
+    },
+    amenityFeature: input.amenities.map((a) => ({
+      '@type': 'LocationFeatureSpecification',
+      name: a,
+      value: true,
+    })),
+    // containedInPlace 反向連結到 LodgingBusiness — Google 才能把房型歸到正確的商家實體
+    containedInPlace: {
+      '@id': `${baseSite}#lodging`,
+    },
+  };
+}
+
 export function breadcrumbSchema(
   items: ReadonlyArray<BreadcrumbItem>,
 ): SchemaObject {

@@ -12,12 +12,12 @@ import StoryTeaser from '@/components/home/StoryTeaser.astro';
 import LocationMap from '@/components/home/LocationMap.astro';
 import { useTranslations } from '@/i18n/utils';
 import { lodgingBusinessSchema } from '@/lib/schema';
-import { SITE } from '@/lib/site';
+import { SITE, absoluteUrl } from '@/lib/site';
 
 const locale = 'en';
 const t = useTranslations(locale);
-const canonical = new URL('/en', SITE.url).toString();
-const ogImage = new URL(SITE.defaultOgImage, SITE.url).toString();
+const canonical = absoluteUrl('/en');
+const ogImage = absoluteUrl(SITE.defaultOgImage);
 const lodging = lodgingBusinessSchema({
   locale,
   url: canonical,

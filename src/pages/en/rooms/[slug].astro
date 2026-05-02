@@ -7,7 +7,8 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import RoomDetail from '@/components/rooms/RoomDetail.astro';
 import Breadcrumbs from '@/components/ui/Breadcrumbs.astro';
 import { useTranslations } from '@/i18n/utils';
-import { SITE } from '@/lib/site';
+import { SITE, absoluteUrl } from '@/lib/site';
+import { hotelRoomSchema } from '@/lib/schema';
 
 export async function getStaticPaths() {
   const rooms = await getCollection('rooms');
@@ -35,17 +36,32 @@ const breadcrumbItems = [
   { label: name },
 ];
 const schemaBreadcrumbs = [
-  { name: t('ui.breadcrumbHome'), url: new URL('/en', SITE.url).toString() },
-  { name: t('rooms.pageTitle'), url: new URL('/en/rooms', SITE.url).toString() },
-  { name, url: new URL(`/en/rooms/${room.data.slug}`, SITE.url).toString() },
+  { name: t('ui.breadcrumbHome'), url: absoluteUrl('/en') },
+  { name: t('rooms.pageTitle'), url: absoluteUrl('/en/rooms') },
+  { name, url: absoluteUrl(`/en/rooms/${room.data.slug}`) },
 ];
 const title = t('seo.roomDetailTitleTemplate', { room: name });
+
+// HotelRoom Schema (English version — MiniMax v2 audit P0-2 fix)
+const roomSchema = hotelRoomSchema({
+  locale,
+  slug: room.data.slug,
+  name,
+  description: room.data.description_en,
+  occupancy: room.data.capacity,
+  floorSizeSqm: room.data.size,
+  bedType: room.data.beds_en,
+  view: room.data.view_en,
+  amenities: room.data.amenities_en,
+  imageUrl: absoluteUrl(SITE.defaultOgImage),
+});
 ---
 
 <BaseLayout
   title={title}
   description={t('seo.roomDetailDescription')}
   breadcrumbs={schemaBreadcrumbs}
+  schema={roomSchema}
 >
   <div class="container-wide">
     <Breadcrumbs locale={locale} items={breadcrumbItems} />
