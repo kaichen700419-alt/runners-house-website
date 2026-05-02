@@ -70,6 +70,20 @@ export interface FaqItem {
   answer: string;
 }
 
+/**
+ * 取得實際部署 URL（含 base 子路徑）。
+ *
+ * SITE.url 僅含 origin（如 https://kaichen700419-alt.github.io），
+ * 但實際網站部署在子路徑（如 /runners-house-website）。
+ *
+ * 所有 schema 中的 url / @id / breadcrumb URL 都必須含完整子路徑，
+ * 否則 Google / AI 系統會把實體解析至不存在的 URL（MiniMax 健檢報告 #4 修復）。
+ */
+function siteBaseUrl(): string {
+  const base = (import.meta.env.BASE_URL ?? '/').replace(/\/$/, '');
+  return `${SITE.url}${base}`;
+}
+
 /** 依語系選取中文或英文欄位值 */
 function pick<T>(locale: Locale, zh: T, en: T): T {
   return locale === 'en' ? en : zh;
@@ -156,7 +170,7 @@ export function lodgingBusinessSchema(input: LodgingBusinessInput): SchemaObject
   return {
     '@context': 'https://schema.org',
     '@type': 'LodgingBusiness',
-    '@id': `${SITE.url}#lodging`,
+    '@id': `${siteBaseUrl()}#lodging`,
     name,
     alternateName,
     description: input.description,
@@ -237,30 +251,21 @@ export function breadcrumbSchema(
  */
 export function websiteSchema(locale: Locale): SchemaObject {
   const name = pick(locale, SITE.nameZh, SITE.nameEn);
-  // SearchAction 的 target 必須包含 {search_term_string} placeholder
-  // 即便目前站內未實作 /search 路由，先佈局可避免日後上線後仍須等待重新索引
-  const searchTarget = `${SITE.url}/search?q={search_term_string}`;
+  const base = siteBaseUrl();
+  // 依 MiniMax 健檢報告 #6：移除 SearchAction（站內無 /search 端點，假宣告會被 Google 視為低品質 schema）
+  // 待日後實作站內搜尋後再補回 potentialAction
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    '@id': `${SITE.url}#website`,
-    url: SITE.url,
+    '@id': `${base}#website`,
+    url: base,
     name,
     inLanguage: inLanguageTag(locale),
     publisher: {
       '@type': 'Organization',
       name,
-      url: SITE.url,
-      logo: new URL(SITE.logo, SITE.url).toString(),
-    },
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: {
-        '@type': 'EntryPoint',
-        urlTemplate: searchTarget,
-      },
-      // schema.org 規範：query-input 必填，描述 SearchAction 對應的輸入變數名稱
-      'query-input': 'required name=search_term_string',
+      url: base,
+      logo: new URL(SITE.logo, base).toString(),
     },
   };
 }

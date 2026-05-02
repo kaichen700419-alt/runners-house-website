@@ -310,16 +310,11 @@ describe('websiteSchema', () => {
     expect(publisher.name).toBe(SITE.nameEn);
   });
 
-  it('含 SearchAction potentialAction 並符合 schema.org 規範', () => {
+  it('不含 SearchAction（站內無搜尋功能 — MiniMax 健檢 #6 修復）', () => {
     const result = websiteSchema('zh-TW');
-    const action = result.potentialAction as Record<string, unknown>;
-    expect(action['@type']).toBe('SearchAction');
-    const target = action.target as Record<string, unknown>;
-    expect(target['@type']).toBe('EntryPoint');
-    // urlTemplate 必須含 {search_term_string} placeholder（Google Sitelinks Searchbox 規範）
-    expect(target.urlTemplate).toContain('{search_term_string}');
-    // query-input 必須採 schema.org 規定的 'required name=search_term_string' 字面值
-    expect(action['query-input']).toBe('required name=search_term_string');
+    // 站內未實作 /search 端點，schema 不應宣告 SearchAction
+    // Google 視為低品質假宣告，反而扣分
+    expect(result.potentialAction).toBeUndefined();
   });
 
   it('zh-TW / en 兩版 WebSite 欄位 key 集合完全對等', () => {
