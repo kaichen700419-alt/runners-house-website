@@ -11,8 +11,9 @@ import { SITE } from '@/lib/site';
 const locale = 'en';
 const t = useTranslations(locale);
 
+// 麵包屑使用精簡標籤，避免與 H1 重複文字。
 const breadcrumbItems = [
-  { label: t('rooms.pageTitle') },
+  { label: t('rooms.breadcrumbLabel') },
 ];
 const schemaBreadcrumbs = [
   { name: t('ui.breadcrumbHome'), url: new URL('/en', SITE.url).toString() },

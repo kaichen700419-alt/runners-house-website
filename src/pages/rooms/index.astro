@@ -11,8 +11,9 @@ import { SITE } from '@/lib/site';
 const locale = 'zh-TW';
 const t = useTranslations(locale);
 
+// 麵包屑顯示精簡標籤「房型」而非「房型介紹」，避免與 H1 重複造成三層相同字面。
 const breadcrumbItems = [
-  { label: t('rooms.pageTitle') },
+  { label: t('rooms.breadcrumbLabel') },
 ];
 const schemaBreadcrumbs = [
   { name: t('ui.breadcrumbHome'), url: new URL('/', SITE.url).toString() },

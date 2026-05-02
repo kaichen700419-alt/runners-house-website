@@ -90,6 +90,14 @@ const quickLinks = resolveNavHrefs(NAV_ITEMS, locale);
         </li>
       </ul>
       <div class="map-frame">
+        {/*
+          Map iframe 高度策略：
+            - 桌面 (≥768px) 設為 300，避免在三欄 footer 中看起來像缺塊
+            - 行動 (<768px) 設為 220，比舊版 200 略增但不會壓縮整個 footer
+          同時加上 rounded border + 細白框，讓 iframe 看起來像一張卡片
+          而非單調的內嵌地圖。實際高度由 CSS 控制（min-height + height: auto），
+          width / height 屬性僅作為瀏覽器初始預留空間（CLS 避免）的提示。
+        */}
         <iframe
           title={t('footer.mapAria')}
           aria-label={t('footer.mapAria')}
@@ -98,7 +106,7 @@ const quickLinks = resolveNavHrefs(NAV_ITEMS, locale);
           referrerpolicy="no-referrer-when-downgrade"
           sandbox="allow-scripts allow-same-origin allow-popups"
           width="100%"
-          height="200"
+          height="300"
         ></iframe>
       </div>
     </section>
@@ -180,17 +188,28 @@ const quickLinks = resolveNavHrefs(NAV_ITEMS, locale);
     color: var(--color-timber-200);
     margin: 0;
   }
+  /* Map 卡片樣式：rounded + 細邊框 + 內陰影提升立體感
+     行動 220 / 桌面 300，避免桌面看起來像缺塊；用 height (CSS) 覆寫 iframe 屬性。 */
   .map-frame {
     margin-top: 1rem;
-    border-radius: 0.5rem;
+    border-radius: 0.85rem;
     overflow: hidden;
-    border: 1px solid var(--color-timber-700);
+    border: 1px solid var(--color-timber-600);
+    box-shadow:
+      0 10px 24px -16px rgb(0 0 0 / 0.55),
+      inset 0 0 0 1px rgb(255 255 255 / 0.04);
   }
   .map-frame iframe {
     display: block;
     border: 0;
     width: 100%;
-    filter: grayscale(0.2) brightness(0.95);
+    height: 220px;
+    filter: grayscale(0.15) brightness(0.95);
+  }
+  @media (min-width: 768px) {
+    .map-frame iframe {
+      height: 300px;
+    }
   }
   .footer-base {
     border-top: 1px solid var(--color-timber-800);

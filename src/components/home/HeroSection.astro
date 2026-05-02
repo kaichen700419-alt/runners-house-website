@@ -4,6 +4,13 @@
  *
  * 首頁主視覺區塊，zh-TW 與 en 共用。
  * 文案由 i18n 字典提供，連結透過 getLocalizedPath 自動加上語系前綴。
+ *
+ * 視覺強化（v2，無真實照片狀態下提升氛圍）：
+ *   - 多層漸層：ocean-700 → ocean-500 → sand-300 模擬日出海面光線變化
+ *   - 背景 SVG 海浪線條 pattern 作為紋理
+ *   - 標題 subtle text-shadow + 字距 letter-spacing 開場動畫
+ *   - 三聯 CTA 按鈕 hover translateY + scale，subtle elevation
+ *   - 尊重 prefers-reduced-motion，關閉所有動畫
  */
 import { getLocalizedPath, useTranslations } from '@/i18n/utils';
 import type { Locale } from '@/i18n/types';
@@ -16,10 +23,34 @@ const { locale } = Astro.props;
 const t = useTranslations(locale);
 ---
 
-<section class="hero">
+<section class="hero" aria-labelledby="hero-title">
+  {/* 多層漸層 + 海浪紋理：純 SVG 內嵌，無外部請求，dark/print/no-image 都安全 */}
+  <div class="hero-bg" aria-hidden="true">
+    <svg class="waves" viewBox="0 0 1440 320" preserveAspectRatio="none" focusable="false">
+      <defs>
+        <linearGradient id="hero-wave-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgba(255,255,255,0.18)" />
+          <stop offset="100%" stop-color="rgba(255,255,255,0)" />
+        </linearGradient>
+      </defs>
+      <path
+        d="M0,160 C240,200 480,80 720,140 C960,200 1200,260 1440,180 L1440,320 L0,320 Z"
+        fill="url(#hero-wave-grad)"
+      />
+      <path
+        d="M0,220 C240,260 480,180 720,210 C960,240 1200,290 1440,240 L1440,320 L0,320 Z"
+        fill="rgba(255,255,255,0.10)"
+      />
+      <path
+        d="M0,260 C240,290 480,240 720,260 C960,280 1200,300 1440,280 L1440,320 L0,320 Z"
+        fill="rgba(255,255,255,0.07)"
+      />
+    </svg>
+  </div>
+
   <div class="container-wide hero-inner">
     <p class="eyebrow">{t('home.heroEyebrow')}</p>
-    <h1 class="hero-title">{t('home.heroTitle')}</h1>
+    <h1 id="hero-title" class="hero-title">{t('home.heroTitle')}</h1>
     <p class="hero-sub">{t('home.heroSubtitle')}</p>
     <div class="cta-row">
       <a class="cta-primary" href={getLocalizedPath('/rooms', locale)}>
@@ -35,32 +66,80 @@ const t = useTranslations(locale);
 
 <style>
   .hero {
-    background: linear-gradient(160deg, var(--color-ocean-50) 0%, var(--color-timber-50) 60%);
-    padding-block: 5rem 6rem;
+    position: relative;
+    /* 多層漸層：上方深海藍 → 中段海面藍 → 下方暖沙黃，模擬日出海面光線
+       使用三個 color stop 而非 2 個，視覺上有「天 / 海 / 沙」的層次。 */
+    background:
+      radial-gradient(ellipse at 80% 0%, rgb(255 255 255 / 0.20) 0%, transparent 55%),
+      linear-gradient(
+        180deg,
+        var(--color-ocean-700) 0%,
+        var(--color-ocean-500) 55%,
+        var(--color-sand-300) 100%
+      );
+    color: white;
+    padding-block: 6rem 7rem;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  /* SVG 海浪覆蓋於漸層之上，提供細緻紋理但不搶走文字 */
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .hero-bg .waves {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 55%;
+    display: block;
   }
   .hero-inner {
+    position: relative;
+    z-index: 1;
     max-width: 56rem;
     text-align: center;
   }
   .eyebrow {
     font-family: var(--font-mono);
-    font-size: 0.8rem;
+    font-size: 0.82rem;
     text-transform: uppercase;
-    letter-spacing: 0.18em;
-    color: var(--color-ocean-700);
+    letter-spacing: 0.22em;
+    color: rgb(255 255 255 / 0.85);
     margin: 0 0 1.25rem;
   }
   .hero-title {
-    font-size: clamp(2.5rem, 6vw, 4.5rem);
-    color: var(--color-ink-950);
+    font-size: clamp(2.5rem, 6vw, 4.75rem);
+    color: white;
     margin: 0 0 1.5rem;
+    /* subtle text-shadow + 字距開場動畫：letter-spacing 由 0.06em 收斂到 0
+       營造「字逐漸聚焦」的呼吸感，無真實照片時補上動感 */
+    text-shadow: 0 2px 14px rgb(15 23 42 / 0.35);
+    letter-spacing: 0;
+    animation: hero-title-tighten 1400ms var(--ease-snappy) both;
+  }
+  @keyframes hero-title-tighten {
+    0% {
+      letter-spacing: 0.08em;
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    100% {
+      letter-spacing: 0;
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
   .hero-sub {
-    font-size: 1.05rem;
-    line-height: 1.75;
-    color: var(--color-ink-700);
+    font-size: 1.08rem;
+    line-height: 1.8;
+    color: rgb(255 255 255 / 0.92);
     margin: 0 auto 2.5rem;
     max-width: 42rem;
+    text-shadow: 0 1px 8px rgb(15 23 42 / 0.25);
   }
   .cta-row {
     display: inline-flex;
@@ -71,33 +150,64 @@ const t = useTranslations(locale);
   .cta-primary, .cta-secondary {
     display: inline-flex;
     align-items: center;
-    padding: 0.85rem 1.5rem;
+    padding: 0.95rem 1.7rem;
     border-radius: 999px;
     font-weight: 600;
     text-decoration: none;
-    transition: transform 200ms var(--ease-snappy), background-color 200ms var(--ease-snappy);
+    transition:
+      transform 220ms var(--ease-snappy),
+      background-color 220ms var(--ease-snappy),
+      box-shadow 220ms var(--ease-snappy),
+      border-color 220ms var(--ease-snappy);
   }
   .cta-primary {
-    background-color: var(--color-ocean-700);
-    color: white;
+    background-color: white;
+    color: var(--color-ocean-800);
+    box-shadow: 0 8px 22px -10px rgb(0 0 0 / 0.45);
   }
   .cta-primary:hover {
-    background-color: var(--color-ocean-800);
-    transform: translateY(-1px);
+    transform: translateY(-3px) scale(1.02);
+    background-color: var(--color-sand-100);
+    box-shadow: 0 16px 32px -14px rgb(0 0 0 / 0.55);
+  }
+  .cta-primary:focus-visible {
+    outline: 2px solid white;
+    outline-offset: 3px;
   }
   .cta-secondary {
-    background-color: transparent;
-    color: var(--color-ink-900);
-    border: 1px solid var(--color-ink-300);
+    background-color: rgb(255 255 255 / 0.10);
+    color: white;
+    border: 1px solid rgb(255 255 255 / 0.55);
+    backdrop-filter: blur(4px);
   }
   .cta-secondary:hover {
-    background-color: var(--color-timber-100);
+    transform: translateY(-3px) scale(1.02);
+    background-color: rgb(255 255 255 / 0.20);
+    border-color: white;
+  }
+  .cta-secondary:focus-visible {
+    outline: 2px solid white;
+    outline-offset: 3px;
   }
   .phase-note {
     margin-top: 3rem;
     font-family: var(--font-display);
     font-size: 0.95rem;
-    color: var(--color-ink-500);
+    color: rgb(255 255 255 / 0.85);
     font-style: italic;
+    text-shadow: 0 1px 6px rgb(15 23 42 / 0.25);
+  }
+
+  /* a11y：尊重使用者的「減少動畫」偏好設定 */
+  @media (prefers-reduced-motion: reduce) {
+    .hero-title {
+      animation: none;
+    }
+    .cta-primary, .cta-secondary {
+      transition: background-color 200ms ease, border-color 200ms ease;
+    }
+    .cta-primary:hover, .cta-secondary:hover {
+      transform: none;
+    }
   }
 </style>
