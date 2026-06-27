@@ -41,7 +41,9 @@ const {
   pathname,
   locale,
   image,
-  robots = 'index, follow, max-image-preview:large',
+  // 校稿期間預設 noindex, nofollow（搜尋引擎完全不收）
+  // 正式上線時改回 'index, follow, max-image-preview:large'
+  robots = 'noindex, nofollow',
   ogType = 'website',
 } = Astro.props;
 
