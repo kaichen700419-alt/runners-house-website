@@ -88,6 +88,32 @@ const allSchemas: readonly SchemaObject[] = [
     <JsonLd schema={allSchemas} />
   </head>
   <body class="min-h-dvh">
+    {/* ========================================================
+       * 校稿密碼守門（STAGING GATE）
+       *
+       * 校稿期間使用，正式上線時可移除整個 #staging-gate + 對應 inline script。
+       * 機制：
+       *   - localStorage 有 rh-staging-ok=1 → 直接顯示網站
+       *   - 沒有 → 顯示全螢幕密碼牆，輸入正確密碼後設旗標 + 重新渲染
+       *   - 密碼：runnershouse-preview
+       *   - body 預設加 .staging-locked class（CSS 把主內容隱藏），通過後移除
+       * ========================================================
+     */}
+    <div id="staging-gate" role="dialog" aria-label="校稿密碼">
+      <div class="sg-card">
+        <p class="sg-eyebrow">STAGING · PREVIEW</p>
+        <h1 class="sg-title">校稿密碼</h1>
+        <p class="sg-hint">本網站目前處於最終校稿階段，僅限授權人員預覽。請輸入校稿密碼後進入。</p>
+        <form id="staging-form" autocomplete="off">
+          <label for="staging-pass" class="sg-label">校稿密碼</label>
+          <input type="password" id="staging-pass" name="staging-pass" required autocomplete="off" />
+          <button type="submit" class="sg-submit">進入預覽</button>
+          <p class="sg-error" id="staging-error" role="alert" aria-live="polite">密碼錯誤，請重新輸入</p>
+        </form>
+        <p class="sg-footer">RUNNERS HOUSE · TAITUNG CHANGBIN</p>
+      </div>
+    </div>
+
     <Header pathname={pathname} locale={locale} />
     <main id="main-content" tabindex="-1">
       <slot />
@@ -100,6 +126,53 @@ const allSchemas: readonly SchemaObject[] = [
     <div class="cursor-ring" aria-hidden="true"></div>
 
     <script is:inline>
+      // === STAGING GATE：校稿密碼守門 ===
+      // 預設鎖定，通過密碼後設 localStorage 旗標
+      (function () {
+        const PASSWORD = 'runnershouse-preview';
+        const STORAGE_KEY = 'rh-staging-ok';
+        const isUnlocked = localStorage.getItem(STORAGE_KEY) === '1';
+
+        function unlock() {
+          document.body.classList.remove('staging-locked');
+          const gate = document.getElementById('staging-gate');
+          if (gate) gate.style.display = 'none';
+        }
+        function lock() {
+          document.body.classList.add('staging-locked');
+        }
+
+        if (isUnlocked) {
+          unlock();
+        } else {
+          lock();
+          const ready = () => {
+            const form = document.getElementById('staging-form');
+            const input = document.getElementById('staging-pass');
+            const errEl = document.getElementById('staging-error');
+            if (!form || !input || !errEl) return;
+            form.addEventListener('submit', (e) => {
+              e.preventDefault();
+              if (input.value === PASSWORD) {
+                localStorage.setItem(STORAGE_KEY, '1');
+                errEl.classList.remove('show');
+                unlock();
+              } else {
+                errEl.classList.add('show');
+                input.value = '';
+                input.focus();
+              }
+            });
+            input.focus();
+          };
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', ready);
+          } else {
+            ready();
+          }
+        }
+      })();
+
       // === 0. 標記 has-js — 才啟用 reveal 初始隱藏（noscript / JS 失敗時內容仍可見） ===
       document.documentElement.classList.add('has-js');
 
@@ -218,6 +291,117 @@ const allSchemas: readonly SchemaObject[] = [
       }
       @media (max-width: 1023px), (hover: none), (pointer: coarse) {
         .cursor-dot, .cursor-ring { display: none !important; }
+      }
+
+      /* ===== Staging Gate（校稿密碼牆） ===== */
+      body.staging-locked > *:not(#staging-gate) {
+        visibility: hidden !important;
+      }
+      body.staging-locked {
+        overflow: hidden;
+      }
+      #staging-gate {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background:
+          radial-gradient(ellipse at 30% 20%, rgba(184, 142, 92, 0.4) 0%, transparent 60%),
+          radial-gradient(ellipse at 70% 80%, rgba(60, 50, 40, 0.5) 0%, transparent 70%),
+          linear-gradient(160deg, #2d2520 0%, #1a1411 50%, #251c16 100%);
+        color: #f5efe5;
+        padding: 1.5rem;
+        font-family: 'Noto Sans TC', system-ui, sans-serif;
+      }
+      body.staging-locked #staging-gate { display: flex; }
+
+      .sg-card {
+        width: 100%;
+        max-width: 420px;
+        text-align: center;
+      }
+      .sg-eyebrow {
+        margin: 0 0 1.25rem;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        letter-spacing: 0.4em;
+        color: #b89e75;
+        text-transform: uppercase;
+      }
+      .sg-title {
+        margin: 0 0 1rem;
+        font-family: 'Noto Serif TC', Georgia, serif;
+        font-size: 2rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        color: #f5efe5;
+      }
+      .sg-hint {
+        margin: 0 auto 2rem;
+        max-width: 22rem;
+        font-size: 0.9rem;
+        line-height: 1.8;
+        color: rgba(245, 239, 229, 0.78);
+        font-weight: 300;
+      }
+      .sg-label {
+        display: block;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        letter-spacing: 0.2em;
+        color: rgba(245, 239, 229, 0.65);
+        margin-bottom: 0.6rem;
+        text-transform: uppercase;
+        text-align: left;
+      }
+      #staging-pass {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        background: transparent;
+        border: 1px solid rgba(184, 142, 92, 0.6);
+        color: #f5efe5;
+        font-size: 1rem;
+        font-family: inherit;
+        margin-bottom: 1.25rem;
+        letter-spacing: 0.05em;
+      }
+      #staging-pass:focus {
+        outline: none;
+        border-color: #b89e75;
+      }
+      .sg-submit {
+        width: 100%;
+        padding: 0.95rem;
+        background: transparent;
+        color: #f5efe5;
+        border: 1.5px solid #f5efe5;
+        font-family: inherit;
+        font-size: 0.875rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.25s ease;
+      }
+      .sg-submit:hover {
+        background: #f5efe5;
+        color: #1a1411;
+      }
+      .sg-error {
+        margin: 1rem 0 0;
+        font-size: 0.8125rem;
+        color: #d4948e;
+        display: none;
+      }
+      .sg-error.show { display: block; }
+      .sg-footer {
+        margin: 2.5rem 0 0;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.6rem;
+        letter-spacing: 0.3em;
+        color: rgba(245, 239, 229, 0.4);
       }
     </style>
   </body>
