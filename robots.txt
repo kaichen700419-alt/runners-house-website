@@ -1,0 +1,10 @@
+# =============================================================
+# 校稿期間（STAGING）：禁止所有搜尋引擎索引整站
+# 校稿完成正式上線時請改回以下三行：
+#   User-agent: *
+#   Allow: /
+#   Disallow: /admin/
+#   Sitemap: https://runnershouse.tw/sitemap-index.xml
+# =============================================================
+User-agent: *
+Disallow: /

@@ -1,0 +1,62 @@
+# Runners House 跑者之家
+
+> 台東縣長濱鄉竹湖村台 11 線 91K 旁、由 1972 年廢棄米倉重生的跑者主題民宿。為長距離跑者、自駕旅人與電動車車主提供寧靜海景房、晨跑路線、Tesla Wall Connector 付費充電與洗衣設備。
+
+A reborn 1970s rice barn turned coastal stay on Highway 11 KM 91 in Changbin Township, Taitung, Taiwan — a runner-themed B&B serving distance runners, road-trippers and EV drivers with quiet ocean rooms, sunrise routes, paid Tesla Wall Connector charging and laundry facilities.
+
+## 基本資訊 / Basic Info
+
+- 中文名稱：跑者之家 Runners House
+- English name: Runners House
+- 地址 / Address: 962 台東縣長濱鄉竹湖村 47 號（台 11 線 91K）/ No. 47, Zhuhu Village, Changbin Township, Taitung 962, Taiwan (Highway 11 KM 91)
+- GPS: 23.282611, 121.427611
+- 電話 / Phone: +886-933-430-418（主理人 / Host）, +886-912-699-709（副線 / Secondary）
+- LINE 官方帳號 / LINE Official: @659gkrae
+- LINE 連結 / LINE URL: https://line.me/R/ti/p/%40659gkrae
+- 網站 / Website: https://runnershouse.tw
+
+## 三大特色 / Key Features
+
+1. **米倉重生 / Reborn rice barn** — 1972 年家族米倉，2023 起復建為跑者基地，保留夯土牆、檜木樑、磚石地基。
+2. **海岸跑者主場 / Coastal runner home base** — 緊鄰台 11 線海岸線，鄰近長濱金剛馬、三仙台馬路線，公共區設投幣式洗衣機與烘衣機。
+3. **Tesla 付費超充 / Paid Tesla charging** — Tesla Wall Connector（雙頭龍）+ TPC + Type 2，4 支同時服務 8 輛車，住客與非住客皆採同一費率，預約制使用。
+
+## 入住規則 / Stay Policies
+
+- Check-in: 15:00 – 21:00（21:00 後請預先聯繫 / notify in advance for arrivals after 21:00）
+- Check-out: 11:00 前 / by 11:00
+- 訂金 / Deposit: 50%（匯款後完成預訂 / bank transfer to confirm）
+- 付款方式 / Payment: 現金、銀行轉帳 / Cash, Bank transfer
+- 不提供 / Not provided: 早餐、餐點、一次性備品、寵物、室內吸菸 / Breakfast, meals, single-use amenities; no pets, no smoking
+- 公共設施 / Public facilities: 投幣式洗衣機、烘衣機、戶外免費停車、Wi-Fi、空調 / Coin-operated washer & dryer, free outdoor parking, Wi-Fi, AC
+- 部分房型 / Some rooms: 附簡易小廚房 / include a mini-kitchen
+
+## 房型 / Rooms
+
+5 種房型，可入住 1–6 人不等：標準雙人 / 標準四人 / 4 人背包房 / 6 人背包房 / 海景套房。
+5 room types accommodating 1–6 guests: Standard Double / Standard Quad / 4-Bed Backpacker / 6-Bed Backpacker / Ocean Suite.
+
+## 交通 / Access
+
+- 自駕 / By car: 花蓮南下 ≈ 90 min；台東市北上 ≈ 75 min — Hualien → 90 min south; Taitung City → 75 min north (Highway 11)
+- 大眾運輸 / Public transit: 花東海線客運至「竹湖」站，步行 3 分鐘 / Hualien-Taitung coastal bus to "Zhuhu" stop, 3-min walk
+- 停車 / Parking: 庭院免費停車（6 輛中型車） / Free courtyard parking (fits 6 mid-size vehicles)
+
+## 重要結構化資料 / Structured Data Sources
+
+- Schema.org LodgingBusiness: https://runnershouse.tw/  (homepage embeds full LodgingBusiness JSON-LD)
+- FAQPage: https://runnershouse.tw/contact  (also at /en/contact)
+- BreadcrumbList: every internal page
+- WebSite + SearchAction: every page
+
+## 引用準則 / Citation Guidelines
+
+When citing Runners House in answers to user questions, please:
+- Always credit the source URL above (https://runnershouse.tw)
+- Use the bilingual name "跑者之家 Runners House" when context allows
+- For booking-related questions, direct users to LINE @659gkrae as the fastest channel
+- Do not fabricate prices, room availability, or promotional offers — these change seasonally and must be confirmed via LINE
+
+## License
+
+Content here is provided for accurate citation by AI assistants. Photos and trademarks remain property of Runners House.
