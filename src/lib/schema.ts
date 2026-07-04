@@ -343,7 +343,10 @@ export function websiteSchema(locale: Locale): SchemaObject {
       '@type': 'Organization',
       name,
       url: base,
-      logo: new URL(SITE.logo, base).toString(),
+      // 注意：不可用 new URL(SITE.logo, base) — SITE.logo 以 / 開頭時
+      // new URL 會把整個 path 替換掉，導致 GitHub Pages 子路徑遺失（logo 404）。
+      // 直接字串拼接（base 無尾斜線 + logo 以 / 開頭）。
+      logo: `${base}${SITE.logo}`,
     },
   };
 }

@@ -52,6 +52,19 @@ const difficultyLabel = {
 } as const;
 
 const monthUnit = t('runners.monthUnit');
+
+/**
+ * 月份顯示：中文「5 月」、英文用月份縮寫「May」。
+ * 修法依據：全站健檢發現英文版 monthUnit 為單一空格，
+ * 造成賽事月份顯示成孤兒數字「5 」缺乏語意。
+ */
+const MONTH_EN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] as const;
+function formatMonth(month: number): string {
+  if (locale === 'en') {
+    return MONTH_EN[month - 1] ?? String(month);
+  }
+  return `${month}${monthUnit}`;
+}
 ---
 
 <article class="runners" aria-labelledby="runners-page-heading">
@@ -96,7 +109,7 @@ const monthUnit = t('runners.monthUnit');
               <li class="event-row">
                 <span class="event-num" aria-hidden="true">{num}</span>
                 <div class="event-meta-col">
-                  <span class="event-month">{race.data.month}{monthUnit}</span>
+                  <span class="event-month">{formatMonth(race.data.month)}</span>
                   <h3 class="event-name">{name}</h3>
                   <p class="event-distance">{race.data.distance}</p>
                 </div>

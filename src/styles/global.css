@@ -15,7 +15,11 @@
  * 為避免阻斷渲染，全部使用 display=swap；@import 必須先於 tailwindcss 與 @layer，
  * 否則 Lightning CSS 會發出 "@import rules must precede all rules" 警告。
  * ============================================================ */
-@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400;1,9..144,500&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400;1,6..96,500&family=Inter+Tight:wght@300;400;500;600&family=Noto+Serif+TC:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&family=Liu+Jian+Mao+Cao&family=Long+Cang&family=ZCOOL+XiaoWei&display=swap");
+/* 效能修正（全站健檢）：
+ *   1. 移除 3 個從未被任何元件引用的 CJK 書法字型（Liu Jian Mao Cao / Long Cang / ZCOOL XiaoWei）
+ *      — 每個都是數百 KB 起跳的中文字型分片，純浪費行動流量
+ *   2. Noto Serif TC 移除全站未使用的 700 weight（300 用於 page-lead 等 15 處必須保留） */
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400;1,9..144,500&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400;1,6..96,500&family=Inter+Tight:wght@300;400;500;600&family=Noto+Serif+TC:wght@300;400;500;600&family=Noto+Sans+TC:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap");
 @import "tailwindcss";
 
 /* ============================================================
