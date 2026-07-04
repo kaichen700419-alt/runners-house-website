@@ -39,6 +39,10 @@ async function main() {
       // 否則 fullPage 截圖時 viewport 還沒滾到對應位置，元件仍處 opacity 0 狀態
       reducedMotion: 'reduce',
     });
+    // 校稿密碼牆（staging gate）繞過：截圖工具直接寫入解鎖旗標
+    await ctx.addInitScript(() => {
+      try { localStorage.setItem('rh-staging-ok', '1'); } catch { /* 忽略 */ }
+    });
     for (const url of PAGES) {
       const page = await ctx.newPage();
       const safeName = url === '/' ? 'home' : url.replace(/^\//, '').replace(/\//g, '_');

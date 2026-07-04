@@ -25,13 +25,8 @@ const mapsLink = `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
 ---
 
 <section class="location" id="location" aria-labelledby="location-heading">
-  <div class="container-wide chapter-row reveal">
-    <div class="chapter-mark">
-      <span class="num">X</span>
-      <span class="label">CHAPTER · {locale === 'en' ? 'HOW TO ARRIVE' : '如何抵達'}</span>
-    </div>
-  </div>
-
+  {/* 原「X CHAPTER」羅馬數字裝飾已移除：行動版斷行後只剩孤兒「X」字元（2026-07 健檢發現），
+      且業主先前已明確反饋不喜歡章節編號裝飾 */}
   <div class="container-wide header reveal" data-delay="1">
     <h2 id="location-heading" class="title">{t('home.locationHeading')}</h2>
     <p class="lead">{t('home.locationLead')}</p>
@@ -128,7 +123,6 @@ const mapsLink = `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
   @media (min-width: 1024px) {
     .location { padding-block: 6rem 7rem; }
   }
-  .chapter-row { margin-bottom: 2rem; }
   .header {
     margin-bottom: 3rem;
     max-width: 56rem;

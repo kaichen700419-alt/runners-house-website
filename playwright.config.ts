@@ -45,6 +45,18 @@ export default defineConfig({
     // 預設語系；個別 spec 切換 zh-Hant-TW / en
     locale: 'zh-Hant-TW',
     timezoneId: 'Asia/Taipei',
+    // 校稿密碼牆（staging gate）繞過：預先寫入解鎖旗標，
+    // 否則所有 E2E 測試會卡在密碼牆看不到內容（全站健檢發現）。
+    // 正式上線移除 staging gate 後，此 storageState 無害可留。
+    storageState: {
+      cookies: [],
+      origins: [
+        {
+          origin: BASE_URL,
+          localStorage: [{ name: 'rh-staging-ok', value: '1' }],
+        },
+      ],
+    },
   },
 
   projects: [

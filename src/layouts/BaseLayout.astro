@@ -11,7 +11,8 @@
  *  - v4 新增：
  *      1. 注入 IntersectionObserver — 為 .reveal class 加上 .is-in（滾動進場）
  *      2. 注入桌面 custom cursor（依研究報告 C4 規格 / TRUNK Hotel 致敬）
- *      3. 預載 Bodoni Moda + Fraunces 提升首屏 LCP
+ *  - 字型策略：僅 preconnect 預熱連線（Google Fonts 字型檔 URL 帶 hash，無法穩定 preload）；
+ *    字型 CSS 由 global.css @import 載入，display=swap 避免文字隱藏
  */
 import '@/styles/global.css';
 import SEOHead from '@/components/seo/SEOHead.astro';
